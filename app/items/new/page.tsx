@@ -1,204 +1,379 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../../../lib/firebase";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { usePrefs } from "../../../lib/prefs";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+import { auth, db } from "../../../lib/firebase";
 
 type Role = "admin" | "mitarbeiter";
 
 export default function NewItemPage() {
   const router = useRouter();
-  const { t } = usePrefs();
 
-  const [uid, setUid] = useState<string>("");
+  const [ready, setReady] = useState(false);
   const [role, setRole] = useState<Role>("mitarbeiter");
-  const isAdmin = useMemo(() => role === "admin", [role]);
+  const [uid, setUid] = useState("");
 
+  // form fields
   const [id, setId] = useState("");
   const [name, setName] = useState("");
-  const [typ, setTyp] = useState<"gerät" | "material">("gerät");
-  const [category, setCategory] = useState("");
-  const [lager, setLager] = useState("LA");
-  const [condition, setCondition] = useState<"neu" | "gebraucht" | "reparatur" | "defekt">("neu");
-  const [available, setAvailable] = useState(true);
 
-  const [saving, setSaving] = useState(false);
+  const [type, setType] = useState<"Gerät" | "Material">("Gerät");
+
+  // Kategorie: pick or custom
+  const [categories, setCategories] = useState<string[]>([]);
+  const [categoryMode, setCategoryMode] = useState<"pick" | "custom">("pick");
+  const [categoryPick, setCategoryPick] = useState<string>("");
+  const [category, setCategory] = useState("");
+
+  // Zustand: pick or custom
+  const [zustandMode, setZustandMode] = useState<"pick" | "custom">("pick");
+  const [zustandPick, setZustandPick] = useState<string>("neu");
+  const [zustand, setZustand] = useState("");
+
+  const [lager, setLager] = useState<"LA" | "LB" | "">("");
+  const [status, setStatus] = useState<"verfügbar" | "nicht verfügbar">(
+    "verfügbar"
+  );
+  const [stock, setStock] = useState<number>(1);
+
+  const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (!u) {
         router.replace("/login");
         return;
       }
+      setUid(u.uid);
 
-      setUid(user.uid);
+      const usnap = await getDoc(doc(db, "users", u.uid));
+      const r = (usnap.exists()
+        ? (usnap.data() as any).role
+        : "mitarbeiter") as any;
 
-      const uSnap = await getDoc(doc(db, "users", user.uid));
-      setRole((uSnap.data()?.role as Role) ?? "mitarbeiter");
+      const rr: Role = r === "admin" ? "admin" : "mitarbeiter";
+      setRole(rr);
+      setReady(true);
+
+      if (rr !== "admin") router.replace("/items");
     });
 
     return () => unsub();
   }, [router]);
 
-  async function onCreate(e: React.FormEvent) {
-    e.preventDefault();
+  // load existing categories from items
+  useEffect(() => {
+    if (!ready) return;
+
+    (async () => {
+      const snap = await getDocs(collection(db, "items"));
+      const set = new Set<string>();
+      snap.docs.forEach((d) => {
+        const v = String((d.data() as any).category ?? "").trim();
+        if (v) set.add(v);
+      });
+      const list = Array.from(set).sort((a, b) => a.localeCompare(b));
+      setCategories(list);
+
+      if (list.length) {
+        setCategoryPick(list[0]);
+        setCategory(list[0]);
+      }
+    })();
+  }, [ready]);
+
+  const finalCategory = useMemo(() => {
+    return categoryMode === "pick" ? categoryPick : category.trim();
+  }, [categoryMode, categoryPick, category]);
+
+  const finalZustand = useMemo(() => {
+    return zustandMode === "pick" ? zustandPick : zustand.trim();
+  }, [zustandMode, zustandPick, zustand]);
+
+  async function onSave() {
     setMsg(null);
 
-    if (!isAdmin) {
-      setMsg(t("onlyAdmin"));
-      return;
+    const docId = id.trim();
+    if (!docId) return setMsg("Bitte eine ID eingeben (z.B. G-LA001).");
+    if (!name.trim()) return setMsg("Bitte einen Namen eingeben.");
+    if (categoryMode === "custom" && !finalCategory) {
+      return setMsg("Bitte eine Kategorie auswählen oder eingeben.");
+    }
+    if (zustandMode === "custom" && !finalZustand) {
+      return setMsg("Bitte einen Zustand auswählen oder eingeben.");
     }
 
-    const cleanId = id.trim();
-    if (!cleanId) return;
+    const cleanStock = Math.max(0, Math.floor(Number(stock || 0)));
 
-    setSaving(true);
+    setBusy(true);
     try {
-      await setDoc(doc(db, "items", cleanId), {
-        name: name.trim(),
-        typ,
-        category: category.trim(),
-        lager: lager.trim(),
-        condition,
-        available,
-        archived: false,
-        createdAt: serverTimestamp(),
-        createdBy: uid,
-      });
+      await setDoc(
+        doc(db, "items", docId),
+        {
+          name: name.trim(),
+          type,
+          category: finalCategory || "",
+          lager: lager || "",
+          zustand: finalZustand || "",
+          status,
+          stock: cleanStock,
+          reservedQty: 0,
+          createdAt: serverTimestamp(),
+          createdBy: uid,
+        },
+        { merge: true }
+      );
 
       router.replace("/items");
-    } catch (err: any) {
-      setMsg(err?.message ?? "Fehler beim Speichern.");
+    } catch {
+      setMsg("Speichern fehlgeschlagen. Prüfe Firestore Rules.");
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
+  }
+
+  if (!ready) {
+    return (
+      <div className="rounded-[28px] surface p-6 text-sm muted">Loading…</div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{t("addItemTitle")}</h1>
-          <p className="mt-1 text-sm text-white/60">
-            Rolle: <span className="font-semibold text-white/85">{role}</span>
-          </p>
+      <div className="rounded-[28px] surface p-6">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <div className="text-xs muted">Admin</div>
+            <h1 className="mt-2 text-2xl font-semibold text-white">Neues Item</h1>
+            <div className="mt-1 text-sm muted">
+              Gerät oder Material hinzufügen
+            </div>
+          </div>
+
+          <Link
+            href="/items"
+            className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
+          >
+            Zurück
+          </Link>
+        </div>
+      </div>
+
+      <div className="rounded-[28px] surface p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label className="block">
+            <div className="text-xs text-white/70">ID</div>
+            <input
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              placeholder="G-LA001"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+            />
+          </label>
+
+          <label className="block">
+            <div className="text-xs text-white/70">Name</div>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Waschmaschine / Staubsauger …"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+            />
+          </label>
+
+          <label className="block">
+            <div className="text-xs text-white/70">Type</div>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as any)}
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+            >
+              <option value="Gerät" className="bg-black">
+                Gerät
+              </option>
+              <option value="Material" className="bg-black">
+                Material
+              </option>
+            </select>
+          </label>
+
+          {/* Kategorie */}
+          <label className="block">
+            <div className="text-xs text-white/70">Kategorie</div>
+
+            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <select
+                value={categoryMode === "pick" ? categoryPick : "__custom__"}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "__custom__") {
+                    setCategoryMode("custom");
+                    setCategory("");
+                  } else {
+                    setCategoryMode("pick");
+                    setCategoryPick(v);
+                    setCategory(v);
+                  }
+                }}
+                className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+              >
+                {categories.length === 0 ? (
+                  <option value="" className="bg-black">
+                    Keine Kategorie gefunden
+                  </option>
+                ) : (
+                  categories.map((c) => (
+                    <option key={c} value={c} className="bg-black">
+                      {c}
+                    </option>
+                  ))
+                )}
+                <option value="__custom__" className="bg-black">
+                  + Neue Kategorie…
+                </option>
+              </select>
+
+              <input
+                disabled={categoryMode !== "custom"}
+                value={categoryMode === "custom" ? category : ""}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Neue Kategorie eingeben…"
+                className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25 disabled:opacity-50"
+              />
+            </div>
+          </label>
+
+          <label className="block">
+            <div className="text-xs text-white/70">Lager</div>
+            <select
+              value={lager}
+              onChange={(e) => setLager(e.target.value as any)}
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+            >
+              <option value="" className="bg-black">
+                —
+              </option>
+              <option value="LA" className="bg-black">
+                LA
+              </option>
+              <option value="LB" className="bg-black">
+                LB
+              </option>
+            </select>
+          </label>
+
+          {/* Zustand */}
+          <label className="block">
+            <div className="text-xs text-white/70">Zustand</div>
+
+            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <select
+                value={zustandMode === "pick" ? zustandPick : "__custom__"}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "__custom__") {
+                    setZustandMode("custom");
+                    setZustand("");
+                  } else {
+                    setZustandMode("pick");
+                    setZustandPick(v);
+                    setZustand(v);
+                  }
+                }}
+                className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+              >
+                <option value="neu" className="bg-black">
+                  neu
+                </option>
+                <option value="ok" className="bg-black">
+                  ok
+                </option>
+                <option value="reparatur nötig" className="bg-black">
+                  reparatur nötig
+                </option>
+                <option value="defekt" className="bg-black">
+                  defekt
+                </option>
+                <option value="ausgesondert" className="bg-black">
+                  ausgesondert
+                </option>
+                <option value="__custom__" className="bg-black">
+                  Andere…
+                </option>
+              </select>
+
+              <input
+                disabled={zustandMode !== "custom"}
+                value={zustandMode === "custom" ? zustand : ""}
+                onChange={(e) => setZustand(e.target.value)}
+                placeholder="Zustand eingeben…"
+                className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25 disabled:opacity-50"
+              />
+            </div>
+          </label>
+
+          <label className="block">
+            <div className="text-xs text-white/70">Status</div>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as any)}
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+            >
+              <option value="verfügbar" className="bg-black">
+                verfügbar
+              </option>
+              <option value="nicht verfügbar" className="bg-black">
+                nicht verfügbar
+              </option>
+            </select>
+          </label>
+
+          <label className="block">
+            <div className="text-xs text-white/70">Bestand (Gesamt)</div>
+            <input
+              type="number"
+              min={0}
+              value={stock}
+              onChange={(e) => setStock(Number(e.target.value))}
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
+            />
+          </label>
         </div>
 
-        <Link
-          href="/items"
-          className="w-fit rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 hover:bg-white/10 transition"
-        >
-          {t("back")}
-        </Link>
-      </header>
-
-      <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 max-w-2xl">
-        {!isAdmin && (
-          <div className="mb-5 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
-            {t("notAdminBox")}
+        {msg && (
+          <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85">
+            {msg}
           </div>
         )}
 
-        <form onSubmit={onCreate} className="space-y-4">
-          <div>
-            <label className="text-sm text-white/80">{t("idLabel")}</label>
-            <input
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white placeholder:text-white/35 outline-none"
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-              placeholder="G-LA-0001"
-              required
-            />
-            <p className="mt-2 text-xs text-white/45">{t("idHint")}</p>
-          </div>
-
-          <div>
-            <label className="text-sm text-white/80">{t("name")}</label>
-            <input
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white placeholder:text-white/35 outline-none"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Staubsauger Kärcher"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-white/80">{t("type")}</label>
-              <select
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none"
-                value={typ}
-                onChange={(e) => setTyp(e.target.value as any)}
-              >
-                <option value="gerät">{t("typ_geraet")}</option>
-                <option value="material">{t("typ_material")}</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm text-white/80">{t("category")}</label>
-              <input
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Staubsauger"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm text-white/80">{t("lager")}</label>
-              <input
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none"
-                value={lager}
-                onChange={(e) => setLager(e.target.value)}
-                placeholder="LA"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm text-white/80">{t("condition")}</label>
-              <select
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none"
-                value={condition}
-                onChange={(e) => setCondition(e.target.value as any)}
-              >
-                <option value="neu">{t("cond_neu")}</option>
-                <option value="gebraucht">{t("cond_gebraucht")}</option>
-                <option value="reparatur">{t("cond_reparatur")}</option>
-                <option value="defekt">{t("cond_defekt")}</option>
-              </select>
-            </div>
-          </div>
-
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-            <input
-              type="checkbox"
-              checked={available}
-              onChange={(e) => setAvailable(e.target.checked)}
-              className="h-4 w-4"
-            />
-            <span className="text-sm text-white/80">{t("availableLabel")}</span>
-          </label>
-
-          {msg && (
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-3 text-sm text-white/80">
-              {msg}
-            </div>
-          )}
-
+        <div className="mt-5 flex gap-3">
           <button
-            disabled={!isAdmin || saving}
-            className="w-full rounded-2xl btn-accent px-4 py-3 text-sm font-semibold transition disabled:opacity-60"
-            type="submit"
+            onClick={onSave}
+            disabled={busy}
+            className="rounded-2xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
+            style={{ background: "rgb(var(--accent))", color: "white" }}
           >
-            {saving ? t("saving") : t("save")}
+            {busy ? "Bitte warten…" : "Speichern"}
           </button>
-        </form>
+
+          <Link
+            href="/items"
+            className="rounded-2xl border border-white/10 bg-black/25 px-5 py-3 text-sm text-white/85 hover:bg-white/5 transition"
+          >
+            Abbrechen
+          </Link>
+        </div>
       </div>
     </div>
   );
