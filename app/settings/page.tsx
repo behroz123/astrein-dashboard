@@ -20,7 +20,8 @@ function rgbTripletToHex(triplet?: string) {
   const r = Math.max(0, Math.min(255, Number(parts[0] ?? 99)));
   const g = Math.max(0, Math.min(255, Number(parts[1] ?? 102)));
   const b = Math.max(0, Math.min(255, Number(parts[2] ?? 241)));
-  const to = (n: number) => (Number.isFinite(n) ? n.toString(16).padStart(2, "0") : "00");
+  const to = (n: number) =>
+    Number.isFinite(n) ? n.toString(16).padStart(2, "0") : "00";
   return `#${to(r)}${to(g)}${to(b)}`;
 }
 
@@ -49,7 +50,6 @@ function LangMenuPortal({
     const compute = () => {
       const r = anchorEl.getBoundingClientRect();
       const w = Math.max(240, r.width);
-      // align right edge with button
       const left = Math.min(window.innerWidth - w - 12, Math.max(12, r.right - w));
       const top = Math.min(window.innerHeight - 12, r.bottom + 10);
       setPos({ top, left, width: w });
@@ -58,7 +58,7 @@ function LangMenuPortal({
     compute();
 
     const onResize = () => compute();
-    const onScroll = () => compute(); // any scroll, recalc
+    const onScroll = () => compute();
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onScroll, true);
 
@@ -81,7 +81,6 @@ function LangMenuPortal({
 
   return createPortal(
     <>
-      {/* Overlay to catch clicks */}
       <div
         onMouseDown={onClose}
         style={{
@@ -92,7 +91,6 @@ function LangMenuPortal({
         }}
       />
 
-      {/* Menu */}
       <div
         style={{
           position: "fixed",
@@ -158,41 +156,45 @@ export default function SettingsPage() {
   const [colorHex, setColorHex] = useState(() => rgbTripletToHex(accent));
   useEffect(() => setColorHex(rgbTripletToHex(accent)), [accent]);
 
+  // ✅ language labels translated via t()
   const languages = useMemo(
     () => [
-      { id: "de", label: "Deutsch" },
-      { id: "en", label: "English" },
-      { id: "tr", label: "Türkçe" },
-      { id: "ro", label: "Română" },
-      { id: "ru", label: "Русский" },
+      { id: "de", label: t("lang.de") },
+      { id: "en", label: t("lang.en") },
+      { id: "tr", label: t("lang.tr") },
+      { id: "ro", label: t("lang.ro") },
+      { id: "ru", label: t("lang.ru") },
     ],
-    []
+    [t]
   );
 
+  // ✅ theme cards translated via t()
   const themes = useMemo(
     () => [
-      { id: "glass", title: "Glass", desc: "Soft glow" },
-      { id: "midnight", title: "Midnight", desc: "Deep contrast" },
-      { id: "graphite", title: "Graphite", desc: "Minimal texture" },
-      { id: "aurora", title: "Aurora", desc: "Color waves" },
-      { id: "neon", title: "Neon", desc: "Vibrant highlights" },
+      { id: "light", title: t("theme.light.title"), desc: t("theme.light.desc") },
+      { id: "glass", title: t("theme.glass.title"), desc: t("theme.glass.desc") },
+      { id: "midnight", title: t("theme.midnight.title"), desc: t("theme.midnight.desc") },
+      { id: "graphite", title: t("theme.graphite.title"), desc: t("theme.graphite.desc") },
+      { id: "aurora", title: t("theme.aurora.title"), desc: t("theme.aurora.desc") },
+      { id: "neon", title: t("theme.neon.title"), desc: t("theme.neon.desc") },
     ],
-    []
+    [t]
   );
 
+  // ✅ accent preset labels translated via t()
   const accentPresets = useMemo(
     () => [
-      { name: "Indigo", rgb: "99 102 241" },
-      { name: "Cyan", rgb: "34 211 238" },
-      { name: "Emerald", rgb: "34 197 94" },
-      { name: "Orange", rgb: "249 115 22" },
-      { name: "Pink", rgb: "236 72 153" },
-      { name: "Violet", rgb: "139 92 246" },
+      { name: t("accentPreset.indigo"), rgb: "99 102 241" },
+      { name: t("accentPreset.cyan"), rgb: "34 211 238" },
+      { name: t("accentPreset.emerald"), rgb: "34 197 94" },
+      { name: t("accentPreset.orange"), rgb: "249 115 22" },
+      { name: t("accentPreset.pink"), rgb: "236 72 153" },
+      { name: t("accentPreset.violet"), rgb: "139 92 246" },
     ],
-    []
+    [t]
   );
 
-  const currentLangLabel = languages.find((x) => x.id === lang)?.label ?? "Deutsch";
+  const currentLangLabel = languages.find((x) => x.id === lang)?.label ?? t("lang.de");
 
   return (
     <div className="space-y-6">
@@ -248,7 +250,9 @@ export default function SettingsPage() {
             >
               <div className="flex items-center justify-between">
                 <div className="text-sm font-semibold">{x.title}</div>
-                {theme === x.id && <div className="text-xs accent-text font-semibold">Active</div>}
+                {theme === x.id && (
+                  <div className="text-xs accent-text font-semibold">{t("active")}</div>
+                )}
               </div>
               <div className="mt-1 text-xs muted">{x.desc}</div>
               <div className="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
+import { usePrefs } from "../../lib/prefs";
 import {
   collection,
   doc,
@@ -108,11 +109,14 @@ function pickStock(it: any) {
   return num(v, 0);
 }
 
+type Role = "admin" | "mitarbeiter";
+
 export default function ItemsPage() {
   const router = useRouter();
+  const { t } = usePrefs();
 
   const [ready, setReady] = useState(false);
-  const [role, setRole] = useState<"admin" | "mitarbeiter">("mitarbeiter");
+  const [role, setRole] = useState<Role>("mitarbeiter");
 
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,19 +202,13 @@ export default function ItemsPage() {
           );
         });
 
-    const byLager =
-      lagerFilter === "all" ? bySearch : bySearch.filter((x: any) => x.lager === lagerFilter);
-
-    const byCat =
-      catFilter === "all" ? byLager : byLager.filter((x: any) => x.category === catFilter);
+    const byLager = lagerFilter === "all" ? bySearch : bySearch.filter((x: any) => x.lager === lagerFilter);
+    const byCat = catFilter === "all" ? byLager : byLager.filter((x: any) => x.category === catFilter);
 
     // employee: hide fully reserved
-    const visible =
-      role === "admin" ? byCat : byCat.filter((x: any) => Number(x.available ?? 0) > 0);
+    const visible = role === "admin" ? byCat : byCat.filter((x: any) => Number(x.available ?? 0) > 0);
 
-    return visible.sort((a: any, b: any) =>
-      String(a.name ?? a.id).localeCompare(String(b.name ?? b.id))
-    );
+    return visible.sort((a: any, b: any) => String(a.name ?? a.id).localeCompare(String(b.name ?? b.id)));
   }, [items, q, lagerFilter, catFilter, role]);
 
   const lagerOptions = useMemo(() => {
@@ -241,7 +239,7 @@ export default function ItemsPage() {
     setReserveErr(null);
     const qty = Math.max(1, Math.floor(num(reserveQty, 1)));
     if (!reserveDate) {
-      setReserveErr("Bitte Datum auswählen.");
+      setReserveErr(t("reserve.errorPickDate"));
       return;
     }
 
@@ -278,17 +276,14 @@ export default function ItemsPage() {
         });
       });
 
-      // optimistic update
       setItems((prev) =>
-        prev.map((x) =>
-          x.id === selReserve.id ? { ...x, reservedQty: num(x.reservedQty, 0) + qty } : x
-        )
+        prev.map((x) => (x.id === selReserve.id ? { ...x, reservedQty: num(x.reservedQty, 0) + qty } : x))
       );
 
       setReserveOpen(false);
     } catch (e: any) {
-      if (String(e?.message || "").includes("NOT_ENOUGH")) setReserveErr("Nicht genügend verfügbar.");
-      else setReserveErr("Reservierung fehlgeschlagen.");
+      if (String(e?.message || "").includes("NOT_ENOUGH")) setReserveErr(t("reserve.errorNotEnough"));
+      else setReserveErr(t("reserve.errorGeneric"));
     } finally {
       setReserveBusy(false);
     }
@@ -321,11 +316,10 @@ export default function ItemsPage() {
         const reserved = num(it.reservedQty, 0);
         const newStock = Math.max(0, stock - qty);
 
-        // do not reduce below reserved
         if (newStock < reserved) throw new Error("BELOW_RESERVED");
 
         tx.update(itemRef, {
-          stock: newStock, // unify to stock
+          stock: newStock,
           status: newStock === 0 ? "nicht verfügbar" : pickStatus(it),
           updatedAt: serverTimestamp(),
         });
@@ -334,18 +328,15 @@ export default function ItemsPage() {
       await loadItems();
       setDecOpen(false);
     } catch (e: any) {
-      if (String(e?.message || "").includes("BELOW_RESERVED")) {
-        setDecErr("Du kannst nicht unter die reservierte Menge reduzieren.");
-      } else {
-        setDecErr("Änderung fehlgeschlagen. Prüfe Rules.");
-      }
+      if (String(e?.message || "").includes("BELOW_RESERVED")) setDecErr(t("decrement.errorBelowReserved"));
+      else setDecErr(t("decrement.errorGeneric"));
     } finally {
       setDecBusy(false);
     }
   }
 
   if (!ready) {
-    return <div className="rounded-[28px] surface p-6 text-sm muted">Loading…</div>;
+    return <div className="rounded-[28px] surface p-6 text-sm muted">{t("common.loading")}</div>;
   }
 
   return (
@@ -361,10 +352,12 @@ export default function ItemsPage() {
         />
         <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div>
-            <div className="text-xs muted">Astrein Exzellent Gebäudemanagment International GmbH</div>
-            <h1 className="mt-2 text-2xl font-semibold text-white">Geräte & Material</h1>
+            <div className="text-xs muted">
+              {t("appName")} {t("companyLine")}
+            </div>
+            <h1 className="mt-2 text-2xl font-semibold text-white">{t("items.title")}</h1>
             <div className="mt-1 text-sm muted">
-              Rolle: <span className="text-white/80 font-semibold">{role}</span>
+              {t("role")}: <span className="text-white/80 font-semibold">{role}</span>
             </div>
           </div>
 
@@ -373,32 +366,27 @@ export default function ItemsPage() {
               href="/"
               className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
             >
-              Dashboard
+              {t("nav.dashboard")}
             </Link>
 
             {role === "admin" && (
-              <Link
-                href="/items/new"
-                className="rounded-2xl btn-accent px-4 py-3 text-sm font-semibold"
-              >
-                Neues Item
+              <Link href="/items/new" className="rounded-2xl btn-accent px-4 py-3 text-sm font-semibold">
+                {t("items.new")}
               </Link>
             )}
 
-            {role === "admin" && (
-              <Link
-                href="/reservations"
-                className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
-              >
-                Reservierungen
-              </Link>
-            )}
+            <Link
+              href="/reservations"
+              className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
+            >
+              {t("nav.reservations")}
+            </Link>
 
             <button
               onClick={loadItems}
               className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
             >
-              Aktualisieren
+              {t("common.refresh")}
             </button>
           </div>
         </div>
@@ -410,7 +398,7 @@ export default function ItemsPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Suche nach Name, ID, Kategorie, Lager…"
+            placeholder={t("items.searchPlaceholder")}
             className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
           />
 
@@ -421,7 +409,7 @@ export default function ItemsPage() {
           >
             {lagerOptions.map((x) => (
               <option key={x} value={x} className="bg-black">
-                {x === "all" ? "Alle Lager" : x}
+                {x === "all" ? t("items.allWarehouses") : x}
               </option>
             ))}
           </select>
@@ -433,13 +421,15 @@ export default function ItemsPage() {
           >
             {catOptions.map((x) => (
               <option key={x} value={x} className="bg-black">
-                {x === "all" ? "Alle Kategorien" : x}
+                {x === "all" ? t("items.allCategories") : x}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="mt-3 text-xs muted">{loading ? "Loading…" : `${rows.length} Einträge`}</div>
+        <div className="mt-3 text-xs muted">
+          {loading ? t("common.loading") : t("items.count").replace("{n}", String(rows.length))}
+        </div>
       </div>
 
       {/* Table */}
@@ -448,14 +438,15 @@ export default function ItemsPage() {
           <table className="min-w-[1000px] w-full">
             <thead>
               <tr className="text-left text-xs text-white/55 border-b border-white/10">
-                <th className="px-5 py-4">ID</th>
-                <th className="px-5 py-4">Name</th>
-                <th className="px-5 py-4">Type</th>
-                <th className="px-5 py-4">Kategorie</th>
-                <th className="px-5 py-4">Lager</th>
-                <th className="px-5 py-4">Zustand</th>
-                <th className="px-5 py-4">Status</th>
-                <th className="px-5 py-4 text-right">Aktion</th>
+                <th className="px-5 py-4">{t("items.col.id")}</th>
+                <th className="px-5 py-4">{t("items.col.name")}</th>
+                <th className="px-5 py-4">{t("items.col.type")}</th>
+                <th className="px-5 py-4">{t("items.col.category")}</th>
+                <th className="px-5 py-4">{t("items.col.warehouse")}</th>
+                <th className="px-5 py-4">{t("items.col.condition")}</th>
+                <th className="px-5 py-4">{t("items.col.status")}</th>
+                <th className="px-5 py-4">{t("items.col.stock")}</th>
+                <th className="px-5 py-4 text-right">{t("items.col.actions")}</th>
               </tr>
             </thead>
 
@@ -469,6 +460,7 @@ export default function ItemsPage() {
                   <td className="px-5 py-4 text-sm text-white/75">{r.lager}</td>
                   <td className="px-5 py-4 text-sm text-white/75">{r.zustand}</td>
                   <td className="px-5 py-4 text-sm text-white/75">{r.status}</td>
+                  <td className="px-5 py-4 text-sm text-white/75">{r.stock}</td>
 
                   <td className="px-5 py-4 text-right">
                     {role === "admin" ? (
@@ -477,14 +469,14 @@ export default function ItemsPage() {
                           href={`/items/edit/${encodeURIComponent(r.id)}`}
                           className="rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-white/85 hover:bg-white/5 transition"
                         >
-                          Bearbeiten
+                          {t("common.edit")}
                         </Link>
 
                         <button
                           onClick={() => openReserve(r)}
                           className="rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-white/85 hover:bg-white/5 transition"
                         >
-                          Reservieren
+                          {t("reserve.button")}
                         </button>
 
                         <button
@@ -492,7 +484,7 @@ export default function ItemsPage() {
                           className="rounded-xl px-3 py-2 text-xs font-semibold"
                           style={{ background: "rgb(var(--accent))", color: "white" }}
                         >
-                          Löschen
+                          {t("common.delete")}
                         </button>
                       </div>
                     ) : (
@@ -501,7 +493,7 @@ export default function ItemsPage() {
                         className="rounded-xl px-3 py-2 text-xs font-semibold"
                         style={{ background: "rgb(var(--accent))", color: "white" }}
                       >
-                        Reservieren
+                        {t("reserve.button")}
                       </button>
                     )}
                   </td>
@@ -510,16 +502,16 @@ export default function ItemsPage() {
 
               {!loading && rows.length === 0 && (
                 <tr>
-                  <td className="px-5 py-10 text-sm muted" colSpan={8}>
-                    Keine passenden Einträge.
+                  <td className="px-5 py-10 text-sm muted" colSpan={9}>
+                    {t("items.noMatches")}
                   </td>
                 </tr>
               )}
 
               {loading && (
                 <tr>
-                  <td className="px-5 py-10 text-sm muted" colSpan={8}>
-                    Loading…
+                  <td className="px-5 py-10 text-sm muted" colSpan={9}>
+                    {t("common.loading")}
                   </td>
                 </tr>
               )}
@@ -531,17 +523,12 @@ export default function ItemsPage() {
       {/* Reserve modal */}
       {reserveOpen && selReserve && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/70"
-            onClick={() => (!reserveBusy ? setReserveOpen(false) : null)}
-          />
+          <div className="absolute inset-0 bg-black/70" onClick={() => (!reserveBusy ? setReserveOpen(false) : null)} />
           <div className="relative w-full max-w-lg rounded-[28px] border border-white/10 bg-black/70 backdrop-blur-2xl p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-xs muted">Reservierung</div>
-                <div className="mt-1 text-lg font-semibold text-white">
-                  {selReserve.name ?? selReserve.id}
-                </div>
+                <div className="text-xs muted">{t("reserve.title")}</div>
+                <div className="mt-1 text-lg font-semibold text-white">{selReserve.name ?? selReserve.id}</div>
                 <div className="mt-1 text-xs muted">ID: {selReserve.id}</div>
               </div>
 
@@ -549,13 +536,13 @@ export default function ItemsPage() {
                 className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 hover:bg-white/5 transition"
                 onClick={() => (!reserveBusy ? setReserveOpen(false) : null)}
               >
-                Schließen
+                {t("common.close")}
               </button>
             </div>
 
             <div className="mt-5 space-y-3">
               <label className="block">
-                <div className="text-xs text-white/70">Für welches Datum?</div>
+                <div className="text-xs text-white/70">{t("reserve.forDate")}</div>
                 <input
                   type="date"
                   value={reserveDate}
@@ -565,7 +552,7 @@ export default function ItemsPage() {
               </label>
 
               <label className="block">
-                <div className="text-xs text-white/70">Menge</div>
+                <div className="text-xs text-white/70">{t("reserve.quantity")}</div>
                 <input
                   type="number"
                   min={1}
@@ -576,12 +563,12 @@ export default function ItemsPage() {
               </label>
 
               <label className="block">
-                <div className="text-xs text-white/70">Für wen? (optional)</div>
+                <div className="text-xs text-white/70">{t("reserve.forWhomOptional")}</div>
                 <input
                   value={reserveForWhom}
                   onChange={(e) => setReserveForWhom(e.target.value)}
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/25"
-                  placeholder="Name / Team"
+                  placeholder={t("reserve.forWhomPlaceholder")}
                 />
               </label>
 
@@ -597,7 +584,7 @@ export default function ItemsPage() {
                 className="w-full rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
                 style={{ background: "rgb(var(--accent))", color: "white" }}
               >
-                {reserveBusy ? "Bitte warten…" : "Reservierung bestätigen"}
+                {reserveBusy ? t("common.pleaseWait") : t("reserve.confirm")}
               </button>
             </div>
           </div>
@@ -607,14 +594,11 @@ export default function ItemsPage() {
       {/* Decrement modal */}
       {decOpen && selDec && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/70"
-            onClick={() => (!decBusy ? setDecOpen(false) : null)}
-          />
+          <div className="absolute inset-0 bg-black/70" onClick={() => (!decBusy ? setDecOpen(false) : null)} />
           <div className="relative w-full max-w-lg rounded-[28px] border border-white/10 bg-black/70 backdrop-blur-2xl p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-xs muted">Bestand reduzieren</div>
+                <div className="text-xs muted">{t("decrement.title")}</div>
                 <div className="mt-1 text-lg font-semibold text-white">{selDec.name ?? selDec.id}</div>
                 <div className="mt-1 text-xs muted">ID: {selDec.id}</div>
               </div>
@@ -623,18 +607,17 @@ export default function ItemsPage() {
                 className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 hover:bg-white/5 transition"
                 onClick={() => (!decBusy ? setDecOpen(false) : null)}
               >
-                Schließen
+                {t("common.close")}
               </button>
             </div>
 
             <div className="mt-5 space-y-3">
               <div className="text-sm text-white/80">
-                Aktueller Bestand:{" "}
-                <span className="text-white font-semibold">{pickStock(selDec)}</span>
+                {t("decrement.currentStock")} <span className="text-white font-semibold">{pickStock(selDec)}</span>
               </div>
 
               <label className="block">
-                <div className="text-xs text-white/70">Wie viele abziehen?</div>
+                <div className="text-xs text-white/70">{t("decrement.howMany")}</div>
                 <input
                   type="number"
                   min={1}
@@ -643,21 +626,6 @@ export default function ItemsPage() {
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/25"
                 />
               </label>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setDecQty(1)}
-                  className="rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-white/85 hover:bg-white/5 transition"
-                >
-                  −1
-                </button>
-                <button
-                  onClick={() => setDecQty(5)}
-                  className="rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-white/85 hover:bg-white/5 transition"
-                >
-                  −5
-                </button>
-              </div>
 
               {decErr && (
                 <div className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white/80">
@@ -671,10 +639,10 @@ export default function ItemsPage() {
                 className="w-full rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
                 style={{ background: "rgb(var(--accent))", color: "white" }}
               >
-                {decBusy ? "Bitte warten…" : "Bestand reduzieren"}
+                {decBusy ? t("common.pleaseWait") : t("decrement.confirm")}
               </button>
 
-              <div className="text-xs muted">Hinweis: Das Item wird nicht gelöscht. Nur der Bestand wird reduziert.</div>
+              <div className="text-xs muted">{t("decrement.hint")}</div>
             </div>
           </div>
         </div>

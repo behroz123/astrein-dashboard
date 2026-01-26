@@ -130,7 +130,7 @@ export default function ReservationsPage() {
   async function checkout(r: Reservation) {
     if (!r.id || !r.itemId) return;
 
-    // Mitarbeiter فقط رزرو خودش
+    // Mitarbeiter sieht nur eigene Reservierungen
     if (role !== "admin" && String(r.reservedByUid ?? "") !== uid) return;
 
     setBusyId(r.id);

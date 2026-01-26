@@ -13,11 +13,13 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { auth, db } from "../../../lib/firebase";
+import { usePrefs } from "../../../lib/prefs";
 
 type Role = "admin" | "mitarbeiter";
 
 export default function NewItemPage() {
   const router = useRouter();
+  const { t, lang } = usePrefs();
 
   const [ready, setReady] = useState(false);
   const [role, setRole] = useState<Role>("mitarbeiter");
@@ -145,7 +147,7 @@ export default function NewItemPage() {
 
   if (!ready) {
     return (
-      <div className="rounded-[28px] surface p-6 text-sm muted">Loading…</div>
+      <div className="rounded-[28px] surface p-6 text-sm muted">{t("common.loading")}</div>
     );
   }
 
@@ -154,18 +156,13 @@ export default function NewItemPage() {
       <div className="rounded-[28px] surface p-6">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <div className="text-xs muted">Admin</div>
-            <h1 className="mt-2 text-2xl font-semibold text-white">Neues Item</h1>
-            <div className="mt-1 text-sm muted">
-              Gerät oder Material hinzufügen
-            </div>
+            <div className="text-xs muted">{t("role." + role)}</div>
+            <h1 className="mt-2 text-2xl font-semibold text-white">{t("items.new")}</h1>
+            <div className="mt-1 text-sm muted">{t("items.newSubtitle")}</div>
           </div>
 
-          <Link
-            href="/items"
-            className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
-          >
-            Zurück
+          <Link href="/items" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition">
+            {t("common.back")}
           </Link>
         </div>
       </div>
@@ -173,7 +170,7 @@ export default function NewItemPage() {
       <div className="rounded-[28px] surface p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
-            <div className="text-xs text-white/70">ID</div>
+            <div className="text-xs text-white/70">{t("form.id")}</div>
             <input
               value={id}
               onChange={(e) => setId(e.target.value)}
@@ -183,34 +180,34 @@ export default function NewItemPage() {
           </label>
 
           <label className="block">
-            <div className="text-xs text-white/70">Name</div>
+            <div className="text-xs text-white/70">{t("form.name")}</div>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Waschmaschine / Staubsauger …"
+              placeholder={t("form.placeholder.name")}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
             />
           </label>
 
           <label className="block">
-            <div className="text-xs text-white/70">Type</div>
+            <div className="text-xs text-white/70">{t("form.type")}</div>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as any)}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
             >
               <option value="Gerät" className="bg-black">
-                Gerät
+                {t("item.device")}
               </option>
               <option value="Material" className="bg-black">
-                Material
+                {t("item.material")}
               </option>
             </select>
           </label>
 
           {/* Kategorie */}
           <label className="block">
-            <div className="text-xs text-white/70">Kategorie</div>
+            <div className="text-xs text-white/70">{t("form.category")}</div>
 
             <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <select
@@ -230,7 +227,7 @@ export default function NewItemPage() {
               >
                 {categories.length === 0 ? (
                   <option value="" className="bg-black">
-                    Keine Kategorie gefunden
+                    {t("form.noCategoryFound")}
                   </option>
                 ) : (
                   categories.map((c) => (
@@ -240,7 +237,7 @@ export default function NewItemPage() {
                   ))
                 )}
                 <option value="__custom__" className="bg-black">
-                  + Neue Kategorie…
+                  {t("form.newCategory")}
                 </option>
               </select>
 
@@ -248,14 +245,14 @@ export default function NewItemPage() {
                 disabled={categoryMode !== "custom"}
                 value={categoryMode === "custom" ? category : ""}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="Neue Kategorie eingeben…"
+                placeholder={t("form.newCategoryPlaceholder")}
                 className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25 disabled:opacity-50"
               />
             </div>
           </label>
 
           <label className="block">
-            <div className="text-xs text-white/70">Lager</div>
+            <div className="text-xs text-white/70">{t("form.warehouse")}</div>
             <select
               value={lager}
               onChange={(e) => setLager(e.target.value as any)}
@@ -275,7 +272,7 @@ export default function NewItemPage() {
 
           {/* Zustand */}
           <label className="block">
-            <div className="text-xs text-white/70">Zustand</div>
+            <div className="text-xs text-white/70">{t("form.state")}</div>
 
             <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <select
@@ -294,22 +291,22 @@ export default function NewItemPage() {
                 className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
               >
                 <option value="neu" className="bg-black">
-                  neu
+                  {t("state.new")}
                 </option>
                 <option value="ok" className="bg-black">
-                  ok
+                  {t("state.ok")}
                 </option>
                 <option value="reparatur nötig" className="bg-black">
-                  reparatur nötig
+                  {t("state.needsRepair")}
                 </option>
                 <option value="defekt" className="bg-black">
-                  defekt
+                  {t("state.defect")}
                 </option>
                 <option value="ausgesondert" className="bg-black">
-                  ausgesondert
+                  {t("state.disposed")}
                 </option>
                 <option value="__custom__" className="bg-black">
-                  Andere…
+                  {t("state.other")}
                 </option>
               </select>
 
@@ -317,30 +314,30 @@ export default function NewItemPage() {
                 disabled={zustandMode !== "custom"}
                 value={zustandMode === "custom" ? zustand : ""}
                 onChange={(e) => setZustand(e.target.value)}
-                placeholder="Zustand eingeben…"
+                placeholder={t("form.statePlaceholder")}
                 className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25 disabled:opacity-50"
               />
             </div>
           </label>
 
           <label className="block">
-            <div className="text-xs text-white/70">Status</div>
+            <div className="text-xs text-white/70">{t("form.status")}</div>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as any)}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-white outline-none focus:border-white/25"
             >
               <option value="verfügbar" className="bg-black">
-                verfügbar
+                {t("status.available")}
               </option>
               <option value="nicht verfügbar" className="bg-black">
-                nicht verfügbar
+                {t("status.unavailable")}
               </option>
             </select>
           </label>
 
           <label className="block">
-            <div className="text-xs text-white/70">Bestand (Gesamt)</div>
+            <div className="text-xs text-white/70">{t("form.stockTotal")}</div>
             <input
               type="number"
               min={0}
@@ -358,20 +355,18 @@ export default function NewItemPage() {
         )}
 
         <div className="mt-5 flex gap-3">
+
           <button
             onClick={onSave}
             disabled={busy}
             className="rounded-2xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
             style={{ background: "rgb(var(--accent))", color: "white" }}
           >
-            {busy ? "Bitte warten…" : "Speichern"}
+            {busy ? t("action.saving") : t("action.save")}
           </button>
 
-          <Link
-            href="/items"
-            className="rounded-2xl border border-white/10 bg-black/25 px-5 py-3 text-sm text-white/85 hover:bg-white/5 transition"
-          >
-            Abbrechen
+          <Link href="/items" className="rounded-2xl border border-white/10 bg-black/25 px-5 py-3 text-sm text-white/85 hover:bg-white/5 transition">
+            {t("action.cancel")}
           </Link>
         </div>
       </div>

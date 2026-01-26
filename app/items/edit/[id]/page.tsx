@@ -6,11 +6,13 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useParams, useRouter } from "next/navigation";
 import { auth, db } from "../../../../lib/firebase";
+import { usePrefs } from "../../../../lib/prefs";
 
 export default function EditItemPage() {
   const router = useRouter();
   const params = useParams();
   const id = String(params?.id ?? "");
+  const { t } = usePrefs();
 
   const [role, setRole] = useState<"admin" | "mitarbeiter">("mitarbeiter");
   const [loading, setLoading] = useState(true);
@@ -45,17 +47,11 @@ export default function EditItemPage() {
 
       // load item
       const itSnap = await getDoc(doc(db, "items", id));
-      if (!itSnap.exists()) {
-        setErr("Item nicht gefunden.");
-        setLoading(false);
-        return;
-      }
       const it = itSnap.data() as any;
 
       setName(String(it.name ?? ""));
       setType(String(it.type ?? it.typ ?? "Gerät"));
       setCategory(String(it.category ?? ""));
-      setLager(String(it.lager ?? it.lagerId ?? "LA"));
       setZustand(String(it.zustand ?? it.condition ?? "OK"));
       setStatus(String(it.status ?? "verfügbar"));
       setStock(Number(it.stock ?? it.bestand ?? it.menge ?? 1) || 0);

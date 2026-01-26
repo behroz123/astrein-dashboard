@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -15,6 +16,8 @@ export default function LoginPage() {
   const [pass, setPass] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [bgIndex, setBgIndex] = useState(0);
+  const [now, setNow] = useState(new Date());
 
   const welcome = useMemo(() => {
     const map: Record<string, string> = {
@@ -40,15 +43,100 @@ export default function LoginPage() {
     }
   }
 
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+    const id = setInterval(() => setBgIndex((s) => (s + 1) % 4), 6000);
+    const el = document.getElementById('astrein-login-bg');
+    if (el) el.className = `login-bg absolute inset-0 -z-10 bg-${bgIndex}`;
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const el = document.getElementById('astrein-login-bg');
+    if (el) {
+      el.className = `login-bg absolute inset-0 -z-10 bg-${bgIndex}`;
+    }
+  }, [bgIndex]);
+
+  const dateStr = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat(lang || undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
+    } catch {
+      return now.toDateString();
+    }
+  }, [now, lang]);
+
+  const timeStr = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat(lang || undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(now);
+    } catch {
+      return now.toTimeString().slice(0,8);
+    }
+  }, [now, lang]);
+
+  useEffect(() => {
+    const iv = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(iv);
+  }, []);
+
   return (
     <div className="min-h-[100svh] relative flex items-center justify-center overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-slate-950 via-indigo-950 to-black" />
-      <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-indigo-500/30 blur-[140px] animate-pulse" />
-      <div className="absolute top-1/3 -right-40 h-[520px] w-[520px] rounded-full bg-cyan-400/20 blur-[160px] animate-pulse" />
+        {/* Animated background (slideshow) */}
+        <div className={`login-bg absolute inset-0 -z-10 bg-${0}`} id="astrein-login-bg">
+          <div className="layer layer-0" />
+          <div className="layer layer-1" />
+          <div className="layer layer-2" />
+          <div className="layer layer-3" />
+        </div>
+      <div className="login-orbs absolute inset-0 -z-10 pointer-events-none">
+        <div className="orb orb-a" />
+        <div className="orb orb-b" />
+        <div className="orb orb-c" />
+      </div>
+      {/* Multilingual animated welcome words—left and right side stacks (not Persian) */}
+      <div className="login-multilang left absolute -z-5 pointer-events-none" aria-hidden>
+        <div className="multilang-wrap vertical left">
+          <span className="multi">Willkommen</span>
+          <span className="multi">Welcome</span>
+          <span className="multi">Astrein Exzellent’e Hoş Geldiniz</span>
+          <span className="multi">Bine ai venit</span>
+          <span className="multi">Добро пожаловать</span>
+        </div>
+      </div>
+
+      <div className="login-multilang right absolute -z-5 pointer-events-none" aria-hidden>
+        <div className="multilang-wrap vertical right">
+          <span className="multi">Willkommen</span>
+          <span className="multi">Welcome</span>
+          <span className="multi">Astrein Exzellent’e Hoş Geldiniz</span>
+          <span className="multi">Bine ai venit</span>
+          <span className="multi">Добро пожаловать</span>
+        </div>
+      </div>
+      <div className="login-streaks absolute inset-0 -z-10 pointer-events-none">
+        <svg className="streaks" viewBox="0 0 800 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="s1" x1="0" x2="1">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.06)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+            </linearGradient>
+          </defs>
+          <g stroke="url(#s1)" strokeWidth="1.8" strokeLinecap="round">
+            <path className="streak" d="M-100 80 L900 20" fill="none" />
+            <path className="streak" d="M-120 220 L920 160" fill="none" />
+            <path className="streak" d="M-80 360 L880 300" fill="none" />
+          </g>
+        </svg>
+      </div>
+      <div className="login-particles absolute inset-0 -z-10 pointer-events-none" aria-hidden>
+        {Array.from({ length: 28 }).map((_, i) => (
+          <span key={i} className={`particle p-${i % 6}`} />
+        ))}
+      </div>
 
       {/* Center card */}
-      <div className="w-full max-w-md rounded-[36px] border border-white/10 bg-black/40 backdrop-blur-2xl p-8 shadow-2xl">
+      <div className="w-full max-w-md rounded-[36px] border border-white/10 bg-black/40 backdrop-blur-2xl p-8 shadow-2xl login-card-pop">
         <div className="flex flex-col items-center text-center">
           <div className="rounded-3xl border border-white/10 bg-white p-6 shadow-lg">
             <Image src="/logo.png" alt="Astrein Exzellent" width={220} height={220} priority />
@@ -79,7 +167,7 @@ export default function LoginPage() {
           <button
             onClick={onLogin}
             disabled={busy}
-            className="w-full rounded-2xl py-3 font-semibold transition"
+            className="w-full rounded-2xl py-3 font-semibold transition login-action"
             style={{ background: "rgb(var(--accent))", color: "white" }}
           >
             {busy ? t("loading") : t("login")}
@@ -87,6 +175,11 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-6 text-center text-xs text-white/50">Astrein Exzellent Gebäudemanagment International GmbH</div>
+      </div>
+      {/* Date panel (techy) */}
+      <div className="date-panel absolute right-12 top-1/3 hidden lg:flex flex-col items-end p-4">
+        <div className="date-chip">{dateStr}</div>
+        <div className="time-chip mt-2">{timeStr}</div>
       </div>
     </div>
   );

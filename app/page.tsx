@@ -339,19 +339,48 @@ export default function DashboardPage() {
           {loading && <div className="mt-4 text-sm muted">Loading…</div>}
         </div>
 
-        {/* Top Lager */}
+        {/* Top Lager - Prominent */}
         <div className="rounded-[28px] surface p-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-semibold text-white/90">{t("topLager")}</div>
-            <div className="text-xs muted">{t("count")}</div>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-xs muted">{t("topLager")}</div>
+              <div className="mt-2 flex items-center gap-4">
+                <div className="shrink-0">
+                  <MiniDonut
+                    a={computed.byCond.available}
+                    b={computed.byCond.needsRepair}
+                    c={computed.byCond.missing}
+                    d={computed.byCond.inUse}
+                  />
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-white stat-number">{computed.lagerSorted[0]?.[0] ?? "—"}</div>
+                  <div className="mt-1 text-sm muted">{t("whereMostHint") ?? t("whereMost")}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="ml-auto text-right">
+              <div className="text-xs muted">{t("mostCount") ?? t("count")}</div>
+              <div className="mt-2 text-4xl font-extrabold text-white kpi-animate">{computed.maxLager}</div>
+              <div className="mt-4 w-44 rounded-full bg-white/6 overflow-hidden">
+                <div
+                  className="h-3"
+                  style={{
+                    width: `${computed.maxLager <= 0 ? 0 : Math.round((computed.maxLager / Math.max(1, computed.total)) * 100)}%`,
+                    background: "rgb(var(--accent))",
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="mt-4 space-y-3">
+          <div className="mt-5 space-y-3">
             {computed.lagerSorted.length === 0 ? (
               <div className="text-sm muted">—</div>
             ) : (
-              computed.lagerSorted.slice(0, 6).map(([lager, n]) => (
-                <div key={lager} className="rounded-2xl surface-2 p-4">
+              computed.lagerSorted.slice(0, 6).map(([lager, n], idx) => (
+                <div key={lager} className={`rounded-2xl surface-2 p-3 ${idx === 0 ? "sheen-animate theme-card-active" : ""}`}>
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-sm font-semibold text-white/90">{lager}</div>
                     <div className="text-sm text-white/85 font-semibold">{n}</div>
