@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { auth, db } from "../lib/firebase";
 import { usePrefs } from "../lib/prefs";
+// حذف ساعت داشبورد
 
 type Item = {
   id: string;

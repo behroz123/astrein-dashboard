@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "../../lib/firebase";
 import { usePrefs } from "../../lib/prefs";
+import SiteClock from "../../lib/SiteClock";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -81,7 +82,7 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div className="min-h-[100svh] relative flex items-center justify-center overflow-hidden">
+    <div className="min-h-[100svh] relative flex items-center justify-center overflow-hidden login-neo">
         {/* Animated background (slideshow) */}
         <div className={`login-bg absolute inset-0 -z-10 bg-${0}`} id="astrein-login-bg">
           <div className="layer layer-0" />
@@ -136,7 +137,11 @@ export default function LoginPage() {
       </div>
 
       {/* Center card */}
-      <div className="w-full max-w-md rounded-[36px] border border-white/10 bg-black/40 backdrop-blur-2xl p-8 shadow-2xl login-card-pop">
+      <div className="w-full max-w-md rounded-[36px] border border-white/10 bg-black/40 backdrop-blur-2xl p-8 shadow-2xl login-card-pop relative">
+        {/* Only one clock, elegantly placed below the logo */}
+        <div className="flex justify-center mt-2 mb-2">
+          <SiteClock showDate className="card-clock" />
+        </div>
         <div className="flex flex-col items-center text-center">
           <div className="rounded-3xl border border-white/10 bg-white p-6 shadow-lg">
             <Image src="/logo.png" alt="Astrein Exzellent" width={220} height={220} priority />
@@ -176,11 +181,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center text-xs text-white/50">Astrein Exzellent Gebäudemanagment International GmbH</div>
       </div>
-      {/* Date panel (techy) */}
-      <div className="date-panel absolute right-12 top-1/3 hidden lg:flex flex-col items-end p-4">
-        <div className="date-chip">{dateStr}</div>
-        <div className="time-chip mt-2">{timeStr}</div>
-      </div>
+      {/* Removed the duplicated bottom clock to avoid multiple clocks on login */}
     </div>
   );
 }

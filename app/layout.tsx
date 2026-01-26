@@ -7,6 +7,7 @@ import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { usePathname, useRouter } from "next/navigation";
 import { PrefsProvider, usePrefs } from "../lib/prefs";
+// حذف کامل ساعت از layout
 
 function NavItem({
   href,
@@ -60,6 +61,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
+      {/* ساعت حذف شد؛ فقط در صفحه ورود نمایش داده می‌شود */}
       <aside className="w-72 shrink-0 border-r border-white/10 bg-black/25 backdrop-blur-xl flex flex-col">
         <div className="px-4 py-6 border-b border-white/10">
           <Link href="/" className="flex justify-center">

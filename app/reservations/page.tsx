@@ -14,6 +14,7 @@ import {
   query,
   runTransaction,
   serverTimestamp,
+  where
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { auth, db } from "../../lib/firebase";
@@ -54,6 +55,8 @@ function num(v: any, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
+type UserMap = Record<string, string>;
+
 export default function ReservationsPage() {
   const router = useRouter();
   const [role, setRole] = useState<"admin" | "mitarbeiter">("mitarbeiter");
@@ -63,6 +66,7 @@ export default function ReservationsPage() {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Reservation[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const [userMap, setUserMap] = useState<UserMap>({});
 
   const [busyId, setBusyId] = useState<string>("");
 
@@ -111,6 +115,33 @@ export default function ReservationsPage() {
             );
 
       setRows(filtered);
+
+      // --- User name mapping ---
+      // Get all unique reservedByUid values
+      const uids = Array.from(new Set(filtered.map((r) => r.reservedByUid).filter(Boolean)));
+      if (uids.length === 0) {
+        setUserMap({});
+        return;
+      }
+
+      // Firestore: fetch all users by UID (doc ID)
+      let userMap: UserMap = {};
+      await Promise.all(
+        uids.map(async (uid) => {
+          try {
+            const usnap = await getDoc(doc(db, "users", uid));
+            if (usnap.exists()) {
+              const d = usnap.data();
+              userMap[uid] = d.displayName || d.name || d.email || uid;
+            } else {
+              userMap[uid] = uid;
+            }
+          } catch (e) {
+            userMap[uid] = uid;
+          }
+        })
+      );
+      setUserMap(userMap);
     } catch (e: any) {
       const code = String(e?.code ?? "");
       setErr(code ? `Daten nicht verfügbar. Fehler: ${code}` : "Daten nicht verfügbar.");
@@ -262,7 +293,7 @@ export default function ReservationsPage() {
                   <td className="px-5 py-4 text-sm text-white/75">
                     {String(r.forWhom ?? "").trim() ? r.forWhom : "—"}
                   </td>
-                  <td className="px-5 py-4 text-sm text-white/75">{r.reservedByUid ?? "—"}</td>
+                  <td className="px-5 py-4 text-sm text-white/75">{userMap[r.reservedByUid ?? ""] ?? r.reservedByUid ?? "—"}</td>
                   <td className="px-5 py-4 text-sm text-white/75">{r.status ?? "—"}</td>
 
                   <td className="px-5 py-4 text-right">
