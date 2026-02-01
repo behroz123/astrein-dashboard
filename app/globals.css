@@ -36,6 +36,73 @@ html[data-theme="light"] .stat-number {
 html[data-theme="light"] .surface-2 {
   background: #f7f8fa !important;
 }
+html[data-theme="light"] .dashboard-stat-number {
+  color: #23272f !important;
+}
+html[data-theme="light"] .dashboard-text {
+  color: #23272f !important;
+}
+html[data-theme="light"] .dashboard-text-secondary {
+  color: #4b5563 !important;
+}
+html[data-theme="light"] svg text {
+  fill: #23272f !important;
+}
+html[data-theme="light"] svg circle {
+  stroke: #23272f;
+}
+html[data-theme="light"] svg circle.opacity-10 {
+  stroke: #e5e7eb;
+}
+html[data-theme="light"] svg circle.opacity-35 {
+  stroke: #9ca3af;
+}
+html[data-theme="light"] svg circle.opacity-25 {
+  stroke: #d1d5db;
+}
+html[data-theme="light"] svg circle.opacity-18 {
+  stroke: #e5e7eb;
+}
+
+/* Date input styling for calendar picker */
+input[type="date"] {
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-inner-spin-button {
+  z-index: 1;
+}
+
+input[type="date"]::-webkit-clear-button {
+  z-index: 1;
+}
+
+/* Dashboard Text-Farben für Dark Mode */
+.dashboard-stat-number {
+  color: rgba(255,255,255,0.90);
+}
+.dashboard-text {
+  color: rgba(255,255,255,0.90);
+}
+.dashboard-text-secondary {
+  color: rgba(255,255,255,0.85);
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

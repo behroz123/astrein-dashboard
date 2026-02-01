@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePrefs } from "../../lib/prefs";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../../lib/firebase";
+import { useRouter } from "next/navigation";
 
 function hexToRgbTriplet(hex: string) {
   const h = hex.replace("#", "").trim();
@@ -148,6 +152,7 @@ function LangMenuPortal({
 }
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { lang, setLang, theme, setTheme, accent, setAccent, t } = usePrefs();
 
   const [langOpen, setLangOpen] = useState(false);
@@ -155,6 +160,37 @@ export default function SettingsPage() {
 
   const [colorHex, setColorHex] = useState(() => rgbTripletToHex(accent));
   useEffect(() => setColorHex(rgbTripletToHex(accent)), [accent]);
+
+  // User Profile
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("mitarbeiter");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (!u) {
+        router.replace("/login");
+        return;
+      }
+
+      setUserEmail(u.email || "");
+
+      const userDoc = await getDoc(doc(db, "users", u.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        const name = data.name || data.displayName || (data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : u.email?.split('@')[0] || "Benutzer");
+        setUserName(name);
+        setUserRole(data.role || "mitarbeiter");
+      } else {
+        setUserName(u.email?.split('@')[0] || "Benutzer");
+      }
+
+      setLoading(false);
+    });
+
+    return () => unsub();
+  }, [router]);
 
   // ✅ language labels translated via t()
   const languages = useMemo(
@@ -196,13 +232,35 @@ export default function SettingsPage() {
 
   const currentLangLabel = languages.find((x) => x.id === lang)?.label ?? t("lang.de");
 
+  if (loading) {
+    return (
+      <div className="rounded-[28px] surface p-6 text-sm muted">
+        Lädt...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Profile Card */}
       <div className="rounded-[28px] surface p-6">
-        <h1 className="text-xl font-semibold text-white">{t("settings")}</h1>
-        <p className="mt-1 text-sm muted">
-          {t("language")} · {t("theme")} · {t("color")}
-        </p>
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white"
+               style={{ background: `linear-gradient(135deg, rgb(var(--accent)), rgba(var(--accent), 0.6))` }}>
+            {userName.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold text-white">{userName}</h1>
+            <p className="text-sm text-white/60">{userEmail}</p>
+            <div className="mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold"
+                 style={{ 
+                   background: userRole === "admin" ? "rgba(139, 92, 246, 0.15)" : "rgba(34, 197, 94, 0.15)",
+                   color: userRole === "admin" ? "rgb(139, 92, 246)" : "rgb(34, 197, 94)"
+                 }}>
+              {userRole === "admin" ? "Administrator" : "Mitarbeiter"}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Language */}
@@ -211,7 +269,7 @@ export default function SettingsPage() {
           <div>
             <div className="text-sm font-semibold text-white/90">{t("language")}</div>
             <div className="mt-1 text-xs muted">
-              {t("preview")}: {currentLangLabel}
+              {currentLangLabel}
             </div>
           </div>
 
@@ -282,9 +340,6 @@ export default function SettingsPage() {
               }}
               className="h-11 w-16 rounded-xl border border-white/10 bg-black/25"
             />
-            <button className="rounded-2xl btn-accent px-4 py-2 text-sm font-semibold">
-              {t("preview")}
-            </button>
           </div>
         </div>
 

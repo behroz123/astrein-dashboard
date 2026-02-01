@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    function isOwner(fieldName) {
+      return signedIn() && resource.data[fieldName] == request.auth.uid;
+    }
+
+    // users (jeder sieht nur sein Profil, Admin sieht alle)
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid;
+      allow update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role;
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // items
+    match /items/{itemId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // categories
+    match /categories/{categoryId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // warehouses
+    match /warehouses/{warehouseId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // logs
+    match /logs/{logId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // reservations (active reservations)
+    match /reservations/{resId} {
+      allow create: if signedIn();
+      allow read: if isAdmin() || (signedIn() && resource.data.reservedByUid == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (signedIn() && resource.data.reservedByUid == request.auth.uid);
+    }
+
+    // reservation history
+    match /reservation_history/{hid} {
+      allow create: if signedIn();
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+    
+    // Support Tickets - Alle eingeloggten Benutzer können erstellen
+    match /supportTickets/{ticketId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+    
+    // Chat Messages - Benutzer können ihre eigenen Nachrichten lesen/schreiben
+    match /chatMessages/{messageId} {
+      allow read, write: if signedIn();
+    }
+  }
+}

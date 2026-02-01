@@ -105,7 +105,7 @@ function MiniDonut({ a, b, c, d }: { a: number; b: number; c: number; d: number 
   return (
     <svg width="90" height="90" viewBox="0 0 90 90" className="shrink-0">
       <g transform="translate(45 45)">
-        <circle r={r} fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="10" />
+        <circle r={r} fill="none" stroke="currentColor" strokeWidth="10" className="opacity-10" />
         <circle
           r={r}
           fill="none"
@@ -119,34 +119,37 @@ function MiniDonut({ a, b, c, d }: { a: number; b: number; c: number; d: number 
         <circle
           r={r}
           fill="none"
-          stroke="rgba(255,255,255,0.35)"
+          stroke="currentColor"
           strokeWidth="10"
           strokeDasharray={`${s2} ${C - s2}`}
           strokeDashoffset={-s1}
           transform="rotate(-90)"
           strokeLinecap="round"
+          className="opacity-35"
         />
         <circle
           r={r}
           fill="none"
-          stroke="rgba(255,255,255,0.25)"
+          stroke="currentColor"
           strokeWidth="10"
           strokeDasharray={`${s3} ${C - s3}`}
           strokeDashoffset={-(s1 + s2)}
           transform="rotate(-90)"
           strokeLinecap="round"
+          className="opacity-25"
         />
         <circle
           r={r}
           fill="none"
-          stroke="rgba(255,255,255,0.18)"
+          stroke="currentColor"
           strokeWidth="10"
           strokeDasharray={`${s4} ${C - s4}`}
           strokeDashoffset={-(s1 + s2 + s3)}
           transform="rotate(-90)"
           strokeLinecap="round"
+          className="opacity-18"
         />
-        <text x="0" y="5" textAnchor="middle" fontSize="14" fill="rgba(255,255,255,0.85)" fontWeight="600">
+        <text x="0" y="5" textAnchor="middle" fontSize="14" fill="currentColor" fontWeight="600" className="opacity-85">
           {total}
         </text>
       </g>
@@ -160,6 +163,8 @@ export default function DashboardPage() {
 
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [userName, setUserName] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>("mitarbeiter");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -278,6 +283,18 @@ export default function DashboardPage() {
               {t("items")}
             </Link>
             <Link
+              href="/wareneingang"
+              className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400 hover:bg-green-500/20 transition"
+            >
+              {t("wareneingang")}
+            </Link>
+            <Link
+              href="/warenausgang"
+              className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400 hover:bg-red-500/20 transition"
+            >
+              {t("warenausgang")}
+            </Link>
+            <Link
               href="/settings"
               className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
             >
@@ -303,7 +320,7 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-xs muted">{t("overview") ?? "Overview"}</div>
-              <div className="mt-2 text-3xl font-semibold text-white">{computed.total}</div>
+              <div className="mt-2 text-3xl font-semibold dashboard-stat-number">{computed.total}</div>
               <div className="mt-1 text-sm muted">{t("items")}</div>
             </div>
             <MiniDonut
@@ -317,22 +334,22 @@ export default function DashboardPage() {
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-2xl surface-2 p-5">
               <div className="text-xs muted">{t("available")}</div>
-              <div className="mt-2 text-2xl font-semibold text-white">{computed.byCond.available}</div>
+              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.available}</div>
               <ProgressBar value={computed.byCond.available} max={computed.total} />
             </div>
             <div className="rounded-2xl surface-2 p-5">
               <div className="text-xs muted">{t("needsRepair")}</div>
-              <div className="mt-2 text-2xl font-semibold text-white">{computed.byCond.needsRepair}</div>
+              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.needsRepair}</div>
               <ProgressBar value={computed.byCond.needsRepair} max={computed.total} />
             </div>
             <div className="rounded-2xl surface-2 p-5">
               <div className="text-xs muted">{t("missing")}</div>
-              <div className="mt-2 text-2xl font-semibold text-white">{computed.byCond.missing}</div>
+              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.missing}</div>
               <ProgressBar value={computed.byCond.missing} max={computed.total} />
             </div>
             <div className="rounded-2xl surface-2 p-5">
               <div className="text-xs muted">{t("inUse") ?? "In use"}</div>
-              <div className="mt-2 text-2xl font-semibold text-white">{computed.byCond.inUse}</div>
+              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.inUse}</div>
               <ProgressBar value={computed.byCond.inUse} max={computed.total} />
             </div>
           </div>
@@ -355,7 +372,7 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-white stat-number">{computed.lagerSorted[0]?.[0] ?? "—"}</div>
+                  <div className="text-3xl font-bold dashboard-stat-number stat-number">{computed.lagerSorted[0]?.[0] ?? "—"}</div>
                   <div className="mt-1 text-sm muted">{t("whereMostHint") ?? t("whereMost")}</div>
                 </div>
               </div>
@@ -363,7 +380,7 @@ export default function DashboardPage() {
 
             <div className="ml-auto text-right">
               <div className="text-xs muted">{t("mostCount") ?? t("count")}</div>
-              <div className="mt-2 text-4xl font-extrabold text-white kpi-animate">{computed.maxLager}</div>
+              <div className="mt-2 text-4xl font-extrabold dashboard-stat-number kpi-animate">{computed.maxLager}</div>
               <div className="mt-4 w-44 rounded-full bg-white/6 overflow-hidden">
                 <div
                   className="h-3"
@@ -383,8 +400,8 @@ export default function DashboardPage() {
               computed.lagerSorted.slice(0, 6).map(([lager, n], idx) => (
                 <div key={lager} className={`rounded-2xl surface-2 p-3 ${idx === 0 ? "sheen-animate theme-card-active" : ""}`}>
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-semibold text-white/90">{lager}</div>
-                    <div className="text-sm text-white/85 font-semibold">{n}</div>
+                    <div className="text-sm font-semibold dashboard-text">{lager}</div>
+                    <div className="text-sm dashboard-text-secondary font-semibold">{n}</div>
                   </div>
                   <div className="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">
                     <div
@@ -405,7 +422,7 @@ export default function DashboardPage() {
       {/* Recent bookings */}
       <div className="rounded-[28px] surface p-6">
         <div className="flex items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-white/90">{t("recentBookings")}</div>
+          <div className="text-sm font-semibold dashboard-text">{t("recentBookings")}</div>
           <Link href="/items" className="text-sm text-white/80 hover:text-white transition">
             {t("items")}
           </Link>

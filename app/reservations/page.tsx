@@ -10,6 +10,7 @@ import {
   getDoc,
   getDocs,
   limit,
+  onSnapshot,
   orderBy,
   query,
   runTransaction,
@@ -28,6 +29,7 @@ type Reservation = {
   forWhom?: string;
   status?: string; // "active"
   reservedByUid?: string;
+  reservedByName?: string;
   createdAt?: any;
 };
 
@@ -121,40 +123,113 @@ export default function ReservationsPage() {
       const uids = Array.from(new Set(filtered.map((r) => r.reservedByUid).filter(Boolean)));
       if (uids.length === 0) {
         setUserMap({});
+        setLoading(false);
         return;
       }
 
       // Firestore: fetch all users by UID (doc ID)
       let userMap: UserMap = {};
       await Promise.all(
-        uids.map(async (uid) => {
+        uids.map(async (userId) => {
           try {
-            const usnap = await getDoc(doc(db, "users", uid));
-            if (usnap.exists()) {
-              const d = usnap.data();
-              userMap[uid] = d.displayName || d.name || d.email || uid;
-            } else {
-              userMap[uid] = uid;
+            if (userId) {
+              const usnap = await getDoc(doc(db, "users", userId));
+              if (usnap.exists()) {
+                const d = usnap.data();
+                userMap[userId] = d.displayName || d.name || d.email || userId;
+              } else {
+                userMap[userId] = userId;
+              }
             }
           } catch (e) {
-            userMap[uid] = uid;
+            if (userId) {
+              userMap[userId] = userId;
+            }
           }
         })
       );
       setUserMap(userMap);
+      setLoading(false);
     } catch (e: any) {
       const code = String(e?.code ?? "");
       setErr(code ? `Daten nicht verfügbar. Fehler: ${code}` : "Daten nicht verfügbar.");
-    } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    if (!ready) return;
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, role, uid]);
+    if (!ready || !uid || !role) return;
+
+    setLoading(true);
+    setErr(null);
+
+    const qy = query(
+      collection(db, "reservations"),
+      orderBy("createdAt", "desc"),
+      limit(200)
+    );
+
+    const unsubscribe = onSnapshot(qy, async (snap) => {
+      try {
+        const list: Reservation[] = snap.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as any),
+        }));
+
+        // Filter nach Status + Rolle (client-seitig, kein Index nötig)
+        const filtered =
+          role === "admin"
+            ? list.filter((x) => String(x.status ?? "") === "active")
+            : list.filter(
+                (x) =>
+                  String(x.status ?? "") === "active" &&
+                  String(x.reservedByUid ?? "") === uid
+              );
+
+        // Sofort setzen damit UI aktualisiert
+        setRows(filtered);
+
+        // User names parallel laden
+        const userIds = Array.from(
+          new Set(filtered.map((r) => r.reservedByUid).filter(Boolean))
+        );
+
+        if (userIds.length === 0) {
+          setUserMap({});
+          setLoading(false);
+          return;
+        }
+
+        const userMap: UserMap = {};
+        const userPromises = userIds.map(async (userId) => {
+          try {
+            const usnap = await getDoc(doc(db, "users", userId));
+            if (usnap.exists()) {
+              const d = usnap.data();
+              userMap[userId] =
+                d.displayName || d.name || d.email || userId;
+            } else {
+              userMap[userId] = userId;
+            }
+          } catch (e) {
+            userMap[userId] = userId;
+          }
+        });
+
+        await Promise.all(userPromises);
+        setUserMap(userMap);
+        setLoading(false);
+      } catch (error) {
+        console.error("onSnapshot error:", error);
+        setErr("Fehler beim Laden der Reservierungen");
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [ready, uid, role]);
 
   const activeCount = useMemo(() => rows.length, [rows]);
 
@@ -198,7 +273,7 @@ export default function ReservationsPage() {
         tx.delete(resRef);
       });
 
-      await load();
+      // Kein load() mehr nötig - Real-Time Listener updated automatisch
     } catch (e: any) {
       const code = String(e?.code ?? "");
       setErr(code ? `Checkout fehlgeschlagen: ${code}` : "Checkout fehlgeschlagen.");
@@ -231,7 +306,11 @@ export default function ReservationsPage() {
               Geräte & Material
             </Link>
             <button
-              onClick={load}
+              onClick={async () => {
+                setLoading(true);
+                // Kurze Verzögerung dann Listener wird neu aktiviert
+                await new Promise(r => setTimeout(r, 500));
+              }}
               className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
             >
               Aktualisieren
@@ -293,7 +372,7 @@ export default function ReservationsPage() {
                   <td className="px-5 py-4 text-sm text-white/75">
                     {String(r.forWhom ?? "").trim() ? r.forWhom : "—"}
                   </td>
-                  <td className="px-5 py-4 text-sm text-white/75">{userMap[r.reservedByUid ?? ""] ?? r.reservedByUid ?? "—"}</td>
+                  <td className="px-5 py-4 text-sm text-white/75">{userMap[r.reservedByUid ?? ""] ?? r.reservedByName ?? r.reservedByUid ?? "—"}</td>
                   <td className="px-5 py-4 text-sm text-white/75">{r.status ?? "—"}</td>
 
                   <td className="px-5 py-4 text-right">
@@ -314,7 +393,7 @@ export default function ReservationsPage() {
       </div>
 
       <div className="text-xs muted">
-        Hinweis: "Checkout" simuliert das Ausgeben (später macht das die iPhone-Scan-App automatisch).
+        Die Reservierungen werden automatisch aktualisiert (Real-Time).
       </div>
     </div>
   );

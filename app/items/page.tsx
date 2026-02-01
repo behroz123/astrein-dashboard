@@ -141,7 +141,10 @@ export default function ItemsPage() {
   const [decQty, setDecQty] = useState(1);
   const [decBusy, setDecBusy] = useState(false);
   const [decErr, setDecErr] = useState<string | null>(null);
-
+  // delete modal (admin komplett löschen)
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selDelete, setSelDelete] = useState<Item | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   // auth + role
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -248,6 +251,19 @@ export default function ItemsPage() {
       const fb = auth.currentUser;
       if (!fb) throw new Error("NOAUTH");
 
+      // WICHTIG: Lade den Namen ZUERST und warte darauf
+      let userName = fb.email ?? "Unbekannt";
+      try {
+        const userSnap = await getDoc(doc(db, "users", fb.uid));
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          userName = userData.displayName || userData.name || userData.email || fb.email || "Unbekannt";
+        }
+      } catch (e) {
+        console.error("Error loading user:", e);
+      }
+
+      // JETZT starte die Transaction mit dem Namen
       const itemRef = doc(db, "items", selReserve.id);
       const resRef = doc(collection(db, "reservations"));
 
@@ -266,12 +282,13 @@ export default function ItemsPage() {
 
         tx.set(resRef, {
           itemId: selReserve.id,
-          lagerId: pickLager(it),
+          lagerId: pickLager(it).trim(),
           qty,
           forDate: new Date(reserveDate),
           forWhom: String(reserveForWhom ?? "").trim(),
           status: "active",
           reservedByUid: fb.uid,
+          reservedByName: userName,
           createdAt: serverTimestamp(),
         });
       });
@@ -332,6 +349,30 @@ export default function ItemsPage() {
       else setDecErr(t("decrement.errorGeneric"));
     } finally {
       setDecBusy(false);
+    }
+  }
+
+  // open delete modal
+  function openDelete(it: Item) {
+    setSelDelete(it);
+    setDeleteOpen(true);
+  }
+
+  async function confirmDelete() {
+    if (!selDelete) return;
+
+    setDeleteBusy(true);
+    try {
+      const { deleteDoc } = await import("firebase/firestore");
+      await deleteDoc(doc(db, "items", selDelete.id));
+      
+      setItems(prev => prev.filter(x => x.id !== selDelete.id));
+      setDeleteOpen(false);
+    } catch (e) {
+      console.error("Error deleting item:", e);
+      alert(t("error") || "Fehler beim Löschen");
+    } finally {
+      setDeleteBusy(false);
     }
   }
 
@@ -480,9 +521,8 @@ export default function ItemsPage() {
                         </button>
 
                         <button
-                          onClick={() => openDecrement(r)}
-                          className="rounded-xl px-3 py-2 text-xs font-semibold"
-                          style={{ background: "rgb(var(--accent))", color: "white" }}
+                          onClick={() => openDelete(r)}
+                          className="rounded-xl px-3 py-2 text-xs font-semibold bg-red-500 text-white hover:bg-red-600 transition"
                         >
                           {t("common.delete")}
                         </button>
@@ -643,6 +683,53 @@ export default function ItemsPage() {
               </button>
 
               <div className="text-xs muted">{t("decrement.hint")}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete modal */}
+      {deleteOpen && selDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => (!deleteBusy ? setDeleteOpen(false) : null)} />
+          <div className="relative w-full max-w-lg rounded-[28px] border border-red-500/30 bg-black/70 backdrop-blur-2xl p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-xs text-red-400">{t("confirmDeleteTitle")}</div>
+                <div className="mt-1 text-lg font-semibold text-white">{selDelete.name ?? selDelete.id}</div>
+                <div className="mt-1 text-xs muted">ID: {selDelete.id}</div>
+              </div>
+
+              <button
+                className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 hover:bg-white/5 transition"
+                onClick={() => (!deleteBusy ? setDeleteOpen(false) : null)}
+              >
+                {t("common.close")}
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="text-sm text-white/70">
+                {t("confirmDeleteBody")}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteOpen(false)}
+                  disabled={deleteBusy}
+                  className="flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-white/85 hover:bg-white/5 transition disabled:opacity-60"
+                >
+                  {t("cancel")}
+                </button>
+
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleteBusy}
+                  className="flex-1 rounded-2xl px-4 py-3 text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-60"
+                >
+                  {deleteBusy ? t("common.pleaseWait") : t("confirm")}
+                </button>
+              </div>
             </div>
           </div>
         </div>
