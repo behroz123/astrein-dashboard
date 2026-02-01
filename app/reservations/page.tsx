@@ -202,6 +202,7 @@ export default function ReservationsPage() {
 
         const userMap: UserMap = {};
         const userPromises = userIds.map(async (userId) => {
+          if (!userId) return;
           try {
             const usnap = await getDoc(doc(db, "users", userId));
             if (usnap.exists()) {
