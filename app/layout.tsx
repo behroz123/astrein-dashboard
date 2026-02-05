@@ -70,6 +70,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/items", label: t("items") },
     { href: "/wareneingang", label: t("wareneingang") },
     { href: "/warenausgang", label: t("warenausgang") },
+    { href: "/auszuege", label: t("moveouts") },
     { href: "/employees", label: t("employees") },
     { href: "/exports", label: t("exports") },
     { href: "/settings", label: t("settings") },
@@ -79,6 +80,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/items", label: t("items") },
     { href: "/wareneingang", label: t("wareneingang") },
     { href: "/warenausgang", label: t("warenausgang") },
+    { href: "/auszuege", label: t("moveouts") },
     { href: "/settings", label: t("settings") },
   ];
 
@@ -142,7 +144,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
         <main className="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">{children}</main>
 
         <nav className="lg:hidden fixed bottom-3 left-3 right-3 z-30 rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl px-2 py-2">
-          <div className="grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-6 gap-1">
             {mobileNavItems.map((item) => {
               const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
               return (
