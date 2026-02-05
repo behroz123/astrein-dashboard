@@ -16,13 +16,10 @@ service cloud.firestore {
       return signedIn() && resource.data[fieldName] == request.auth.uid;
     }
 
-    // users (jeder sieht nur sein Profil, Admin sieht alle)
+    // users (هر کس فقط پروفایل خودش رو ببینه)
     match /users/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
-      allow create: if signedIn() && request.auth.uid == uid;
-      allow update: if signedIn() && request.auth.uid == uid
-        && request.resource.data.role == resource.data.role;
-      allow update: if isAdmin();
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid;
       allow delete: if false;
     }
 
@@ -55,13 +52,20 @@ service cloud.firestore {
       allow create: if signedIn();
       allow read: if isAdmin() || (signedIn() && resource.data.reservedByUid == request.auth.uid);
       allow update: if isAdmin();
-      allow delete: if isAdmin() || (signedIn() && resource.data.reservedByUid == request.auth.uid);
+      allow delete: if signedIn();
     }
 
     // reservation history
     match /reservation_history/{hid} {
       allow create: if signedIn();
       allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // moveouts (Auszüge)
+    match /moveouts/{moveoutId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
       allow update, delete: if isAdmin();
     }
     
