@@ -70,7 +70,8 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/items", label: t("items") },
     { href: "/wareneingang", label: t("wareneingang") },
     { href: "/warenausgang", label: t("warenausgang") },
-    { href: "/auszuege", label: t("moveouts") },
+    { href: "/immobilien", label: "Immobilien" },
+    { href: "/fuhrpark", label: "Fuhrpark" },
     { href: "/employees", label: t("employees") },
     { href: "/exports", label: t("exports") },
     { href: "/settings", label: t("settings") },
@@ -80,7 +81,8 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/items", label: t("items") },
     { href: "/wareneingang", label: t("wareneingang") },
     { href: "/warenausgang", label: t("warenausgang") },
-    { href: "/auszuege", label: t("moveouts") },
+    { href: "/immobilien", label: "Immobilien" },
+    { href: "/fuhrpark", label: "Fuhrpark" },
     { href: "/settings", label: t("settings") },
   ];
 

@@ -61,6 +61,52 @@ const DICT: Record<Lang, Record<string, string>> = {
     "moveouts.col.by": "Eingetragen von",
     "moveouts.col.notes": "Notizen",
 
+    moveins: "Einzüge",
+    "moveins.title": "Einzüge",
+    "moveins.subtitle": "Einzüge in Wohnungen dokumentieren",
+    "moveins.form.title": "Neuen Einzug eintragen",
+    "moveins.form.person": "Wer ist eingezogen?",
+    "moveins.form.date": "Wann eingezogen?",
+    "moveins.form.into": "Wohin eingezogen?",
+    "moveins.form.notes": "Notizen (optional)",
+    "moveins.form.save": "Eintrag speichern",
+    "moveins.count": "Einträge",
+    "moveins.list.title": "Einzugs-Liste",
+    "moveins.empty": "Noch keine Einzüge erfasst",
+    "moveins.col.person": "Name",
+    "moveins.col.date": "Datum",
+    "moveins.col.into": "Wohnung",
+    "moveins.col.by": "Eingetragen von",
+    "moveins.col.notes": "Notizen",
+
+    immobilien: "Immobilien",
+    "immobilien.title": "Immobilien",
+    "immobilien.subtitle": "Immobilien, Auszüge und Einzüge verwalten",
+
+    wohnungChecken: "Wohnung Checken",
+    "wohnungChecken.title": "Wohnung Checken",
+    "wohnungChecken.subtitle": "Checklisten & Protokolle",
+
+    schluesseluebergabe: "Schlüsselübergabe",
+    "schluesseluebergabe.title": "Schlüsselübergabeprotokoll",
+    "schluesseluebergabe.subtitle": "Schlüsselübergaben dokumentieren",
+
+    mietvertrag: "Mietvertrag",
+    "mietvertrag.title": "Mietverträge",
+    "mietvertrag.subtitle": "Mietverträge verwalten",
+
+    stromVertrag: "Strom-Vertrag",
+    "stromVertrag.title": "Stromverträge",
+    "stromVertrag.subtitle": "Energieverträge verwalten",
+
+    wasserVertrag: "Wasser-Vertrag",
+    "wasserVertrag.title": "Wasserverträge",
+    "wasserVertrag.subtitle": "Wasserverträge verwalten",
+
+    untermietvertrag: "Untermietvertrag",
+    "untermietvertrag.title": "Untermietverträge",
+    "untermietvertrag.subtitle": "Untermietverträge verwalten",
+
     "employees.title": "Mitarbeiter",
     "employees.subtitle": "Profile der App-Nutzer",
     "employees.count": "Profile",
