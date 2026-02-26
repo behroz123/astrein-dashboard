@@ -15,6 +15,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import jsPDF from "jspdf";
 import { auth, db, storage } from "../../lib/firebase";
 
 type ElectricityContract = {
@@ -243,6 +244,120 @@ export default function StromVertragPage() {
     }
   }
 
+  function getNextPossibleCancellationDate(): string {
+    const today = new Date();
+    // Nächster möglicher Kündigungstag: 14 Tage von heute
+    const cancellationDate = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+    return cancellationDate.toLocaleDateString("de-DE");
+  }
+
+  function generateCancellationPdf(contract: ElectricityContract): void {
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const width = doc.internal.pageSize.getWidth();
+    const height = doc.internal.pageSize.getHeight();
+    let y = 15;
+
+    // Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Kündigungsschreiben", 15, y);
+
+    y += 10;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Stromversorgungsvertrag", 15, y);
+
+    y += 15;
+
+    // Absender
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text("AH Exzellent Immobilien GmbH", 15, y);
+    y += 6;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Heidenkampweg 46", 15, y);
+    y += 5;
+    doc.text("20097 Hamburg", 15, y);
+
+    y += 15;
+
+    // Kündigung Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Kündigungsschreiben für Stromversorgung", 15, y);
+
+    y += 12;
+
+    // Vertragsdaten
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("Sehr geehrte Damen und Herren,", 15, y);
+
+    y += 10;
+
+    const cancellationDate = getNextPossibleCancellationDate();
+    const letterText = `hiermit kündigen wir unseren Stromversorgungsvertrag mit den folgenden Daten zum nächstmöglichen Zeitpunkt, spätestens zum ${cancellationDate}:`;
+    const letterLines = doc.splitTextToSize(letterText, 180);
+    doc.text(letterLines, 15, y);
+    y += letterLines.length * 5 + 10;
+
+    // Kontodaten
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("Vertragsdaten:", 15, y);
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text(`Anlagenstelle / Adresse: ${contract.propertyName}`, 15, y);
+    y += 6;
+    if (contract.propertyAddress) {
+      doc.text(`${contract.propertyAddress}`, 15, y);
+      y += 6;
+    }
+    doc.text(`Stromversorger: ${contract.providerName}`, 15, y);
+    y += 6;
+    if (contract.accountNumber) {
+      doc.text(`Vertragskontonnummer: ${contract.accountNumber}`, 15, y);
+      y += 6;
+    }
+    if (contract.meterNumber) {
+      doc.text(`Zählernummer: ${contract.meterNumber}`, 15, y);
+      y += 6;
+    }
+
+    y += 8;
+
+    // Schluss
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    const closingText = `Bitte bestätigen Sie den Erhalt dieser Kündigung schriftlich. Wir bitten, alle offenen Rechnungen vor dem Kündigungsdatum auszugleichen.`;
+    const closingLines = doc.splitTextToSize(closingText, 180);
+    doc.text(closingLines, 15, y);
+    y += closingLines.length * 5 + 12;
+
+    doc.text("Mit freundlichen Grüßen,", 15, y);
+    y += 15;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("AH Exzellent Immobilien GmbH", 15, y);
+
+    // Footer
+    y = height - 8;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Kündigungsdatum: ${new Date().toLocaleDateString("de-DE")}`, width / 2, y, { align: "center" });
+
+    // Download PDF
+    const fileName = `Kündigung_${contract.providerName}_${contract.propertyName}_${Date.now()}.pdf`;
+    doc.save(fileName);
+  }
+
   const filteredContracts = contracts.filter(c =>
     c.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.providerName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -257,7 +372,26 @@ export default function StromVertragPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-6">
+      {/* Header with Back Button */}
+      <div className="rounded-[28px] surface p-6">
+        <div className="flex items-center gap-4 mb-4">
+          <button
+            onClick={() => router.push('/immobilien')}
+            className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/10 transition"
+          >
+            ← Zurück zu Immobilien
+          </button>
+        </div>
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Stromverträge</h1>
+          <div className="mt-1 text-sm muted">
+            Alle Stromverträge und Zählerinformationen verwalten
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Verträge Liste */}
       <div className="lg:col-span-1 space-y-4">
         <div className="rounded-[28px] surface p-6">
@@ -507,6 +641,12 @@ export default function StromVertragPage() {
                   ✏️ Bearbeiten
                 </button>
                 <button
+                  onClick={() => generateCancellationPdf(selectedContract)}
+                  className="rounded-xl bg-orange-600 hover:bg-orange-700 px-4 py-2 text-sm font-semibold text-white transition"
+                >
+                  📄 Kündigung
+                </button>
+                <button
                   onClick={() => handleDelete(selectedContract)}
                   className="rounded-xl bg-red-600/20 border border-red-600/30 hover:bg-red-600/30 px-4 py-2 text-sm text-red-400 transition"
                 >
@@ -648,6 +788,7 @@ export default function StromVertragPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
