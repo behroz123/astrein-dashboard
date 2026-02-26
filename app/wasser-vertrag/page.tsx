@@ -17,6 +17,7 @@ import {
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import jsPDF from "jspdf";
 import { auth, db, storage } from "../../lib/firebase";
+import { usePrefs } from "../../lib/prefs";
 
 type WaterContract = {
   id: string;
@@ -37,6 +38,7 @@ type WaterContract = {
 
 export default function WasserVertragPage() {
   const router = useRouter();
+  const { t } = usePrefs();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [contracts, setContracts] = useState<WaterContract[]>([]);
@@ -257,108 +259,124 @@ export default function WasserVertragPage() {
 
   function generateCancellationPdf(contract: WaterContract): void {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const width = doc.internal.pageSize.getWidth();
-    const height = doc.internal.pageSize.getHeight();
-    let y = 15;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 10;
+    const margin = 20;
+    const maxWidth = pageWidth - 2 * margin;
 
-    // Header
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Kündigungsschreiben", 15, y);
-
-    y += 10;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Wasserversorgungsvertrag", 15, y);
-
-    y += 15;
-
-    // Absender
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text("AH Exzellent Immobilien GmbH", 15, y);
-    y += 6;
-    doc.setFont("helvetica", "normal");
+    // ===== KOPFZEILE (Header) =====
+    doc.setFont("Helvetica", "bold");
     doc.setFontSize(9);
-    doc.text("Heidenkampweg 46", 15, y);
+    doc.setTextColor(0, 0, 0);
+    const headerText = "AH Exzellent Immobilien GmbH · Heidenkampweg 46 · 20097 Hamburg";
+    doc.text(headerText, margin, y);
+
+    // Trennlinie
+    y += 4;
+    doc.setDrawColor(0, 0, 0);
+    doc.line(margin, y, pageWidth - margin, y);
+
+    y += 8;
+
+    // ===== OBEN RECHTS: Vertragskonto und Datum =====
+    const rightX = pageWidth - margin - 70;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("Vertragskonto", rightX, y);
     y += 5;
-    doc.text("20097 Hamburg", 15, y);
-
-    y += 15;
-
-    // Kündigung Header
-    doc.setFont("helvetica", "bold");
+    doc.setFont("Helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("Kündigungsschreiben für Wasserversorgung", 15, y);
-
-    y += 12;
-
-    // Vertragsdaten
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text("Sehr geehrte Damen und Herren,", 15, y);
-
+    doc.text(contract.accountNumber || "nicht angegeben", rightX, y);
     y += 10;
-
-    const cancellationDate = getNextPossibleCancellationDate();
-    const letterText = `hiermit kündigen wir unseren Wasserversorgungsvertrag mit den folgenden Daten zum nächstmöglichen Zeitpunkt, spätestens zum ${cancellationDate}:`;
-    const letterLines = doc.splitTextToSize(letterText, 180);
-    doc.text(letterLines, 15, y);
-    y += letterLines.length * 5 + 10;
-
-    // Kontodaten
-    doc.setFont("helvetica", "bold");
+    
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(10);
-    doc.text("Vertragsdaten:", 15, y);
-    y += 8;
+    const today = new Date();
+    const dateStr = today.toLocaleDateString("de-DE", { 
+      year: "numeric", 
+      month: "2-digit", 
+      day: "2-digit" 
+    });
+    doc.text(`Hamburg, ${dateStr}`, rightX, y);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text(`Anlagenstelle / Adresse: ${contract.propertyName}`, 15, y);
+    // ===== EMPFÄNGER (Links) =====
+    y = 30;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(contract.providerName || "Wasserversorger", margin, y);
+    y += 5;
+    doc.setFontSize(10);
+    doc.text("Amerigo-Vespucci-Platz 2", margin, y);
+    y += 4;
+    doc.text("20457 Hamburg", margin, y);
+
+    y += 25;
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Kündigung", margin, y);
+
+    // ===== ANREDE =====
+    y += 10;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text("Sehr geehrte Damen und Herren,", margin, y);
+
+    // ===== HAUPTTEXT =====
+    y += 10;
+    doc.setFontSize(11);
+    const mainText = `hiermit kündigen wir unseren Wasserversorgungsvertrag fristgerecht.
+
+Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem Bankkonto. Bitte senden Sie mir eine schriftliche Bestätigung über den Erhalt dieser Kündigung sowie ggf. eine Abschlussrechnung.`;
+    const mainLines = doc.splitTextToSize(mainText, maxWidth);
+    doc.text(mainLines, margin, y);
+
+    // ===== VERTRAGSDATEN =====
+    y += mainLines.length * 5.5 + 8;
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("Meine Vertragsdaten:", margin, y);
+
     y += 6;
-    if (contract.propertyAddress) {
-      doc.text(`${contract.propertyAddress}`, 15, y);
-      y += 6;
-    }
-    doc.text(`Wasserversorger: ${contract.providerName}`, 15, y);
-    y += 6;
-    if (contract.accountNumber) {
-      doc.text(`Vertragskontonnummer: ${contract.accountNumber}`, 15, y);
-      y += 6;
-    }
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    
+    const addressLine = contract.propertyAddress || contract.propertyName;
+    doc.text(`Liegenschaft: ${addressLine}`, margin + 2, y);
+    y += 5;
+
+    const kundennummer = contract.accountNumber || "(nicht angegeben)";
+    doc.text(`Kundennummer: ${kundennummer}`, margin + 2, y);
+    y += 5;
+
     if (contract.meterNumber) {
-      doc.text(`Zählernummer: ${contract.meterNumber}`, 15, y);
-      y += 6;
+      doc.text(`Zählernummer: ${contract.meterNumber}`, margin + 2, y);
+      y += 5;
     }
 
-    y += 8;
-
-    // Schluss
-    doc.setFont("helvetica", "normal");
+    // ===== SCHLUSSVERMERK =====
+    y += 5;
     doc.setFontSize(10);
-    const closingText = `Bitte bestätigen Sie den Erhalt dieser Kündigung schriftlich. Wir bitten, alle offenen Rechnungen vor dem Kündigungsdatum auszugleichen.`;
-    const closingLines = doc.splitTextToSize(closingText, 180);
-    doc.text(closingLines, 15, y);
-    y += closingLines.length * 5 + 12;
+    const closingText = `Ich bitte Sie, mir eine schriftliche Bestätigung zur Kündigung zukommen zu lassen.`;
+    const closingLines = doc.splitTextToSize(closingText, maxWidth);
+    doc.text(closingLines, margin, y);
 
-    doc.text("Mit freundlichen Grüßen,", 15, y);
-    y += 15;
+    // ===== GRUSSFORMEL =====
+    y += closingLines.length * 5.5 + 8;
+    doc.text("Mit freundlichen Grüßen,", margin, y);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("AH Exzellent Immobilien GmbH", 15, y);
-
-    // Footer
-    y = height - 8;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Kündigungsdatum: ${new Date().toLocaleDateString("de-DE")}`, width / 2, y, { align: "center" });
+    // ===== UNTERSCHRIFT =====
+    y += 12;
+    doc.text("_________________________________", margin, y);
+    y += 4;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("Dimitri Root", margin, y);
+    y += 4;
+    doc.setFont("Helvetica", "bold");
+    doc.text("AH Exzellent Immobilien GmbH", margin, y);
 
     // Download PDF
-    const fileName = `Kündigung_${contract.providerName}_${contract.propertyName}_${Date.now()}.pdf`;
+    const fileName = `Kündigung_Wasser_${contract.propertyName.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
     doc.save(fileName);
   }
 
@@ -378,54 +396,56 @@ export default function WasserVertragPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Button */}
-      <div className="rounded-[28px] surface p-6">
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => router.push('/immobilien')}
-            className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/10 transition"
-          >
-            ← Zurück zu Immobilien
-          </button>
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Wasserverträge</h1>
-          <div className="mt-1 text-sm muted">
-            Alle Wasserverträge und Zählerinformationen verwalten
+      <div className="rounded-[28px] surface p-6 mb-8">
+        <button
+          onClick={() => router.push('/immobilien')}
+          className="mb-6 rounded-xl surface-2 px-4 py-2 text-sm muted hover:bg-white/5 transition flex items-center gap-2"
+        >
+          {t("contract.back")}
+        </button>
+        <div className="flex items-start gap-4">
+          <div className="text-5xl">💧</div>
+          <div>
+            <h1 className="text-3xl font-bold">{t("wasserVertrag.title")}</h1>
+            <p className="mt-2 text-sm muted">
+              {t("wasserVertrag.subtitle")}
+            </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Verträge Liste */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="rounded-[28px] surface p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white">Verträge</h2>
-              <span className="px-2 py-1 rounded-full bg-white/10 text-xs text-white/70">
+        <div className="lg:col-span-1">
+          <div className="rounded-[28px] surface p-6 space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-lg font-semibold">{t("contract.myContracts")}</h2>
+              <span className="px-3 py-1 rounded-full surface-2 text-xs font-semibold">
                 {contracts.length}
               </span>
             </div>
+            <p className="text-sm muted">{t("contract.selectNote")}</p>
 
             <input
               type="text"
-              placeholder="Suchen..."
+              placeholder={t("search") || "Suchen..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input mb-4"
+              className="input mb-2"
             />
 
             <button
               onClick={handleNew}
               className="w-full rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-4 py-3 text-sm font-semibold text-white transition hover:from-green-700 hover:to-green-600 mb-4"
             >
-              ➕ Neuer Vertrag
+              ➕ {t("contract.newContract")}
             </button>
 
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
               {filteredContracts.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="text-4xl mb-2">💧</div>
-                  <div className="text-xs text-white/50">Keine Verträge</div>
+                  <div className="text-xs muted">{t("contract.noContracts")}</div>
                 </div>
               ) : (
                 filteredContracts.map((contract) => (
@@ -435,21 +455,17 @@ export default function WasserVertragPage() {
                       setSelectedContract(contract);
                       setIsEditing(false);
                     }}
-                    className={`w-full text-left rounded-xl p-3 transition ${
+                    className={`w-full text-left rounded-xl p-4 transition border ${
                       selectedContract?.id === contract.id
-                        ? "bg-blue-500/20 border border-blue-500/30"
-                        : "bg-white/5 border border-white/10 hover:bg-white/10"
+                        ? "bg-blue-500/10 border-blue-500/30"
+                        : "surface-2 hover:bg-white/5"
                     }`}
                   >
-                    <div className="font-semibold text-white text-sm truncate">
-                      {contract.propertyName}
-                    </div>
-                    <div className="text-xs text-white/50 truncate mt-1">
-                      {contract.providerName}
-                    </div>
+                    <div className="font-semibold text-sm">{contract.propertyName}</div>
+                    <div className="text-xs muted mt-1">{contract.providerName}</div>
                     {contract.monthlyPayment && (
-                      <div className="text-xs text-green-400 font-medium mt-2">
-                        {parseFloat(contract.monthlyPayment).toFixed(2)} EUR/Mo.
+                      <div className="text-sm text-emerald-500 font-medium mt-3">
+                        💰 {parseFloat(contract.monthlyPayment).toFixed(2)} EUR/Monat
                       </div>
                     )}
                   </button>
@@ -645,8 +661,13 @@ export default function WasserVertragPage() {
                     ✏️ Bearbeiten
                   </button>
                   <button
-                    onClick={() => generateCancellationPdf(selectedContract)}
-                    className="rounded-xl bg-orange-600 hover:bg-orange-700 px-4 py-2 text-sm font-semibold text-white transition"
+                    onClick={() => {
+                      if (selectedContract) {
+                        generateCancellationPdf(selectedContract);
+                      }
+                    }}
+                    disabled={!selectedContract}
+                    className="rounded-xl bg-orange-600 hover:bg-orange-700 px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     📄 Kündigung
                   </button>

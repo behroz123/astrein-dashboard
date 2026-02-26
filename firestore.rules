@@ -68,6 +68,20 @@ service cloud.firestore {
       allow create: if signedIn();
       allow update, delete: if isAdmin();
     }
+
+    // electricity contracts
+    match /electricityContracts/{contractId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || isOwner("createdByUid");
+    }
+
+    // water contracts
+    match /waterContracts/{contractId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || isOwner("createdByUid");
+    }
     
     // Support Tickets - Alle eingeloggten Benutzer können erstellen
     match /supportTickets/{ticketId} {

@@ -17,6 +17,7 @@ import {
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import jsPDF from "jspdf";
 import { auth, db, storage } from "../../lib/firebase";
+import { usePrefs } from "../../lib/prefs";
 
 type ElectricityContract = {
   id: string;
@@ -37,6 +38,7 @@ type ElectricityContract = {
 
 export default function StromVertragPage() {
   const router = useRouter();
+  const { t } = usePrefs();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [contracts, setContracts] = useState<ElectricityContract[]>([]);
@@ -253,108 +255,126 @@ export default function StromVertragPage() {
 
   function generateCancellationPdf(contract: ElectricityContract): void {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const width = doc.internal.pageSize.getWidth();
-    const height = doc.internal.pageSize.getHeight();
-    let y = 15;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 10;
+    const margin = 20;
+    const maxWidth = pageWidth - 2 * margin;
 
-    // Header
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
+    // ===== KOPFZEILE (Header) =====
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(9);
     doc.setTextColor(0, 0, 0);
-    doc.text("Kündigungsschreiben", 15, y);
+    const headerText = "AH Exzellent Immobilien GmbH · Heidenkampweg 46 · 20097 Hamburg";
+    doc.text(headerText, margin, y);
+
+    // Trennlinie
+    y += 4;
+    doc.setDrawColor(0, 0, 0);
+    doc.line(margin, y, pageWidth - margin, y);
 
     y += 10;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Stromversorgungsvertrag", 15, y);
 
-    y += 15;
-
-    // Absender
-    doc.setFont("helvetica", "bold");
+    // ===== OBEN RECHTS: Vertragskonto und Datum =====
+    const rightX = pageWidth - margin - 70;
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text("AH Exzellent Immobilien GmbH", 15, y);
-    y += 6;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text("Heidenkampweg 46", 15, y);
+    doc.text("Vertragskonto", rightX, y);
     y += 5;
-    doc.text("20097 Hamburg", 15, y);
-
-    y += 15;
-
-    // Kündigung Header
-    doc.setFont("helvetica", "bold");
+    doc.setFont("Helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("Kündigungsschreiben für Stromversorgung", 15, y);
-
-    y += 12;
-
-    // Vertragsdaten
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text("Sehr geehrte Damen und Herren,", 15, y);
-
+    doc.text(contract.accountNumber || "nicht angegeben", rightX, y);
     y += 10;
-
-    const cancellationDate = getNextPossibleCancellationDate();
-    const letterText = `hiermit kündigen wir unseren Stromversorgungsvertrag mit den folgenden Daten zum nächstmöglichen Zeitpunkt, spätestens zum ${cancellationDate}:`;
-    const letterLines = doc.splitTextToSize(letterText, 180);
-    doc.text(letterLines, 15, y);
-    y += letterLines.length * 5 + 10;
-
-    // Kontodaten
-    doc.setFont("helvetica", "bold");
+    
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(10);
-    doc.text("Vertragsdaten:", 15, y);
-    y += 8;
+    const today = new Date();
+    const dateStr = today.toLocaleDateString("de-DE", { 
+      year: "numeric", 
+      month: "2-digit", 
+      day: "2-digit" 
+    });
+    doc.text(`Hamburg, ${dateStr}`, rightX, y);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text(`Anlagenstelle / Adresse: ${contract.propertyName}`, 15, y);
+    // ===== EMPFÄNGER (Links) =====
+    y = 30;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(contract.providerName || "Stromanbieter", margin, y);
+    y += 5;
+    doc.setFontSize(10);
+    doc.text("Amerigo-Vespucci-Platz 2", margin, y);
+    y += 4;
+    doc.text("20457 Hamburg", margin, y);
+
+    y += 25;
+
+    // ===== BETREFF =====
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Kündigung", margin, y);
+
+    // ===== ANREDE =====
+    y += 10;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text("Sehr geehrte Damen und Herren,", margin, y);
+
+    // ===== HAUPTTEXT =====
+    y += 10;
+    doc.setFontSize(11);
+    const mainText = `hiermit kündigen wir unseren Stromversorgungsvertrag fristgerecht.
+
+Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem Bankkonto. Bitte senden Sie mir eine schriftliche Bestätigung über den Erhalt dieser Kündigung sowie ggf. eine Abschlussrechnung.`;
+    const mainLines = doc.splitTextToSize(mainText, maxWidth);
+    doc.text(mainLines, margin, y);
+
+    // ===== VERTRAGSDATEN =====
+    y += mainLines.length * 5.5 + 8;
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("Meine Vertragsdaten:", margin, y);
+
     y += 6;
-    if (contract.propertyAddress) {
-      doc.text(`${contract.propertyAddress}`, 15, y);
-      y += 6;
-    }
-    doc.text(`Stromversorger: ${contract.providerName}`, 15, y);
-    y += 6;
-    if (contract.accountNumber) {
-      doc.text(`Vertragskontonnummer: ${contract.accountNumber}`, 15, y);
-      y += 6;
-    }
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    
+    const addressLine = contract.propertyAddress || contract.propertyName;
+    doc.text(`Liegenschaft: ${addressLine}`, margin + 2, y);
+    y += 5;
+
+    const kundennummer = contract.accountNumber || "(nicht angegeben)";
+    doc.text(`Kundennummer: ${kundennummer}`, margin + 2, y);
+    y += 5;
+
     if (contract.meterNumber) {
-      doc.text(`Zählernummer: ${contract.meterNumber}`, 15, y);
-      y += 6;
+      doc.text(`Zählernummer: ${contract.meterNumber}`, margin + 2, y);
+      y += 5;
     }
 
-    y += 8;
-
-    // Schluss
-    doc.setFont("helvetica", "normal");
+    // ===== SCHLUSSVERMERK =====
+    y += 5;
     doc.setFontSize(10);
-    const closingText = `Bitte bestätigen Sie den Erhalt dieser Kündigung schriftlich. Wir bitten, alle offenen Rechnungen vor dem Kündigungsdatum auszugleichen.`;
-    const closingLines = doc.splitTextToSize(closingText, 180);
-    doc.text(closingLines, 15, y);
-    y += closingLines.length * 5 + 12;
+    const closingText = `Ich bitte Sie, mir eine schriftliche Bestätigung zur Kündigung zukommen zu lassen.`;
+    const closingLines = doc.splitTextToSize(closingText, maxWidth);
+    doc.text(closingLines, margin, y);
 
-    doc.text("Mit freundlichen Grüßen,", 15, y);
-    y += 15;
+    // ===== GRUSSFORMEL =====
+    y += closingLines.length * 5.5 + 8;
+    doc.text("Mit freundlichen Grüßen,", margin, y);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("AH Exzellent Immobilien GmbH", 15, y);
-
-    // Footer
-    y = height - 8;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Kündigungsdatum: ${new Date().toLocaleDateString("de-DE")}`, width / 2, y, { align: "center" });
+    // ===== UNTERSCHRIFT =====
+    y += 12;
+    doc.text("_________________________________", margin, y);
+    y += 4;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("Dimitri Root", margin, y);
+    y += 4;
+    doc.setFont("Helvetica", "bold");
+    doc.text("AH Exzellent Immobilien GmbH", margin, y);
 
     // Download PDF
-    const fileName = `Kündigung_${contract.providerName}_${contract.propertyName}_${Date.now()}.pdf`;
+    const fileName = `Kündigung_Strom_${contract.propertyName.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
     doc.save(fileName);
   }
 
@@ -374,54 +394,56 @@ export default function StromVertragPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Button */}
-      <div className="rounded-[28px] surface p-6">
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => router.push('/immobilien')}
-            className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/10 transition"
-          >
-            ← Zurück zu Immobilien
-          </button>
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Stromverträge</h1>
-          <div className="mt-1 text-sm muted">
-            Alle Stromverträge und Zählerinformationen verwalten
+      <div className="rounded-[28px] surface p-6 mb-8">
+        <button
+          onClick={() => router.push('/immobilien')}
+          className="mb-6 rounded-xl surface-2 px-4 py-2 text-sm muted hover:bg-white/5 transition flex items-center gap-2"
+        >
+          {t("contract.back")}
+        </button>
+        <div className="flex items-start gap-4">
+          <div className="text-5xl">⚡</div>
+          <div>
+            <h1 className="text-3xl font-bold">{t("stromVertrag.title")}</h1>
+            <p className="mt-2 text-sm muted">
+              {t("stromVertrag.subtitle")}
+            </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Verträge Liste */}
-      <div className="lg:col-span-1 space-y-4">
-        <div className="rounded-[28px] surface p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Verträge</h2>
-            <span className="px-2 py-1 rounded-full bg-white/10 text-xs text-white/70">
+      <div className="lg:col-span-1">
+        <div className="rounded-[28px] surface p-6 space-y-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold">{t("contract.myContracts")}</h2>
+            <span className="px-3 py-1 rounded-full surface-2 text-xs font-semibold">
               {contracts.length}
             </span>
           </div>
+          <p className="text-sm muted">{t("contract.selectNote")}</p>
 
           <input
             type="text"
-            placeholder="Suchen..."
+            placeholder={t("search") || "Suchen..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="input mb-4"
+            className="input mb-2"
           />
 
           <button
             onClick={handleNew}
-            className="w-full rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-4 py-3 text-sm font-semibold text-white transition hover:from-green-700 hover:to-green-600 mb-4"
+            className="w-full rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-4 py-3 text-sm font-semibold text-white transition shadow-lg"
           >
-            ➕ Neuer Vertrag
+            ➕ {t("contract.newContract")}
           </button>
 
           <div className="space-y-2 max-h-[600px] overflow-y-auto">
             {filteredContracts.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-4xl mb-2">⚡</div>
-                <div className="text-xs text-white/50">Keine Verträge</div>
+              <div className="text-center py-12">
+                <div className="text-4xl mb-3">⚡</div>
+                <div className="text-sm muted">{t("contract.noContracts")}</div>
               </div>
             ) : (
               filteredContracts.map((contract) => (
@@ -431,21 +453,17 @@ export default function StromVertragPage() {
                     setSelectedContract(contract);
                     setIsEditing(false);
                   }}
-                  className={`w-full text-left rounded-xl p-3 transition ${
+                  className={`w-full text-left rounded-xl p-4 transition border ${
                     selectedContract?.id === contract.id
-                      ? "bg-blue-500/20 border border-blue-500/30"
-                      : "bg-white/5 border border-white/10 hover:bg-white/10"
+                      ? "bg-blue-500/10 border-blue-500/30"
+                      : "surface-2 hover:bg-white/5"
                   }`}
                 >
-                  <div className="font-semibold text-white text-sm truncate">
-                    {contract.propertyName}
-                  </div>
-                  <div className="text-xs text-white/50 truncate mt-1">
-                    {contract.providerName}
-                  </div>
+                  <div className="font-semibold text-sm">{contract.propertyName}</div>
+                  <div className="text-xs muted mt-1">{contract.providerName}</div>
                   {contract.monthlyPayment && (
-                    <div className="text-xs text-green-400 font-medium mt-2">
-                      {parseFloat(contract.monthlyPayment).toFixed(2)} EUR/Mo.
+                    <div className="text-sm text-emerald-500 font-medium mt-3">
+                      💰 {parseFloat(contract.monthlyPayment).toFixed(2)} EUR/Monat
                     </div>
                   )}
                 </button>
@@ -461,12 +479,12 @@ export default function StromVertragPage() {
           // Edit Form
           <div className="rounded-[28px] surface p-6 space-y-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-white">
+              <h2 className="text-2xl font-semibold">
                 {selectedContract ? "Bearbeiten" : "Neuer Stromvertrag"}
               </h2>
               <button
                 onClick={resetForm}
-                className="text-white/60 hover:text-white text-2xl"
+                className="muted hover:opacity-80 text-2xl"
               >
                 ✕
               </button>
@@ -492,7 +510,7 @@ export default function StromVertragPage() {
             <div className="space-y-4">
               {/* Objekt */}
               <div>
-                <label className="text-xs text-white/60 font-medium">Objektname *</label>
+                <label className="text-xs muted font-medium">Objektname *</label>
                 <input
                   type="text"
                   value={propertyName}
@@ -503,7 +521,7 @@ export default function StromVertragPage() {
               </div>
 
               <div>
-                <label className="text-xs text-white/60 font-medium">Adresse</label>
+                <label className="text-xs muted font-medium">Adresse</label>
                 <input
                   type="text"
                   value={propertyAddress}
@@ -515,7 +533,7 @@ export default function StromVertragPage() {
 
               {/* Anbieter */}
               <div>
-                <label className="text-xs text-white/60 font-medium">Stromanbieter *</label>
+                <label className="text-xs muted font-medium">Stromanbieter *</label>
                 <input
                   type="text"
                   value={providerName}
@@ -526,7 +544,7 @@ export default function StromVertragPage() {
               </div>
 
               <div>
-                <label className="text-xs text-white/60 font-medium">Vertragskonto-Nummer</label>
+                <label className="text-xs muted font-medium">Vertragskonto-Nummer</label>
                 <input
                   type="text"
                   value={accountNumber}
@@ -538,7 +556,7 @@ export default function StromVertragPage() {
 
               {/* Zähler */}
               <div>
-                <label className="text-xs text-white/60 font-medium">Zähler-Nummer</label>
+                <label className="text-xs muted font-medium">Zähler-Nummer</label>
                 <input
                   type="text"
                   value={meterNumber}
@@ -549,7 +567,7 @@ export default function StromVertragPage() {
               </div>
 
               <div>
-                <label className="text-xs text-white/60 font-medium">Zählerstand (kWh)</label>
+                <label className="text-xs muted font-medium">Zählerstand (kWh)</label>
                 <input
                   type="text"
                   value={meterReading}
@@ -561,7 +579,7 @@ export default function StromVertragPage() {
 
               {/* Kosten */}
               <div>
-                <label className="text-xs text-white/60 font-medium">Monatlicher Abschlag (EUR)</label>
+                <label className="text-xs muted font-medium">Monatlicher Abschlag (EUR)</label>
                 <input
                   type="number"
                   value={monthlyPayment}
@@ -574,15 +592,15 @@ export default function StromVertragPage() {
 
               {/* PDF */}
               <div>
-                <label className="text-xs text-white/60 font-medium">Vertrag (PDF)</label>
+                <label className="text-xs muted font-medium">Vertrag (PDF)</label>
                 {selectedContract?.contractPdfUrl && (
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 mt-2 mb-3">
                     <div className="text-2xl">📄</div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white truncate">
+                      <div className="text-sm truncate">
                         {selectedContract.contractPdfName || "Vertrag.pdf"}
                       </div>
-                      <div className="text-xs text-white/50">Aktueller Vertrag</div>
+                      <div className="text-xs muted">Aktueller Vertrag</div>
                     </div>
                     <a
                       href={selectedContract.contractPdfUrl}
@@ -620,7 +638,7 @@ export default function StromVertragPage() {
               <button
                 onClick={resetForm}
                 disabled={saving || uploading}
-                className="rounded-xl bg-white/5 border border-white/10 px-6 py-3 text-sm text-white/70 hover:bg-white/10 transition disabled:opacity-50"
+                className="rounded-xl surface-2 px-6 py-3 text-sm muted hover:bg-white/5 transition disabled:opacity-50"
               >
                 Abbrechen
               </button>
@@ -628,44 +646,72 @@ export default function StromVertragPage() {
           </div>
         ) : selectedContract ? (
           // Detail View
-          <div className="rounded-[28px] surface p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-white">
-                {selectedContract.propertyName}
-              </h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(selectedContract)}
-                  className="rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition"
-                >
-                  ✏️ Bearbeiten
-                </button>
-                <button
-                  onClick={() => generateCancellationPdf(selectedContract)}
-                  className="rounded-xl bg-orange-600 hover:bg-orange-700 px-4 py-2 text-sm font-semibold text-white transition"
-                >
-                  📄 Kündigung
-                </button>
-                <button
-                  onClick={() => handleDelete(selectedContract)}
-                  className="rounded-xl bg-red-600/20 border border-red-600/30 hover:bg-red-600/30 px-4 py-2 text-sm text-red-400 transition"
-                >
-                  🗑️ Löschen
-                </button>
+          <div className="rounded-[28px] surface p-8 space-y-8">
+            {/* Header mit Buttons */}
+            <div>
+              <div className="flex items-start justify-between mb-6 gap-4">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">
+                    {selectedContract.propertyName}
+                  </h2>
+                  <p className="text-base muted">
+                    {selectedContract.providerName}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(selectedContract)}
+                    className="rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition"
+                  >
+                    ✏️ {t("contract.edit")}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedContract) {
+                        generateCancellationPdf(selectedContract);
+                      }
+                    }}
+                    disabled={!selectedContract}
+                    className="rounded-lg bg-orange-600 hover:bg-orange-700 px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    📄 {t("contract.cancellation")}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(selectedContract)}
+                    className="rounded-lg bg-red-600/20 border border-red-600/30 hover:bg-red-600/30 px-4 py-2 text-sm text-red-500 transition"
+                  >
+                    🗑️ {t("contract.delete")}
+                  </button>
+                </div>
               </div>
             </div>
 
+            {/* Kosten - Highlight */}
+            {selectedContract.monthlyPayment && (
+              <div className="rounded-2xl surface-2 accent-ring p-6">
+                <div className="text-sm font-semibold muted mb-2">{t("contract.monthlyPayment")}</div>
+                <div className="flex items-baseline gap-2">
+                  <div className="text-4xl font-bold text-emerald-500">
+                    {parseFloat(selectedContract.monthlyPayment).toFixed(2)}
+                  </div>
+                  <div className="text-lg muted">EUR/{t("moveins") === "Einzüge" ? "Monat" : "month"}</div>
+                </div>
+                <div className="text-sm muted mt-3">
+                  {t("contract.annualPayment")}: <span className="font-semibold">{(parseFloat(selectedContract.monthlyPayment) * 12).toFixed(2)} EUR</span>
+                </div>
+              </div>
+            )}
+
+            {/* Daten Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Objektinfo */}
-              <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-                <h3 className="text-sm font-semibold text-white/70 mb-4 uppercase tracking-wide">
-                  Objekt-Information
-                </h3>
-                <div className="space-y-3">
+              {/* Objekt */}
+              <div className="rounded-2xl surface-2 p-5">
+                <h3 className="text-xs font-bold muted mb-4 uppercase tracking-widest">📍 {t("contract.object")}</h3>
+                <div className="space-y-4">
                   {selectedContract.propertyAddress && (
                     <div>
-                      <div className="text-xs text-white/50">Adresse</div>
-                      <div className="text-sm text-white mt-1">
+                      <div className="text-xs muted font-medium mb-1">{t("contract.address")}</div>
+                      <div className="text-sm leading-relaxed">
                         {selectedContract.propertyAddress}
                       </div>
                     </div>
@@ -673,22 +719,43 @@ export default function StromVertragPage() {
                 </div>
               </div>
 
+              {/* Zähler */}
+              <div className="rounded-2xl surface-2 p-5">
+                <h3 className="text-xs font-bold muted mb-4 uppercase tracking-widest">📊 {t("contract.meter")}</h3>
+                <div className="space-y-4">
+                  {selectedContract.meterNumber && (
+                    <div>
+                      <div className="text-xs muted font-medium mb-1">{t("contract.meterNumber")}</div>
+                      <div className="text-sm font-mono">
+                        {selectedContract.meterNumber}
+                      </div>
+                    </div>
+                  )}
+                  {selectedContract.meterReading && (
+                    <div>
+                      <div className="text-xs muted font-medium mb-1">{t("contract.meterReading")}</div>
+                      <div className="text-lg font-semibold">
+                        {selectedContract.meterReading} <span className="text-sm muted font-normal">kWh</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Anbieter */}
-              <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-                <h3 className="text-sm font-semibold text-white/70 mb-4 uppercase tracking-wide">
-                  Stromanbieter
-                </h3>
-                <div className="space-y-3">
+              <div className="rounded-2xl surface-2 p-5">
+                <h3 className="text-xs font-bold muted mb-4 uppercase tracking-widest">🏢 {t("contract.provider")}</h3>
+                <div className="space-y-4">
                   <div>
-                    <div className="text-xs text-white/50">Provider</div>
-                    <div className="text-sm text-white mt-1">
+                    <div className="text-xs muted font-medium mb-1">{t("contract.provider")}</div>
+                    <div className="text-sm font-semibold">
                       {selectedContract.providerName}
                     </div>
                   </div>
                   {selectedContract.accountNumber && (
                     <div>
-                      <div className="text-xs text-white/50">Vertragskonto</div>
-                      <div className="text-sm text-white/70 mt-1 font-mono">
+                      <div className="text-xs muted font-medium mb-1">{t("contract.accountNumber")}</div>
+                      <div className="text-sm font-mono">
                         {selectedContract.accountNumber}
                       </div>
                     </div>
@@ -696,94 +763,51 @@ export default function StromVertragPage() {
                 </div>
               </div>
 
-              {/* Zähler */}
-              <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-                <h3 className="text-sm font-semibold text-white/70 mb-4 uppercase tracking-wide">
-                  Zähler-Information
-                </h3>
-                <div className="space-y-3">
-                  {selectedContract.meterNumber && (
-                    <div>
-                      <div className="text-xs text-white/50">Zähler-Nr</div>
-                      <div className="text-sm text-white/70 mt-1 font-mono">
-                        {selectedContract.meterNumber}
+              {/* Vertrag PDF */}
+              {selectedContract.contractPdfUrl && (
+                <div className="rounded-2xl surface-2 p-5">
+                  <h3 className="text-xs font-bold muted mb-4 uppercase tracking-widest">📄 {t("contract.document")}</h3>
+                  <a
+                    href={selectedContract.contractPdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-lg surface-2 hover:bg-white/5 transition"
+                  >
+                    <div className="text-2xl">📑</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">
+                        {selectedContract.contractPdfName || "Vertrag.pdf"}
                       </div>
+                      <div className="text-xs muted">{t("contract.pdfDocument")}</div>
                     </div>
-                  )}
-                  {selectedContract.meterReading && (
-                    <div>
-                      <div className="text-xs text-white/50">Zählerstand</div>
-                      <div className="text-sm text-white mt-1">
-                        {selectedContract.meterReading} <span className="text-white/60">kWh</span>
-                      </div>
-                    </div>
-                  )}
+                    <div className="text-lg">↗</div>
+                  </a>
                 </div>
-              </div>
-
-              {/* Kosten */}
-              <div className="rounded-xl bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20 p-4">
-                <h3 className="text-sm font-semibold text-white/70 mb-4 uppercase tracking-wide">
-                  Kosten
-                </h3>
-                <div className="space-y-3">
-                  {selectedContract.monthlyPayment && (
-                    <div>
-                      <div className="text-xs text-white/50">Monatlicher Abschlag</div>
-                      <div className="text-2xl font-bold text-green-400 mt-2">
-                        {parseFloat(selectedContract.monthlyPayment).toFixed(2)} EUR
-                      </div>
-                      <div className="text-xs text-white/50 mt-3">
-                        Jährlich: {(parseFloat(selectedContract.monthlyPayment) * 12).toFixed(2)} EUR
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Vertrag PDF */}
-            {selectedContract.contractPdfUrl && (
-              <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4">
-                <h3 className="text-sm font-semibold text-white mb-3">Vertrag</h3>
-                <a
-                  href={selectedContract.contractPdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition"
-                >
-                  <div className="text-2xl">📄</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm text-white font-medium truncate">
-                      {selectedContract.contractPdfName || "Vertrag.pdf"}
-                    </div>
-                    <div className="text-xs text-white/50">PDF-Dokument</div>
-                  </div>
-                  <div className="text-blue-400">↗</div>
-                </a>
-              </div>
-            )}
-
             {/* Meta */}
-            <div className="text-xs text-white/40 pt-4 border-t border-white/10">
-              Erstellt von: <span className="text-white/60">{selectedContract.createdByName}</span>
+            <div className="pt-6 border-t border-white/10">
+              <div className="text-xs muted">
+                {t("contract.createdBy")}: <span className="font-medium">{selectedContract.createdByName}</span>
+              </div>
             </div>
           </div>
         ) : (
           // Empty State
-          <div className="rounded-[28px] surface p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
-            <div className="text-6xl mb-4">⚡</div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Wählen Sie einen Vertrag aus
+          <div className="rounded-[28px] surface p-12 text-center flex flex-col items-center justify-center min-h-[500px]">
+            <div className="text-7xl mb-6">⚡</div>
+            <h3 className="text-2xl font-bold mb-3">
+              {t("contract.selectNote")}
             </h3>
-            <p className="text-sm text-white/50 mb-6">
-              oder erstellen Sie einen neuen Vertrag
+            <p className="text-base muted mb-8 max-w-sm">
+              {t("contract.myContracts")} - {t("contract.noContracts")}
             </p>
             <button
               onClick={handleNew}
-              className="rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-6 py-3 text-sm font-semibold text-white transition hover:from-green-700 hover:to-green-600"
+              className="rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-6 py-3 text-sm font-semibold text-white transition shadow-lg"
             >
-              ➕ Neuer Vertrag
+              ➕ {t("contract.newContract")}
             </button>
           </div>
         )}

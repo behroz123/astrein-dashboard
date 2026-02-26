@@ -12,6 +12,16 @@ html[data-theme="light"] .surface-2 {
 html[data-theme="light"] .muted {
   color: #7b8499 !important;
 }
+html[data-theme="light"] .text-white { color: #23272f !important; }
+html[data-theme="light"] .text-white\/80 { color: rgba(35,39,47,0.80) !important; }
+html[data-theme="light"] .text-white\/70 { color: rgba(35,39,47,0.70) !important; }
+html[data-theme="light"] .text-white\/60 { color: rgba(35,39,47,0.60) !important; }
+html[data-theme="light"] .text-white\/50 { color: rgba(35,39,47,0.50) !important; }
+html[data-theme="light"] .text-white\/40 { color: rgba(35,39,47,0.40) !important; }
+html[data-theme="light"] .bg-white\/5 { background-color: rgba(35,39,47,0.04) !important; }
+html[data-theme="light"] .bg-white\/10 { background-color: rgba(35,39,47,0.06) !important; }
+html[data-theme="light"] .border-white\/10 { border-color: rgba(35,39,47,0.08) !important; }
+html[data-theme="light"] .border-white\/20 { border-color: rgba(35,39,47,0.12) !important; }
 html[data-theme="light"] .btn-accent {
   background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%) !important;
   color: #fff !important;
