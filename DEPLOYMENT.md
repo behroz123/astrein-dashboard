@@ -72,3 +72,4 @@ npm run dev
 **Problem:** Build schlägt fehl (Kompilierungsfehler)
 - ✅ **Lösung:** Überprüfe `npm run build` lokal, um Fehler zu finden
 # Updated Thu Feb 26 21:25:23 CET 2026
+Deployment refresh
