@@ -9,6 +9,7 @@ import MietvertragPage from "../mietvertrag/page";
 import StromVertragPage from "../strom-vertrag/page";
 import WasserVertragPage from "../wasser-vertrag/page";
 import UntermietvertragPage from "../untermietvertrag/page";
+import CostDashboard from "../../components/CostDashboard";
 import { usePrefs } from "../../lib/prefs";
 
 export default function ImmobilienPage() {
@@ -80,6 +81,24 @@ export default function ImmobilienPage() {
 
   return (
     <div className="space-y-6">
+      {/* Kostenübersicht */}
+      <div className="rounded-[28px] surface p-6 overflow-hidden relative">
+        <div
+          className="absolute inset-0 opacity-70 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(900px 420px at 12% 22%, rgba(34,197,94,0.15), transparent 60%), radial-gradient(900px 520px at 82% 28%, rgba(255,255,255,0.05), transparent 62%)",
+          }}
+        />
+        <div className="relative">
+          <div className="mb-4">
+            <div className="text-xs muted">Übersicht</div>
+            <h2 className="mt-2 text-xl font-semibold text-white">Kostenübersicht</h2>
+          </div>
+          <CostDashboard />
+        </div>
+      </div>
+
       <div className="rounded-[28px] surface p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>

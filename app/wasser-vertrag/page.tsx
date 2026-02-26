@@ -46,6 +46,7 @@ export default function WasserVertragPage() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Form fields
   const [propertyName, setPropertyName] = useState("");
@@ -125,14 +126,18 @@ export default function WasserVertragPage() {
 
   async function handleSave() {
     if (!propertyName.trim() || !providerName.trim()) {
-      alert("Bitte Objektname und Wasserversorger ausfüllen!");
+      setError("Bitte Objektname und Wasserversorger ausfüllen!");
       return;
     }
 
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+      setError("Benutzer nicht authentifiziert!");
+      return;
+    }
 
     setSaving(true);
+    setError(null);
 
     try {
       let pdfUrl = selectedContract?.contractPdfUrl;
@@ -141,23 +146,33 @@ export default function WasserVertragPage() {
       // Upload PDF if new file selected
       if (pdfFile) {
         setUploading(true);
-        const fileRef = ref(
-          storage,
-          `water-contracts/${Date.now()}_${pdfFile.name}`
-        );
-        await uploadBytes(fileRef, pdfFile);
-        pdfUrl = await getDownloadURL(fileRef);
-        pdfName = pdfFile.name;
-        setUploading(false);
+        try {
+          const fileName = `${Date.now()}_${pdfFile.name}`;
+          const fileRef = ref(storage, `water-contracts/${fileName}`);
+          
+          console.log("Uploading PDF:", pdfFile.name, "Size:", pdfFile.size);
+          await uploadBytes(fileRef, pdfFile);
+          
+          pdfUrl = await getDownloadURL(fileRef);
+          pdfName = pdfFile.name;
+          setUploading(false);
 
-        // Delete old PDF if exists
-        if (selectedContract?.contractPdfUrl) {
-          try {
-            const oldRef = ref(storage, selectedContract.contractPdfUrl);
-            await deleteObject(oldRef);
-          } catch (e) {
-            console.error("Error deleting old PDF:", e);
+          // Delete old PDF if exists
+          if (selectedContract?.contractPdfUrl) {
+            try {
+              const oldRef = ref(storage, selectedContract.contractPdfUrl);
+              await deleteObject(oldRef);
+            } catch (e) {
+              console.error("Error deleting old PDF:", e);
+            }
           }
+        } catch (uploadError: any) {
+          setUploading(false);
+          const errorMsg = uploadError?.message || "PDF-Upload fehlgeschlagen";
+          console.error("PDF Upload Error:", uploadError);
+          setError(`PDF-Upload Fehler: ${errorMsg}`);
+          setSaving(false);
+          return;
         }
       }
 
@@ -186,9 +201,11 @@ export default function WasserVertragPage() {
       }
 
       resetForm();
-    } catch (error) {
+      setError(null);
+    } catch (error: any) {
       console.error("Error saving contract:", error);
-      alert("Fehler beim Speichern!");
+      const errorMsg = error?.message || "Fehler beim Speichern";
+      setError(`Speicherfehler: ${errorMsg}`);
     } finally {
       setSaving(false);
       setUploading(false);
@@ -247,6 +264,26 @@ export default function WasserVertragPage() {
             </button>
           </div>
         </div>
+
+        {error && (
+          <div className="rounded-[28px] surface p-4 bg-red-500/10 border border-red-500/30">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">⚠️</div>
+              <div>
+                <div className="text-sm font-semibold text-red-400">{error}</div>
+                <div className="text-xs text-red-300/70 mt-1">
+                  Bitte überprüfe deine Firebase Storage Rules oder versuch es später erneut.
+                </div>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="ml-auto text-red-400 hover:text-red-300"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="rounded-[28px] surface p-6">
           <div className="space-y-6">

@@ -800,4 +800,165 @@ html[data-theme="light"] .site-clock .date-chip{
   .hands .hand{ transition: none !important; }
 }
 
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Larger touch targets (44px minimum) */
+  button, a, input[type="button"], input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better form spacing on mobile */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS */
+    padding: 12px !important;
+    min-height: 44px !important;
+  }
+
+  /* Reduce padding on small screens */
+  .surface, .surface-2 {
+    padding: 1rem !important;
+  }
+
+  /* Stack grid on mobile */
+  .grid {
+    gap: 1rem !important;
+  }
+
+  /* Optimize tables for mobile */
+  table {
+    font-size: 0.875rem;
+  }
+
+  th, td {
+    padding: 0.75rem !important;
+  }
+
+  /* Better card sizing */
+  .rounded-\[28px\] {
+    border-radius: 20px !important;
+  }
+
+  /* Responsive text sizes */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Full-width modals on mobile */
+  .modal, dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: auto !important;
+  }
+
+  /* Better PDF viewer on mobile */
+  .pdf-container {
+    height: auto !important;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  /* Optimize navigation */
+  nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Better spacing for small screens */
+  .space-y-6 {
+    gap: 1.5rem !important;
+  }
+
+  /* Optimize form labels */
+  label {
+    margin-bottom: 0.5rem !important;
+    display: block;
+  }
+}
+
+/* Very small screens (320px - 480px) */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  .space-y-6 {
+    gap: 1rem !important;
+  }
+
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stagger buttons on mobile */
+  .flex.gap-3 {
+    flex-direction: column;
+    gap: 0.75rem !important;
+  }
+
+  /* Full-width buttons */
+  button.rounded-2xl {
+    width: 100% !important;
+  }
+
+  /* Smaller border radius on tiny screens */
+  .rounded-\[28px\] {
+    border-radius: 16px !important;
+  }
+
+  .rounded-2xl {
+    border-radius: 12px !important;
+  }
+}
+
+/* Tablet optimizations (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  a:hover, button:hover {
+    background-color: inherit !important;
+  }
+
+  /* Add active state instead */
+  a:active, button:active {
+    opacity: 0.8;
+  }
+
+  /* Better spacing for touch */
+  .gap-2 {
+    gap: 0.75rem !important;
+  }
+
+  .gap-3 {
+    gap: 1rem !important;
+  }
+
+  /* Prevent double-tap zoom */
+  input, button, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
 

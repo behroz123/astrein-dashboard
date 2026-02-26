@@ -71,6 +71,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/wareneingang", label: t("wareneingang") },
     { href: "/warenausgang", label: t("warenausgang") },
     { href: "/immobilien", label: "Immobilien" },
+    { href: "/reports", label: "Reports" },
     { href: "/fuhrpark", label: "Fuhrpark" },
     { href: "/employees", label: t("employees") },
     { href: "/exports", label: t("exports") },
@@ -82,6 +83,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/wareneingang", label: t("wareneingang") },
     { href: "/warenausgang", label: t("warenausgang") },
     { href: "/immobilien", label: "Immobilien" },
+    { href: "/reports", label: "Reports" },
     { href: "/fuhrpark", label: "Fuhrpark" },
     { href: "/settings", label: t("settings") },
   ];
