@@ -141,8 +141,9 @@ const DICT: Record<Lang, Record<string, string>> = {
     "contract.currentContract": "Aktueller Vertrag",
     "contract.open": "Öffnen",
     "contract.pdfDocument": "PDF-Datei",
-    "untermietvertrag.title": "Untermietverträge",
-    "untermietvertrag.subtitle": "Untermietverträge verwalten",
+    "contract.uploading": "Lade PDF hoch...",
+    "contract.saving": "Speichert...",
+    "contract.back": "← Zurück",
 
     "employees.title": "Mitarbeiter",
     "employees.subtitle": "Profile der App-Nutzer",
