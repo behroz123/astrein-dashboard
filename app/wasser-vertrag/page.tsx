@@ -36,6 +36,11 @@ type WaterContract = {
   updatedAt?: any;
 };
 
+type PropertyOption = {
+  id: string;
+  address?: string;
+};
+
 export default function WasserVertragPage() {
   const router = useRouter();
   const { t } = usePrefs();
@@ -49,6 +54,16 @@ export default function WasserVertragPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
+  const [cancellationProviderName, setCancellationProviderName] = useState("");
+  const [cancellationProviderStreet, setCancellationProviderStreet] = useState("");
+  const [cancellationProviderCity, setCancellationProviderCity] = useState("");
+  const [properties, setProperties] = useState<PropertyOption[]>([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [selectedPropertyId, setSelectedPropertyId] = useState("");
+  const [showNewProperty, setShowNewProperty] = useState(false);
+  const [newPropertyAddress, setNewPropertyAddress] = useState("");
+  const [savingProperty, setSavingProperty] = useState(false);
 
   // Form fields
   const [propertyName, setPropertyName] = useState("");
@@ -107,6 +122,30 @@ export default function WasserVertragPage() {
     return () => unsub();
   }, [ready]);
 
+  useEffect(() => {
+    if (!ready) return;
+
+    setPropertiesLoading(true);
+    const q = query(collection(db, "properties"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list: PropertyOption[] = snap.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as any),
+        }));
+        setProperties(list);
+        setPropertiesLoading(false);
+      },
+      () => {
+        setProperties([]);
+        setPropertiesLoading(false);
+      }
+    );
+
+    return () => unsub();
+  }, [ready]);
+
   function resetForm() {
     setPropertyName("");
     setPropertyAddress("");
@@ -116,6 +155,9 @@ export default function WasserVertragPage() {
     setMeterReading("");
     setMonthlyPayment("");
     setPdfFile(null);
+    setSelectedPropertyId("");
+    setShowNewProperty(false);
+    setNewPropertyAddress("");
     setIsEditing(false);
   }
 
@@ -128,15 +170,50 @@ export default function WasserVertragPage() {
     setMeterNumber(contract.meterNumber || "");
     setMeterReading(contract.meterReading || "");
     setMonthlyPayment(contract.monthlyPayment || "");
+    setSelectedPropertyId("");
     setIsEditing(true);
     setError(null);
   }
+
+  useEffect(() => {
+    if (!selectedContract || properties.length === 0) return;
+    const match = properties.find(
+      (p) =>
+        (p.address || "").toLowerCase() ===
+        (selectedContract.propertyAddress || selectedContract.propertyName || "").toLowerCase()
+    );
+    if (match) {
+      setSelectedPropertyId(match.id);
+    }
+  }, [selectedContract, properties]);
 
   function handleNew() {
     resetForm();
     setSelectedContract(null);
     setIsEditing(true);
     setError(null);
+  }
+
+  async function handleAddProperty() {
+    if (!newPropertyAddress.trim() || !user) return;
+
+    setSavingProperty(true);
+    try {
+      const docRef = await addDoc(collection(db, "properties"), {
+        address: newPropertyAddress.trim(),
+        createdAt: serverTimestamp(),
+        createdByUid: user.uid,
+        createdByName: getUserDisplayName(user.email || ""),
+      });
+
+      setSelectedPropertyId(docRef.id);
+      setPropertyName(newPropertyAddress.trim());
+      setPropertyAddress(newPropertyAddress.trim());
+      setNewPropertyAddress("");
+      setShowNewProperty(false);
+    } finally {
+      setSavingProperty(false);
+    }
   }
 
   async function handleSave() {
@@ -257,7 +334,12 @@ export default function WasserVertragPage() {
     return cancellationDate.toLocaleDateString("de-DE");
   }
 
-  function generateCancellationPdf(contract: WaterContract): void {
+  function generateCancellationPdf(
+    contract: WaterContract,
+    providerName: string,
+    providerStreet: string,
+    providerCity: string
+  ): void {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 10;
@@ -303,12 +385,12 @@ export default function WasserVertragPage() {
     y = 30;
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(11);
-    doc.text(contract.providerName || "Wasserversorger", margin, y);
+    doc.text(providerName || contract.providerName || "Wasserversorger", margin, y);
     y += 5;
     doc.setFontSize(10);
-    doc.text("Amerigo-Vespucci-Platz 2", margin, y);
+    doc.text(providerStreet || "", margin, y);
     y += 4;
-    doc.text("20457 Hamburg", margin, y);
+    doc.text(providerCity || "", margin, y);
 
     y += 25;
     doc.setFont("Helvetica", "bold");
@@ -382,8 +464,28 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
 
   const filteredContracts = contracts.filter(c =>
     c.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.providerName.toLowerCase().includes(searchTerm.toLowerCase())
+    c.providerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.meterNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.accountNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  function openCancellationModal(contract: WaterContract) {
+    setCancellationProviderName(contract.providerName || "");
+    setCancellationProviderStreet("Amerigo-Vespucci-Platz 2");
+    setCancellationProviderCity("20457 Hamburg");
+    setShowCancellationModal(true);
+  }
+
+  function handleConfirmCancellation() {
+    if (!selectedContract) return;
+    generateCancellationPdf(
+      selectedContract,
+      cancellationProviderName.trim(),
+      cancellationProviderStreet.trim(),
+      cancellationProviderCity.trim()
+    );
+    setShowCancellationModal(false);
+  }
 
   if (!ready || loading) {
     return (
@@ -512,14 +614,57 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
               <div className="space-y-4">
                 {/* Objekt */}
                 <div>
-                  <label className="text-xs text-white/60 font-medium">Objektname *</label>
-                  <input
-                    type="text"
-                    value={propertyName}
-                    onChange={(e) => setPropertyName(e.target.value)}
-                    placeholder="z.B. Wohnung 1A"
+                  <label className="text-xs text-white/60 font-medium">Objekt auswählen *</label>
+                  <select
                     className="input mt-2"
-                  />
+                    value={selectedPropertyId}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      setSelectedPropertyId(id);
+                      const selected = properties.find((p) => p.id === id);
+                      const addr = selected?.address || "";
+                      setPropertyName(addr);
+                      setPropertyAddress(addr);
+                    }}
+                    disabled={propertiesLoading || properties.length === 0}
+                  >
+                    <option value="">Objekt auswählen</option>
+                    {properties.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.address || "—"}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setShowNewProperty((v) => !v)}
+                      className="rounded-lg border border-white/10 px-3 py-1 text-white/80 hover:text-white"
+                    >
+                      Neues Objekt hinzufügen
+                    </button>
+                    {propertiesLoading && (
+                      <span className="text-white/50">Lädt Objekte…</span>
+                    )}
+                  </div>
+                  {showNewProperty && (
+                    <div className="mt-3 space-y-2">
+                      <input
+                        className="input"
+                        value={newPropertyAddress}
+                        onChange={(e) => setNewPropertyAddress(e.target.value)}
+                        placeholder="Neue Adresse"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddProperty}
+                        disabled={savingProperty}
+                        className="btn-accent px-4 py-2 text-xs font-semibold disabled:opacity-60"
+                      >
+                        {savingProperty ? t("common.pleaseWait") : "Objekt speichern"}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -527,7 +672,13 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
                   <input
                     type="text"
                     value={propertyAddress}
-                    onChange={(e) => setPropertyAddress(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setPropertyAddress(value);
+                      if (!selectedPropertyId) {
+                        setPropertyName(value);
+                      }
+                    }}
                     placeholder="Vollständige Adresse"
                     className="input mt-2"
                   />
@@ -663,7 +814,7 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
                   <button
                     onClick={() => {
                       if (selectedContract) {
-                        generateCancellationPdf(selectedContract);
+                        openCancellationModal(selectedContract);
                       }
                     }}
                     disabled={!selectedContract}
@@ -814,6 +965,75 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
           )}
         </div>
       </div>
+
+      {showCancellationModal && selectedContract && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-lg rounded-2xl surface border border-white/10 p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-white">Anbieter prüfen</h3>
+                <p className="mt-1 text-sm text-white/60">
+                  Bitte Anbietername und Adresse bestätigen, bevor die Kündigung erstellt wird.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCancellationModal(false)}
+                className="text-white/60 hover:text-white text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="text-xs text-white/60 font-medium">Anbietername</label>
+                <input
+                  type="text"
+                  value={cancellationProviderName}
+                  onChange={(e) => setCancellationProviderName(e.target.value)}
+                  className="input mt-2"
+                  placeholder="z.B. Hamburg Wasser"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-white/60 font-medium">Straße & Hausnummer</label>
+                <input
+                  type="text"
+                  value={cancellationProviderStreet}
+                  onChange={(e) => setCancellationProviderStreet(e.target.value)}
+                  className="input mt-2"
+                  placeholder="z.B. Musterstraße 1"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-white/60 font-medium">PLZ & Ort</label>
+                <input
+                  type="text"
+                  value={cancellationProviderCity}
+                  onChange={(e) => setCancellationProviderCity(e.target.value)}
+                  className="input mt-2"
+                  placeholder="z.B. 20097 Hamburg"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowCancellationModal(false)}
+                className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/10 transition"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleConfirmCancellation}
+                className="rounded-xl bg-orange-600 hover:bg-orange-700 px-4 py-2 text-sm font-semibold text-white transition"
+              >
+                📄 Kündigung erstellen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

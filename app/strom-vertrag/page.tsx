@@ -36,6 +36,11 @@ type ElectricityContract = {
   updatedAt?: any;
 };
 
+type PropertyOption = {
+  id: string;
+  address?: string;
+};
+
 export default function StromVertragPage() {
   const router = useRouter();
   const { t } = usePrefs();
@@ -49,6 +54,12 @@ export default function StromVertragPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [properties, setProperties] = useState<PropertyOption[]>([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [selectedPropertyId, setSelectedPropertyId] = useState("");
+  const [showNewProperty, setShowNewProperty] = useState(false);
+  const [newPropertyAddress, setNewPropertyAddress] = useState("");
+  const [savingProperty, setSavingProperty] = useState(false);
 
   // Form fields
   const [propertyName, setPropertyName] = useState("");
@@ -108,6 +119,30 @@ export default function StromVertragPage() {
     return () => unsub();
   }, [ready]);
 
+  useEffect(() => {
+    if (!ready) return;
+
+    setPropertiesLoading(true);
+    const q = query(collection(db, "properties"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list: PropertyOption[] = snap.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as any),
+        }));
+        setProperties(list);
+        setPropertiesLoading(false);
+      },
+      () => {
+        setProperties([]);
+        setPropertiesLoading(false);
+      }
+    );
+
+    return () => unsub();
+  }, [ready]);
+
   function resetForm() {
     setPropertyName("");
     setPropertyAddress("");
@@ -117,6 +152,9 @@ export default function StromVertragPage() {
     setMeterReading("");
     setMonthlyPayment("");
     setPdfFile(null);
+    setSelectedPropertyId("");
+    setShowNewProperty(false);
+    setNewPropertyAddress("");
     setIsEditing(false);
   }
 
@@ -129,15 +167,50 @@ export default function StromVertragPage() {
     setMeterNumber(contract.meterNumber || "");
     setMeterReading(contract.meterReading || "");
     setMonthlyPayment(contract.monthlyPayment || "");
+    setSelectedPropertyId("");
     setIsEditing(true);
     setError(null);
   }
+
+  useEffect(() => {
+    if (!selectedContract || properties.length === 0) return;
+    const match = properties.find(
+      (p) =>
+        (p.address || "").toLowerCase() ===
+        (selectedContract.propertyAddress || selectedContract.propertyName || "").toLowerCase()
+    );
+    if (match) {
+      setSelectedPropertyId(match.id);
+    }
+  }, [selectedContract, properties]);
 
   function handleNew() {
     resetForm();
     setSelectedContract(null);
     setIsEditing(true);
     setError(null);
+  }
+
+  async function handleAddProperty() {
+    if (!newPropertyAddress.trim() || !user) return;
+
+    setSavingProperty(true);
+    try {
+      const docRef = await addDoc(collection(db, "properties"), {
+        address: newPropertyAddress.trim(),
+        createdAt: serverTimestamp(),
+        createdByUid: user.uid,
+        createdByName: getUserDisplayName(user.email || ""),
+      });
+
+      setSelectedPropertyId(docRef.id);
+      setPropertyName(newPropertyAddress.trim());
+      setPropertyAddress(newPropertyAddress.trim());
+      setNewPropertyAddress("");
+      setShowNewProperty(false);
+    } finally {
+      setSavingProperty(false);
+    }
   }
 
   async function handleSave() {
@@ -380,7 +453,9 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
 
   const filteredContracts = contracts.filter(c =>
     c.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.providerName.toLowerCase().includes(searchTerm.toLowerCase())
+    c.providerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.meterNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.accountNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (!ready || loading) {
@@ -510,14 +585,57 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
             <div className="space-y-4">
               {/* Objekt */}
               <div>
-                <label className="text-xs muted font-medium">Objektname *</label>
-                <input
-                  type="text"
-                  value={propertyName}
-                  onChange={(e) => setPropertyName(e.target.value)}
-                  placeholder="z.B. Wohnung 1A"
+                <label className="text-xs muted font-medium">Objekt auswählen *</label>
+                <select
                   className="input mt-2"
-                />
+                  value={selectedPropertyId}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    setSelectedPropertyId(id);
+                    const selected = properties.find((p) => p.id === id);
+                    const addr = selected?.address || "";
+                    setPropertyName(addr);
+                    setPropertyAddress(addr);
+                  }}
+                  disabled={propertiesLoading || properties.length === 0}
+                >
+                  <option value="">Objekt auswählen</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.address || "—"}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setShowNewProperty((v) => !v)}
+                    className="rounded-lg border border-white/10 px-3 py-1 text-white/80 hover:text-white"
+                  >
+                    Neues Objekt hinzufügen
+                  </button>
+                  {propertiesLoading && (
+                    <span className="text-white/50">Lädt Objekte…</span>
+                  )}
+                </div>
+                {showNewProperty && (
+                  <div className="mt-3 space-y-2">
+                    <input
+                      className="input"
+                      value={newPropertyAddress}
+                      onChange={(e) => setNewPropertyAddress(e.target.value)}
+                      placeholder="Neue Adresse"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddProperty}
+                      disabled={savingProperty}
+                      className="btn-accent px-4 py-2 text-xs font-semibold disabled:opacity-60"
+                    >
+                      {savingProperty ? t("common.pleaseWait") : "Objekt speichern"}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -525,7 +643,13 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
                 <input
                   type="text"
                   value={propertyAddress}
-                  onChange={(e) => setPropertyAddress(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setPropertyAddress(value);
+                    if (!selectedPropertyId) {
+                      setPropertyName(value);
+                    }
+                  }}
                   placeholder="Vollständige Adresse"
                   className="input mt-2"
                 />

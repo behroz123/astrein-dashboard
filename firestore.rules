@@ -9,20 +9,30 @@ service cloud.firestore {
 
     function isAdmin() {
       return signedIn()
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "admin";
     }
 
     function isOwner(fieldName) {
       return signedIn() && resource.data[fieldName] == request.auth.uid;
     }
 
-    // users (هر کس فقط پروفایل خودش رو ببینه)
+    // ============ USERS ============
     match /users/{uid} {
-      allow read: if signedIn() && request.auth.uid == uid;
-      allow create, update: if signedIn() && request.auth.uid == uid;
-      allow delete: if false;
+      allow read: if signedIn();
+      
+      allow create: if signedIn() && request.auth.uid == uid;
+      
+      allow update: if signedIn() && (
+        // Benutzer kann sein eigenes Profil aktualisieren (nur bestimmte Felder)
+        request.auth.uid == uid 
+        // Admin kann fremde Profile aktualisieren
+        || (request.auth.uid != uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "") == "admin")
+      );
+      
+      allow delete: if request.auth.uid != uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "") == "admin";
     }
 
+    // ============ INVENTORY ============
     // items
     match /items/{itemId} {
       allow read: if signedIn();
@@ -47,7 +57,8 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // reservations (active reservations)
+    // ============ RESERVATIONS ============
+    // active reservations
     match /reservations/{resId} {
       allow create: if signedIn();
       allow read: if isAdmin() || (signedIn() && resource.data.reservedByUid == request.auth.uid);
@@ -62,8 +73,31 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // buchungen (Bookings/Reservations legacy)
+    match /buchungen/{buchungId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // ============ REAL ESTATE / IMMOBILIEN ============
+    
+    // properties (Wohnungen/Objekte)
+    match /properties/{propertyId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
     // moveouts (Auszüge)
     match /moveouts/{moveoutId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // moveins (Einzüge)
+    match /moveins/{moveinId} {
       allow read: if signedIn();
       allow create: if signedIn();
       allow update, delete: if isAdmin();
@@ -82,17 +116,135 @@ service cloud.firestore {
       allow create: if signedIn();
       allow update, delete: if isAdmin() || isOwner("createdByUid");
     }
+
+    // ============ SUPPORT & COMMUNICATION ============
     
-    // Support Tickets - Alle eingeloggten Benutzer können erstellen
+    // Support Tickets
     match /supportTickets/{ticketId} {
       allow read: if signedIn();
       allow create: if signedIn();
       allow update, delete: if isAdmin();
     }
-    
-    // Chat Messages - Benutzer können ihre eigenen Nachrichten lesen/schreiben
+
+    // Chat Messages
     match /chatMessages/{messageId} {
       allow read, write: if signedIn();
+    }
+    
+    // key protocols (Schlüsselübergabe/Rückgabe)
+    match /keyProtocols/{protocolId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
+
+
+    // ============ INVENTORY ============
+    // items
+    match /items/{itemId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // categories
+    match /categories/{categoryId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // warehouses
+    match /warehouses/{warehouseId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // logs
+    match /logs/{logId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ============ RESERVATIONS ============
+    // active reservations
+    match /reservations/{resId} {
+      allow create: if signedIn();
+      allow read: if isAdmin() || (signedIn() && resource.data.reservedByUid == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if signedIn();
+    }
+
+    // reservation history
+    match /reservation_history/{hid} {
+      allow create: if signedIn();
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // buchungen (Bookings/Reservations legacy)
+    match /buchungen/{buchungId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // ============ REAL ESTATE / IMMOBILIEN ============
+    
+    // properties (Wohnungen/Objekte)
+    match /properties/{propertyId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // moveouts (Auszüge)
+    match /moveouts/{moveoutId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // moveins (Einzüge)
+    match /moveins/{moveinId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // electricity contracts
+    match /electricityContracts/{contractId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || isOwner("createdByUid");
+    }
+
+    // water contracts
+    match /waterContracts/{contractId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || isOwner("createdByUid");
+    }
+
+    // ============ SUPPORT & COMMUNICATION ============
+    
+    // Support Tickets
+    match /supportTickets/{ticketId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // Chat Messages
+    match /chatMessages/{messageId} {
+      allow read, write: if signedIn();
+    }
+    
+    // key protocols (Schlüsselübergabe/Rückgabe)
+    match /keyProtocols/{protocolId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
     }
   }
 }

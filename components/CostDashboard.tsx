@@ -120,23 +120,6 @@ export default function CostDashboard() {
         </div>
       </div>
 
-      {/* Stromkosten Detail */}
-      {electricityCosts.length > 0 && (
-        <div className="rounded-[28px] surface p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Stromkosten Übersicht</h3>
-          <div className="space-y-2">
-            {electricityCosts.map((contract, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                <span className="text-sm text-white/80">{contract.propertyName}</span>
-                <span className="text-sm font-semibold text-blue-400">
-                  {parseFloat(contract.monthlyPayment || "0").toFixed(2)} €/Monat
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Wasserkosten Detail */}
       {waterCosts.length > 0 && (
         <div className="rounded-[28px] surface p-6">

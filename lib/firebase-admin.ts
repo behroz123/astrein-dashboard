@@ -1,36 +1,69 @@
 import * as admin from 'firebase-admin';
 
-// Initialisiere Firebase Admin (benötigt Service Account JSON)
-// Diese Funktion wird nur auf dem Server ausgeführt
+let adminInstance: admin.app.App | null = null;
 
-let adminInstance: admin.app.App;
+function initializeAdmin() {
+  if (adminInstance) {
+    return adminInstance;
+  }
 
-export function getAdmin() {
-  if (!adminInstance) {
-    // Versuche Service Account zu laden oder nutze FIREBASE_ADMIN_SDK
-    const credential = process.env.FIREBASE_ADMIN_SDK
-      ? admin.credential.cert(JSON.parse(process.env.FIREBASE_ADMIN_SDK))
-      : admin.credential.applicationDefault();
+  try {
+    // Check if Firebase Admin is already initialized
+    const existingApp = admin.apps.find(app => app?.name === '[DEFAULT]');
+    if (existingApp) {
+      adminInstance = existingApp;
+      return adminInstance;
+    }
+
+    // Parse Service Account from environment variable
+    const serviceAccountJson = process.env.FIREBASE_ADMIN_SDK;
+    
+    if (!serviceAccountJson) {
+      throw new Error('FIREBASE_ADMIN_SDK environment variable not set');
+    }
+
+    let serviceAccount: any;
+    try {
+      serviceAccount = JSON.parse(serviceAccountJson);
+    } catch (e) {
+      throw new Error('FIREBASE_ADMIN_SDK is not valid JSON: ' + (e as any).message);
+    }
+
+    console.log('[Firebase Admin] Initializing with project:', serviceAccount.project_id);
 
     adminInstance = admin.initializeApp({
-      credential,
-      databaseURL: process.env.FIREBASE_DATABASE_URL,
+      credential: admin.credential.cert(serviceAccount),
+      projectId: serviceAccount.project_id,
     });
-  }
 
-  return adminInstance;
+    console.log('[Firebase Admin] Successfully initialized');
+    return adminInstance;
+  } catch (error: any) {
+    console.error('[Firebase Admin] Initialization error:', error.message);
+    throw error;
+  }
 }
 
-// Alternativ für lokal ohne Service Account (Development)
-export function getAdminFirestore() {
+export function getAdmin(): admin.app.App {
+  return initializeAdmin();
+}
+
+export const adminAuth = (() => {
   try {
-    const app = getAdmin();
-    return app.firestore();
+    return admin.auth(getAdmin());
   } catch (e) {
-    console.log('Firebase Admin not available, using fallback');
-    // Return null und handle gracefully in API
-    return null;
+    console.error('[Firebase Admin Auth] Error getting auth:', e);
+    throw e;
   }
-}
+})();
+
+export const adminDb = (() => {
+  try {
+    return admin.firestore(getAdmin());
+  } catch (e) {
+    console.error('[Firebase Admin Firestore] Error getting firestore:', e);
+    throw e;
+  }
+})();
 
 export { admin };
