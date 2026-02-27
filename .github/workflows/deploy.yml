@@ -32,6 +32,7 @@ jobs:
         with:
           name: next-artifact
           path: .next
+          include-hidden-files: true
 
   deploy:
     needs: build
