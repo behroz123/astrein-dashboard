@@ -48,22 +48,22 @@ export function getAdmin(): admin.app.App {
   return initializeAdmin();
 }
 
-export const adminAuth = (() => {
+export function getAdminAuth() {
   try {
     return admin.auth(getAdmin());
   } catch (e) {
     console.error('[Firebase Admin Auth] Error getting auth:', e);
     throw e;
   }
-})();
+}
 
-export const adminDb = (() => {
+export function getAdminDb() {
   try {
     return admin.firestore(getAdmin());
   } catch (e) {
     console.error('[Firebase Admin Firestore] Error getting firestore:', e);
     throw e;
   }
-})();
+}
 
 export { admin };

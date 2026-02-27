@@ -8,8 +8,10 @@ export async function GET(request: NextRequest) {
     console.log("[API] FIREBASE_ADMIN_SDK set:", !!process.env.FIREBASE_ADMIN_SDK);
 
     // Dynamically import to get fresh initialization
-    const { adminAuth, adminDb } = await import("../../../lib/firebase-admin");
+    const { getAdminAuth, getAdminDb } = await import("../../../lib/firebase-admin");
     console.log("[API] Admin SDK imported successfully");
+    const adminAuth = getAdminAuth();
+    const adminDb = getAdminDb();
 
     // Verify token
     const authHeader = request.headers.get("authorization");

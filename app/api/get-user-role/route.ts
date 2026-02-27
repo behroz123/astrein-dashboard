@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "../../../lib/firebase-admin";
+import { getAdminAuth, getAdminDb } from "../../../lib/firebase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,6 +9,9 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.slice(7);
+    const adminAuth = getAdminAuth();
+    const adminDb = getAdminDb();
+
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
