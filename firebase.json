@@ -1,4 +1,7 @@
 {
+  "projects": {
+    "default": "astrein-exellent-lager"
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
