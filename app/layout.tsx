@@ -10,7 +10,6 @@ import { PrefsProvider, usePrefs } from "../lib/prefs";
 import ChatAssistant from "../components/ChatAssistant";
 import SessionWarning from "../components/SessionWarning";
 import Footer from "../components/Footer";
-import ImmobilienSubmenu from "../components/ImmobilienSubmenu";
 import { useSessionTimeout } from "../hooks/useSessionTimeout";
 
 function NavItem({
@@ -105,17 +104,36 @@ function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-2">
-          {navItems.map((item) => (
-            <NavItem
-              key={item.href}
-              href={item.href}
-              active={item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)}
-            >
-              {item.label}
-            </NavItem>
-          ))}
-          {/* Immobilien Submenu */}
-          <ImmobilienSubmenu pathname={pathname} />
+          <NavItem href="/" active={pathname === "/"}>
+            {t("dashboard")}
+          </NavItem>
+          <NavItem href="/items" active={pathname.startsWith("/items")}>
+            {t("items")}
+          </NavItem>
+          <NavItem href="/immobilien" active={pathname.startsWith("/immobilien") || pathname.startsWith("/auszuege") || pathname.startsWith("/einzuege") || pathname.startsWith("/wohnung-checken") || pathname.startsWith("/schluesseluebergabe") || pathname.startsWith("/mietvertrag") || pathname.startsWith("/strom-vertrag") || pathname.startsWith("/wasser-vertrag") || pathname.startsWith("/untermietvertrag")}>
+            Immobilien
+          </NavItem>
+          <NavItem href="/wareneingang" active={pathname.startsWith("/wareneingang")}>
+            {t("wareneingang")}
+          </NavItem>
+          <NavItem href="/warenausgang" active={pathname.startsWith("/warenausgang")}>
+            {t("warenausgang")}
+          </NavItem>
+          <NavItem href="/reports" active={pathname.startsWith("/reports")}>
+            Reports
+          </NavItem>
+          <NavItem href="/fuhrpark" active={pathname.startsWith("/fuhrpark")}>
+            Fuhrpark
+          </NavItem>
+          <NavItem href="/employees" active={pathname.startsWith("/employees")}>
+            {t("employees")}
+          </NavItem>
+          <NavItem href="/exports" active={pathname.startsWith("/exports")}>
+            {t("exports")}
+          </NavItem>
+          <NavItem href="/settings" active={pathname.startsWith("/settings")}>
+            {t("settings")}
+          </NavItem>
         </nav>
 
         <div className="px-3 py-4 border-t border-white/10">
