@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import CostDashboard from "../../components/CostDashboard";
 import { usePrefs } from "../../lib/prefs";
 import {
   FileText,
@@ -114,84 +113,70 @@ export default function ImmobilienPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="rounded-[28px] surface p-8 overflow-hidden relative border border-white/5">
+    <div className="space-y-8">
+      {/* Premium Header Section */}
+      <div className="rounded-[28px] surface p-12 overflow-hidden relative border border-white/5 bg-gradient-to-br from-white/3 to-white/1">
         <div
-          className="absolute inset-0 opacity-40 pointer-events-none"
+          className="absolute inset-0 opacity-50 pointer-events-none"
           style={{
             background:
-              "radial-gradient(900px 420px at 12% 22%, rgba(30,30,30,0.4), transparent 60%), radial-gradient(900px 520px at 82% 28%, rgba(20,20,20,0.3), transparent 62%)",
+              "radial-gradient(1200px 600px at 15% 25%, rgba(59,130,246,0.15), transparent 50%), radial-gradient(1000px 800px at 85% 30%, rgba(139,92,246,0.12), transparent 55%)",
           }}
         />
         <div className="relative z-10">
-          <div className="mb-6">
-            <div className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-3">Verwaltung</div>
-            <h1 className="text-4xl font-bold text-white leading-tight">
+          <div className="space-y-4">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/10">
+              <span className="text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+                {t("immobilien.modules")} Verwaltung
+              </span>
+            </div>
+            <h1 className="text-5xl font-bold text-white leading-tight tracking-tight">
               {t("immobilien.header")}
             </h1>
-            <div className="mt-3 text-base text-white/70 max-w-2xl">
+            <p className="text-lg text-white/70 max-w-2xl leading-relaxed">
               {t("immobilien.description")}
-            </div>
+            </p>
           </div>
-          <div className="flex flex-wrap gap-3 mt-6">
-            <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-white/70">
-              {sections.length} {t("immobilien.modules")}
-            </div>
-            <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-white/70">
-              {t("immobilien.integrated")}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Kostenübersicht */}
-      <div className="rounded-[28px] surface p-8 overflow-hidden relative border border-white/5">
-        <div
-          className="absolute inset-0 opacity-30 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(900px 420px at 12% 22%, rgba(34,197,94,0.1), transparent 60%), radial-gradient(900px 520px at 82% 28%, rgba(20,20,20,0.2), transparent 62%)",
-          }}
-        />
-        <div className="relative z-10">
-          <div className="mb-6">
-            <div className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-2">Finanzübersicht</div>
-            <h2 className="text-2xl font-bold text-white">{t("immobilien.costs")}</h2>
-          </div>
-          <CostDashboard />
         </div>
       </div>
 
       {/* Module Grid */}
-      <div className="rounded-[28px] surface p-8 border border-white/5">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white">{t("immobilien.modulesTitle")}</h2>
-          <p className="mt-2 text-sm text-white/60">
+      <div className="rounded-[28px] surface p-10 border border-white/5">
+        <div className="mb-10">
+          <h2 className="text-3xl font-bold text-white mb-2">{t("immobilien.modulesTitle")}</h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+          <p className="mt-4 text-base text-white/60 max-w-2xl">
             {t("immobilien.modulesDesc")}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {sections.map((section) => {
             const Icon = section.icon;
             return (
               <button
                 key={section.key}
                 onClick={() => router.push(section.route)}
-                className={`group rounded-2xl border ${section.borderAccent} bg-gradient-to-br ${section.accent} ${section.hoverAccent} px-6 py-6 text-left transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:border-white/15`}
+                className={`group relative rounded-[20px] border ${section.borderAccent} bg-gradient-to-br ${section.accent} ${section.hoverAccent} px-6 py-8 text-left transition-all duration-300 hover:shadow-xl hover:shadow-white/10 hover:border-white/20 overflow-hidden`}
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 group-hover:bg-white/8 transition-colors">
-                  <Icon className={`h-6 w-6 ${section.iconColor}`} />
-                </div>
-                <h3 className="text-sm font-semibold text-white">
-                  {section.label}
-                </h3>
-                <p className="mt-2 text-xs text-white/60 group-hover:text-white/70 transition-colors">
-                  {section.description}
-                </p>
-                <div className="mt-4 flex items-center text-xs font-medium text-white/50 group-hover:text-white/70 transition-colors">
-                  {t("immobilien.open")} →
+                {/* Decorative gradient background */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity pointer-events-none" style={{background: `linear-gradient(135deg, var(--tw-gradient-stops))`}}></div>
+                
+                {/* Content */}
+                <div className="relative z-10">
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-white/10 to-white/5 group-hover:from-white/15 group-hover:to-white/10 transition-all border border-white/5">
+                    <Icon className={`h-7 w-7 ${section.iconColor}`} />
+                  </div>
+                  <h3 className="text-base font-bold text-white group-hover:text-white transition-colors">
+                    {section.label}
+                  </h3>
+                  <p className="mt-3 text-sm text-white/60 group-hover:text-white/75 transition-colors leading-relaxed">
+                    {section.description}
+                  </p>
+                  <div className="mt-6 inline-flex items-center text-sm font-semibold text-white/60 group-hover:text-white transition-colors">
+                    {t("immobilien.open")}
+                    <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+                  </div>
                 </div>
               </button>
             );
