@@ -113,69 +113,94 @@ export default function ImmobilienPage() {
   );
 
   return (
-    <div className="space-y-8">
-      {/* Premium Header Section */}
-      <div className="rounded-[28px] surface p-12 overflow-hidden relative border border-white/5 bg-gradient-to-br from-white/3 to-white/1">
-        <div
-          className="absolute inset-0 opacity-50 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(1200px 600px at 15% 25%, rgba(59,130,246,0.15), transparent 50%), radial-gradient(1000px 800px at 85% 30%, rgba(139,92,246,0.12), transparent 55%)",
-          }}
-        />
-        <div className="relative z-10">
-          <div className="space-y-4">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/10">
-              <span className="text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
-                {t("immobilien.modules")} Verwaltung
-              </span>
+    <div className="space-y-10">
+      {/* Premium Header with Animated Gradient */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/40 via-purple-900/20 to-slate-900/40 p-12 lg:p-16">
+        {/* Animated Background Gradients */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-gradient-to-tr from-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: "1s"}}></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 max-w-3xl">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-1.5 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
+            <span className="text-xs font-bold uppercase tracking-widest text-white/70">Verwaltungssystem</span>
+          </div>
+          
+          <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight tracking-tight">
+            {t("immobilien.header")}
+          </h1>
+          
+          <p className="text-lg text-white/70 leading-relaxed max-w-2xl mb-8">
+            {t("immobilien.description")}
+          </p>
+
+          <div className="flex flex-wrap gap-4">
+            <div className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <p className="text-xs text-white/60 uppercase tracking-wide">Module</p>
+              <p className="text-2xl font-bold text-white mt-1">{sections.length}</p>
             </div>
-            <h1 className="text-5xl font-bold text-white leading-tight tracking-tight">
-              {t("immobilien.header")}
-            </h1>
-            <p className="text-lg text-white/70 max-w-2xl leading-relaxed">
-              {t("immobilien.description")}
-            </p>
+            <div className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+              <p className="text-xs text-white/60 uppercase tracking-wide">Status</p>
+              <p className="text-2xl font-bold text-emerald-400 mt-1">Aktiv</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Module Grid */}
-      <div className="rounded-[28px] surface p-10 border border-white/5">
+      {/* Module Grid - Premium Layout */}
+      <div>
         <div className="mb-10">
-          <h2 className="text-3xl font-bold text-white mb-2">{t("immobilien.modulesTitle")}</h2>
-          <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-          <p className="mt-4 text-base text-white/60 max-w-2xl">
-            {t("immobilien.modulesDesc")}
-          </p>
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-3">{t("immobilien.modulesTitle")}</h2>
+          <div className="flex items-center space-x-3">
+            <div className="h-1.5 w-16 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"></div>
+            <p className="text-base text-white/60">{t("immobilien.modulesDesc")}</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {sections.map((section) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {sections.map((section, idx) => {
             const Icon = section.icon;
             return (
               <button
                 key={section.key}
                 onClick={() => router.push(section.route)}
-                className={`group relative rounded-[20px] border ${section.borderAccent} bg-gradient-to-br ${section.accent} ${section.hoverAccent} px-6 py-8 text-left transition-all duration-300 hover:shadow-xl hover:shadow-white/10 hover:border-white/20 overflow-hidden`}
+                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-sm p-8 text-left transition-all duration-500 hover:border-white/30 hover:shadow-2xl hover:shadow-white/10"
               >
-                {/* Decorative gradient background */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity pointer-events-none" style={{background: `linear-gradient(135deg, var(--tw-gradient-stops))`}}></div>
+                {/* Hover Gradient Overlay */}
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${section.accent}`}></div>
                 
+                {/* Animated Border Glow */}
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl border border-white/20 blur-xl pointer-events-none`}></div>
+
                 {/* Content */}
                 <div className="relative z-10">
-                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-white/10 to-white/5 group-hover:from-white/15 group-hover:to-white/10 transition-all border border-white/5">
-                    <Icon className={`h-7 w-7 ${section.iconColor}`} />
+                  {/* Icon Container */}
+                  <div className="mb-6 inline-flex items-center justify-center">
+                    <div className="relative">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${section.accent} rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity`}></div>
+                      <div className="relative w-14 h-14 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-colors">
+                        <Icon className={`w-7 h-7 ${section.iconColor} group-hover:scale-110 transition-transform`} />
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-base font-bold text-white group-hover:text-white transition-colors">
+
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-white mb-3 group-hover:text-white transition-colors">
                     {section.label}
                   </h3>
-                  <p className="mt-3 text-sm text-white/60 group-hover:text-white/75 transition-colors leading-relaxed">
+
+                  {/* Description */}
+                  <p className="text-sm text-white/60 group-hover:text-white/75 transition-colors leading-relaxed mb-5">
                     {section.description}
                   </p>
-                  <div className="mt-6 inline-flex items-center text-sm font-semibold text-white/60 group-hover:text-white transition-colors">
-                    {t("immobilien.open")}
-                    <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+
+                  {/* Footer Link */}
+                  <div className="flex items-center text-sm font-semibold text-white/60 group-hover:text-white transition-all duration-300">
+                    <span>{t("immobilien.open")}</span>
+                    <span className="ml-2 inline-block group-hover:translate-x-2 transition-transform duration-300">→</span>
                   </div>
                 </div>
               </button>
