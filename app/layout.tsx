@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { PrefsProvider, usePrefs } from "../lib/prefs";
 import ChatAssistant from "../components/ChatAssistant";
 import SessionWarning from "../components/SessionWarning";
+import Footer from "../components/Footer";
 import { useSessionTimeout } from "../hooks/useSessionTimeout";
 
 function NavItem({
@@ -146,6 +147,9 @@ function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         <main className="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">{children}</main>
+
+        {/* Footer */}
+        <Footer />
 
         <nav className="lg:hidden fixed bottom-3 left-3 right-3 z-30 rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl px-2 py-2">
           <div className="grid grid-cols-6 gap-1">
