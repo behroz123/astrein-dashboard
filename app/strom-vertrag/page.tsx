@@ -395,7 +395,7 @@ export default function StromVertragPage() {
     // ===== HAUPTTEXT =====
     y += 10;
     doc.setFontSize(11);
-    const mainText = `hiermit kündigen wir unseren Stromversorgungsvertrag fristgerecht.
+    const mainText = `hiermit kündigen wir unseren Stromversorgungsvertrag fristgerecht zum nächstmöglichen Zeitpunkt.
 
 Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem Bankkonto. Bitte senden Sie mir eine schriftliche Bestätigung über den Erhalt dieser Kündigung sowie ggf. eine Abschlussrechnung.`;
     const mainLines = doc.splitTextToSize(mainText, maxWidth);
