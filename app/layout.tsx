@@ -10,6 +10,7 @@ import { PrefsProvider, usePrefs } from "../lib/prefs";
 import ChatAssistant from "../components/ChatAssistant";
 import SessionWarning from "../components/SessionWarning";
 import Footer from "../components/Footer";
+import ImmobilienSubmenu from "../components/ImmobilienSubmenu";
 import { useSessionTimeout } from "../hooks/useSessionTimeout";
 
 function NavItem({
@@ -71,7 +72,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/items", label: t("items") },
     { href: "/wareneingang", label: t("wareneingang") },
     { href: "/warenausgang", label: t("warenausgang") },
-    { href: "/immobilien", label: "Immobilien" },
+    // Immobilien is now handled by ImmobilienSubmenu
     { href: "/reports", label: "Reports" },
     { href: "/fuhrpark", label: "Fuhrpark" },
     { href: "/employees", label: t("employees") },
@@ -113,6 +114,8 @@ function AppShell({ children }: { children: React.ReactNode }) {
               {item.label}
             </NavItem>
           ))}
+          {/* Immobilien Submenu */}
+          <ImmobilienSubmenu pathname={pathname} />
         </nav>
 
         <div className="px-3 py-4 border-t border-white/10">
