@@ -1,3 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './theme.css';
+
+/* Theme CSS Variables - Default (Hell Theme) */
+:root {
+  --color-primary: #3B82F6;
+  --color-primary-dark: #1E40AF;
+  --color-primary-light: #93C5FD;
+  
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F8FAFC;
+  --color-bg-tertiary: #F1F5F9;
+  
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F8FAFC;
+  
+  --color-text: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+  
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  
+  --color-accent1: #8B5CF6;
+  --color-accent2: #EC4899;
+  --color-accent3: #14B8A6;
+  --color-accent4: #F59E0B;
+  
+  --color-border: #E2E8F0;
+  --color-border-light: #F1F5F9;
+}
+
 /* Light theme dashboard polish */
 html[data-theme="light"] body {
   background: #f7f8fa !important;
@@ -229,9 +266,6 @@ input[type="date"]::-webkit-clear-button {
 .dashboard-text-secondary {
   color: rgba(255,255,255,0.85);
 }
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 html, body { height: 100%; }
 
