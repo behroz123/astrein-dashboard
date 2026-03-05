@@ -797,7 +797,8 @@ export default function WohnungenPage() {
       <div className="mb-12">
         <button
           onClick={() => router.push('/immobilien')}
-          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
+          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          style={{ color: themeConfig.primary }}
         >
           ← {t("common.back")}
         </button>
@@ -805,10 +806,10 @@ export default function WohnungenPage() {
         <div className="flex items-end gap-6 mb-4">
           <div className="text-7xl">🏢</div>
           <div>
-            <h1 className="text-6xl font-bold tracking-tight mb-2 bg-gradient-to-r from-blue-400 via-cyan-400 to-green-400 bg-clip-text text-transparent">
+            <h1 className="text-6xl font-bold tracking-tight mb-2" style={{ color: themeConfig.text }}>
               {t("wohnungen.title")}
             </h1>
-            <p className="text-lg text-slate-400">
+            <p className="text-lg" style={{ color: themeConfig.textMuted }}>
               Professionelle Verwaltung aller Wohnungen und Mieterverhältnisse
             </p>
           </div>
@@ -817,33 +818,33 @@ export default function WohnungenPage() {
 
       {/* Statistics - Modern Professional Style */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-10">
-        <div className="rounded-xl bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/20 p-5 hover:border-blue-400/30 transition-all">
-          <div className="text-xs font-semibold text-blue-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.total")}</div>
-          <div className="text-3xl font-bold text-white">{stats.total}</div>
+        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: themeConfig.primary }}>{t("wohnungen.stats.total")}</div>
+          <div className="text-3xl font-bold" style={{ color: themeConfig.primary }}>{stats.total}</div>
         </div>
-        <div className="rounded-xl bg-gradient-to-br from-green-900/40 to-green-800/20 border border-green-500/20 p-5 hover:border-green-400/30 transition-all">
-          <div className="text-xs font-semibold text-green-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.verfuegbar")}</div>
-          <div className="text-3xl font-bold text-white">{stats.verfügbar}</div>
+        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: themeConfig.success }}>{t("wohnungen.stats.verfuegbar")}</div>
+          <div className="text-3xl font-bold" style={{ color: themeConfig.success }}>{stats.verfügbar}</div>
         </div>
-        <div className="rounded-xl bg-gradient-to-br from-purple-900/40 to-purple-800/20 border border-purple-500/20 p-5 hover:border-purple-400/30 transition-all">
-          <div className="text-xs font-semibold text-purple-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.vermietet")}</div>
-          <div className="text-3xl font-bold text-white">{stats.vermietet}</div>
+        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: themeConfig.accent1 }}>{t("wohnungen.stats.vermietet")}</div>
+          <div className="text-3xl font-bold" style={{ color: themeConfig.accent1 }}>{stats.vermietet}</div>
         </div>
-        <div className="rounded-xl bg-gradient-to-br from-orange-900/40 to-orange-800/20 border border-orange-500/20 p-5 hover:border-orange-400/30 transition-all">
-          <div className="text-xs font-semibold text-orange-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.renovierung")}</div>
-          <div className="text-3xl font-bold text-white">{stats.renovierung}</div>
+        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: themeConfig.warning }}>{t("wohnungen.stats.renovierung")}</div>
+          <div className="text-3xl font-bold" style={{ color: themeConfig.warning }}>{stats.renovierung}</div>
         </div>
-        <div className="rounded-xl bg-gradient-to-br from-cyan-900/40 to-cyan-800/20 border border-cyan-500/20 p-5 hover:border-cyan-400/30 transition-all">
-          <div className="text-xs font-semibold text-cyan-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.zimmer")}</div>
-          <div className="text-3xl font-bold text-white">{stats.totalRooms}</div>
+        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: themeConfig.info }}>{t("wohnungen.stats.zimmer")}</div>
+          <div className="text-3xl font-bold" style={{ color: themeConfig.info }}>{stats.totalRooms}</div>
         </div>
-        <div className="rounded-xl bg-gradient-to-br from-indigo-900/40 to-indigo-800/20 border border-indigo-500/20 p-5 hover:border-indigo-400/30 transition-all">
-          <div className="text-xs font-semibold text-indigo-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.betten")}</div>
-          <div className="text-3xl font-bold text-white">{stats.totalBeds}</div>
+        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: themeConfig.accent2 }}>{t("wohnungen.stats.betten")}</div>
+          <div className="text-3xl font-bold" style={{ color: themeConfig.accent2 }}>{stats.totalBeds}</div>
         </div>
-        <div className="rounded-xl bg-gradient-to-br from-pink-900/40 to-pink-800/20 border border-pink-500/20 p-5 hover:border-pink-400/30 transition-all">
-          <div className="text-xs font-semibold text-pink-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.belegt")}</div>
-          <div className="text-3xl font-bold text-white">{stats.occupiedBeds}/{stats.totalBeds}</div>
+        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
+          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: themeConfig.accent3 }}>{t("wohnungen.stats.belegt")}</div>
+          <div className="text-3xl font-bold" style={{ color: themeConfig.accent3 }}>{stats.occupiedBeds}/{stats.totalBeds}</div>
         </div>
       </div>
 
