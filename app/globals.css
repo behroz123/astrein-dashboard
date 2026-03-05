@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import './theme.css';
-
 /* Theme CSS Variables - Default (Hell Theme) */
 :root {
   --color-primary: #3B82F6;
@@ -1153,4 +1151,245 @@ html[data-theme="light"] .site-clock .date-chip{
     width: 100% !important;
     justify-content: center !important;
   }
+}
+
+/* Theme-aware Tailwind utilities */
+.theme-bg {
+  @apply bg-white dark:bg-black;
+  background-color: var(--color-bg);
+}
+
+.theme-bg-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.theme-bg-tertiary {
+  background-color: var(--color-bg-tertiary);
+}
+
+.theme-surface {
+  background-color: var(--color-surface);
+}
+
+.theme-surface-hover {
+  background-color: var(--color-surface-hover);
+}
+
+.theme-text {
+  color: var(--color-text);
+}
+
+.theme-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.theme-text-muted {
+  color: var(--color-text-muted);
+}
+
+.theme-border {
+  border-color: var(--color-border);
+}
+
+.theme-border-light {
+  border-color: var(--color-border-light);
+}
+
+.theme-primary {
+  background-color: var(--color-primary);
+}
+
+.theme-primary-text {
+  color: var(--color-primary);
+}
+
+.theme-success {
+  color: var(--color-success);
+}
+
+.theme-error {
+  color: var(--color-error);
+}
+
+.theme-warning {
+  color: var(--color-warning);
+}
+
+.theme-info {
+  color: var(--color-info);
+}
+
+.theme-card {
+  @apply rounded-xl border transition-all;
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.theme-card-hover:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-primary);
+}
+
+.theme-input {
+  @apply rounded-lg border transition-all;
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.theme-input:focus {
+  border-color: var(--color-primary);
+}
+
+/* Theme-specific overrides for light theme */
+[data-theme="hell"] .wohnungen-page,
+[data-theme="graphit"] .wohnungen-page {
+  --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="hell"] .wohnungen-page .text-white,
+[data-theme="graphit"] .wohnungen-page .text-white {
+  color: var(--color-text) !important;
+}
+
+[data-theme="hell"] .wohnungen-page .text-white\/75,
+[data-theme="graphit"] .wohnungen-page .text-white\/75,
+[data-theme="hell"] .wohnungen-page .text-white\/80,
+[data-theme="graphit"] .wohnungen-page .text-white\/80 {
+  color: var(--color-text-secondary) !important;
+}
+
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-slate"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-slate"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-emerald"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-emerald"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-green"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-green"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-blue"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-blue"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-purple"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-purple"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-red"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-red"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-orange"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-orange"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-indigo"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-indigo"],
+[data-theme="hell"] .wohnungen-page .bg-gradient-to-br[class*="from-amber"],
+[data-theme="graphit"] .wohnungen-page .bg-gradient-to-br[class*="from-amber"] {
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-secondary) 100%) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="hell"] .wohnungen-page .surface,
+[data-theme="graphit"] .wohnungen-page .surface,
+[data-theme="hell"] .wohnungen-page .surface-2,
+[data-theme="graphit"] .wohnungen-page .surface-2,
+[data-theme="hell"] .wohnungen-page .rounded-xl,
+[data-theme="graphit"] .wohnungen-page .rounded-xl,
+[data-theme="hell"] .wohnungen-page .rounded-2xl,
+[data-theme="graphit"] .wohnungen-page .rounded-2xl {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+/* Wohnungen Page Theme Adaptations */
+.wohnungen-page {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.wohnungen-page .surface,
+.wohnungen-page .surface-2 {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.wohnungen-page .bg-gradient-to-br {
+  background-color: var(--color-surface);
+}
+
+.wohnungen-page .text-white {
+  color: var(--color-text);
+}
+
+.wohnungen-page .text-white\/80 {
+  color: rgba(var(--color-text-rgb), 0.8);
+}
+
+.wohnungen-page .text-white\/60 {
+  color: rgba(var(--color-text-rgb), 0.6);
+}
+
+.wohnungen-page .text-slate-400,
+.wohnungen-page .text-white\/75 {
+  color: var(--color-text-muted);
+}
+
+.wohnungen-page .border-white\/10,
+.wohnungen-page .border-white\/20 {
+  border-color: var(--color-border);
+}
+
+.wohnungen-page .bg-white\/5,
+.wohnungen-page .bg-white\/10,
+.wohnungen-page .bg-black\/20,
+.wohnungen-page .bg-black\/30 {
+  background-color: var(--color-surface);
+}
+
+/* Wohnungen Page - Override gradient backgrounds with theme colors */
+.wohnungen-page .bg-gradient-to-br {
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface) 100%) !important;
+}
+
+.wohnungen-page [style*="from-slate"] {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+.wohnungen-page [style*="from-emerald"],
+.wohnungen-page [style*="from-green"] {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+.wohnungen-page [style*="from-blue"],
+.wohnungen-page [style*="from-purple"],
+.wohnungen-page [style*="from-red"] {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+.wohnungen-page [style*="from-orange"],
+.wohnungen-page [style*="from-indigo"],
+.wohnungen-page [style*="from-amber"] {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* Card styling for wohnungen page */
+.wohnungen-page .rounded-xl {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.wohnungen-page .rounded-2xl {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Text colors */
+.wohnungen-page [class*="text-slate"],
+.wohnungen-page [class*="text-emerald"],
+.wohnungen-page [class*="text-green"],
+.wohnungen-page [class*="text-blue"],
+.wohnungen-page [class*="text-purple"],
+.wohnungen-page [class*="text-red"] {
+  color: inherit;
 }

@@ -16,6 +16,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 import { usePrefs } from "../../lib/prefs";
+import { useTheme } from "../../lib/themeContext";
 import { Home, MapPin, User, Calendar, Euro, CheckCircle, XCircle, Edit2, Trash2, Bed, DoorOpen, Plus, X } from "lucide-react";
 
 type Payment = {
@@ -72,6 +73,7 @@ type Wohnung = {
 export default function WohnungenPage() {
   const router = useRouter();
   const { t } = usePrefs();
+  const { config: themeConfig } = useTheme();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [wohnungen, setWohnungen] = useState<Wohnung[]>([]);
@@ -790,7 +792,7 @@ export default function WohnungenPage() {
   }
 
   return (
-    <div className="pb-12">
+    <div className="pb-12 wohnungen-page">
       {/* Professional Header with Gradient */}
       <div className="mb-12">
         <button
