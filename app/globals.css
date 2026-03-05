@@ -33,16 +33,17 @@
   --color-border-light: #F1F5F9;
 }
 
-/* Light theme dashboard polish */
+/* Light mode polish */
 html[data-theme="light"] body {
-  background: #f7f8fa !important;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%) !important;
   color: #23272f !important;
+  min-height: 100vh;
 }
 html[data-theme="light"] .surface,
 html[data-theme="light"] .surface-2 {
   background: #fff !important;
-  border-color: #e5e7eb !important;
-  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.04), 0 1.5px 6px 0 rgba(0,0,0,0.03);
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px 0 rgba(0,0,0,0.06), 0 1.5px 6px 0 rgba(0,0,0,0.04);
 }
 html[data-theme="light"] .muted {
   color: #7b8499 !important;
@@ -107,6 +108,216 @@ html[data-theme="light"] svg circle.opacity-25 {
 }
 html[data-theme="light"] svg circle.opacity-18 {
   stroke: #e5e7eb;
+}
+
+/* ============================================
+   Dashboard Light Mode - Professional Design
+   ============================================ */
+
+/* Hero Section */
+html[data-theme="light"] .hero-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+html[data-theme="light"] .hero-bg-pattern {
+  opacity: 0.15 !important;
+}
+html[data-theme="light"] .hero-title {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+html[data-theme="light"] .hero-subtitle {
+  color: rgba(255,255,255,0.85) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+html[data-theme="light"] .hero-description {
+  color: rgba(255,255,255,0.75) !important;
+}
+
+/* Hero Buttons */
+html[data-theme="light"] .hero-btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff !important;
+  border: none;
+  font-weight: 600;
+}
+html[data-theme="light"] .hero-btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff !important;
+  border: none;
+  font-weight: 600;
+}
+html[data-theme="light"] .hero-btn-secondary {
+  background: rgba(255,255,255,0.2);
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+}
+html[data-theme="light"] .hero-btn-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+}
+html[data-theme="light"] .hero-btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+}
+html[data-theme="light"] .hero-btn-secondary:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+
+/* Quick Actions */
+html[data-theme="light"] .quick-actions-title {
+  color: #1f2937 !important;
+}
+html[data-theme="light"] .quick-action-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+}
+html[data-theme="light"] .quick-action-card:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-color: #cbd5e1;
+}
+html[data-theme="light"] .quick-action-title {
+  color: #1f2937 !important;
+}
+html[data-theme="light"] .quick-action-desc {
+  color: #64748b !important;
+}
+
+/* KPI Cards */
+html[data-theme="light"] .kpi-label {
+  color: #64748b !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+html[data-theme="light"] .kpi-number {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html[data-theme="light"] .kpi-subtitle {
+  color: #64748b !important;
+}
+
+/* Stat Cards */
+html[data-theme="light"] .stat-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+}
+html[data-theme="light"] .stat-card:hover {
+  border-color: #cbd5e1;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+}
+html[data-theme="light"] .stat-label {
+  color: #64748b !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+html[data-theme="light"] .stat-value {
+  color: #1f2937 !important;
+}
+
+/* Lager Section */
+html[data-theme="light"] .lager-label {
+  color: #64748b !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+html[data-theme="light"] .lager-name {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html[data-theme="light"] .lager-subtitle {
+  color: #64748b !important;
+}
+html[data-theme="light"] .lager-count {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html[data-theme="light"] .lager-item {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+}
+html[data-theme="light"] .lager-item:hover {
+  border-color: #cbd5e1;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+}
+html[data-theme="light"] .lager-item-name {
+  color: #1f2937 !important;
+}
+html[data-theme="light"] .lager-item-count {
+  color: #667eea !important;
+}
+
+/* Progress Bars */
+html[data-theme="light"] .progress-bg {
+  background: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* Bookings Section */
+html[data-theme="light"] .bookings-title {
+  color: #1f2937 !important;
+}
+html[data-theme="light"] .bookings-link {
+  color: #667eea !important;
+}
+html[data-theme="light"] .bookings-link:hover {
+  color: #5a67d8 !important;
+}
+html[data-theme="light"] .booking-item {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+}
+html[data-theme="light"] .booking-item:hover {
+  border-color: #cbd5e1;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+}
+html[data-theme="light"] .booking-detail {
+  color: #1f2937 !important;
+}
+html[data-theme="light"] .booking-label {
+  color: #64748b !important;
+  font-weight: 500;
+}
+html[data-theme="light"] .booking-value {
+  color: #1f2937 !important;
+  font-weight: 700;
+}
+html[data-theme="light"] .booking-time {
+  color: #94a3b8 !important;
+}
+
+/* Error Cards */
+html[data-theme="light"] .error-card {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
+  border: 2px solid #fecaca !important;
+}
+html[data-theme="light"] .error-title {
+  color: #991b1b !important;
+}
+html[data-theme="light"] .error-message {
+  color: #7f1d1d !important;
+}
+html[data-theme="light"] .error-hint {
+  color: #dc2626 !important;
+}
+
+/* Loading State */
+html[data-theme="light"] .loading-text {
+  color: #667eea !important;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* Light mode - Status badges and colored elements - with MUCH stronger contrast */
@@ -1293,3 +1504,675 @@ html[data-theme="light"] .site-clock .date-chip{
 .wohnungen-page [class*="text-red"] {
   color: inherit;
 }
+
+/* ============================================
+   Dashboard Animations & Effects
+   ============================================ */
+
+/* Smooth transitions for all interactive elements */
+.surface, .surface-2, .quick-action-card, .stat-card, .lager-item, .booking-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* KPI Animation */
+@keyframes kpi-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kpi-number, .stat-value {
+  animation: kpi-entrance 0.5s ease-out;
+}
+
+/* Progress bar animation */
+.progress-bg > div {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover scale effect */
+.quick-action-card:hover {
+  transform: scale(1.05) !important;
+}
+
+.stat-card:hover, .lager-item:hover, .booking-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Focus visible for accessibility */
+button:focus-visible, a:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better text rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================
+   Wohnungen Page - Light Mode Design
+   ============================================ */
+
+/* Main wrapper */
+html[data-theme="light"] .wohnungen-page {
+  background: transparent;
+}
+
+/* Statistics Cards */
+html[data-theme="light"] .wohnungen-page .rounded-xl.border {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+html[data-theme="light"] .wohnungen-page .rounded-xl.border:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* Filter Bar */
+html[data-theme="light"] .wohnungen-page .rounded-2xl.surface {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* Wohnungen List Items */
+html[data-theme="light"] .wohnungen-page .surface-2 {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%) !important;
+  border-color: #e2e8f0 !important;
+}
+html[data-theme="light"] .wohnungen-page .surface-2:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Selected Wohnung */
+html[data-theme="light"] .wohnungen-page .border-blue-500\/60 {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  border: 2px solid #3b82f6 !important;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Status Badges */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-slate-700\/50 {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+  border: 1px solid #94a3b8 !important;
+  color: #1e293b !important;
+}
+
+/* Status Dots */
+html[data-theme="light"] .wohnungen-page .bg-green-400 {
+  background-color: #10b981 !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-blue-400 {
+  background-color: #3b82f6 !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-orange-400 {
+  background-color: #f97316 !important;
+}
+
+/* Zimmer/Betten Badges */
+html[data-theme="light"] .wohnungen-page .bg-slate-700\/40 {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+/* Rent Badge */
+html[data-theme="light"] .wohnungen-page .bg-emerald-700\/40 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+  border: 1px solid #34d399 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-emerald-300 {
+  color: #059669 !important;
+  font-weight: 700;
+}
+
+/* Rent Calculation Box */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-emerald-900\/30 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+  border: 1px solid #6ee7b7 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-emerald-300\/80 {
+  color: #047857 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-emerald-200 {
+  color: #059669 !important;
+  font-weight: 700;
+}
+html[data-theme="light"] .wohnungen-page .text-emerald-300\/60 {
+  color: #6ee7b7 !important;
+}
+
+/* Positive/Negative Badges */
+html[data-theme="light"] .wohnungen-page .bg-green-600\/40 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+  border: 1px solid #10b981 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-green-300 {
+  color: #047857 !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-red-600\/40 {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+  border: 1px solid #ef4444 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-red-300 {
+  color: #dc2626 !important;
+}
+
+/* Border Colors */
+html[data-theme="light"] .wohnungen-page .border-slate-700\/40 {
+  border-color: #e2e8f0 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-600\/60 {
+  border-color: #cbd5e1 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-600\/50 {
+  border-color: #cbd5e1 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-600\/40 {
+  border-color: #cbd5e1 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-emerald-600\/40 {
+  border-color: #34d399 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-emerald-500\/40 {
+  border-color: #34d399 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-green-500\/40 {
+  border-color: #22c55e !important;
+}
+html[data-theme="light"] .wohnungen-page .border-red-500\/40 {
+  border-color: #ef4444 !important;
+}
+
+/* Text Colors */
+html[data-theme="light"] .wohnungen-page .text-slate-300\/70 {
+  color: #64748b !important;
+}
+
+/* White borders fix */
+html[data-theme="light"] .wohnungen-page .border-white\/5,
+html[data-theme="light"] .wohnungen-page .border-white\/10 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Room/Bed Cards */
+html[data-theme="light"] .wohnungen-page .bg-slate-800\/30 {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-700\/30 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Payment Cards */
+html[data-theme="light"] .wohnungen-page .bg-slate-800\/20 {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-700\/20 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Input fields */
+html[data-theme="light"] .wohnungen-page .input {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+html[data-theme="light"] .wohnungen-page .input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Buttons - Keep gradient buttons bright */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-green-600 {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-green-600:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+}
+
+/* Red/Orange gradient fixes */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-red-600 {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-orange-600 {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Text opacity fixes */
+html[data-theme="light"] .wohnungen-page .opacity-60 {
+  opacity: 0.7 !important;
+}
+html[data-theme="light"] .wohnungen-page .opacity-70 {
+  opacity: 0.75 !important;
+}
+html[data-theme="light"] .wohnungen-page .opacity-80 {
+  opacity: 0.85 !important;
+}
+
+/* Wohnungsinformationen Section */
+html[data-theme="light"] .wohnungen-page .bg-slate-900\/50 {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-700\/50 {
+  border-color: #cbd5e1 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-slate-400 {
+  color: #64748b !important;
+}
+html[data-theme="light"] .wohnungen-page .text-slate-100 {
+  color: #1e293b !important;
+}
+
+/* Miete/Kaution Cards */
+html[data-theme="light"] .wohnungen-page .bg-emerald-900\/30 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-blue-900\/30 {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-blue-600\/40 {
+  border-color: #60a5fa !important;
+}
+html[data-theme="light"] .wohnungen-page .text-blue-300 {
+  color: #1e40af !important;
+}
+html[data-theme="light"] .wohnungen-page .text-blue-200 {
+  color: #1e40af !important;
+}
+
+/* Zimmer & Betten Section */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-br.from-slate-800\/40 {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-600\/40 {
+  border-color: #e2e8f0 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-slate-300 {
+  color: #475569 !important;
+}
+
+/* Room Cards (Indigo/Purple) */
+html[data-theme="light"] .wohnungen-page .bg-indigo-900\/40 {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-indigo-500\/30 {
+  border: 1px solid #818cf8 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-indigo-400\/50 {
+  border-color: #6366f1 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-indigo-300\/70 {
+  color: #4f46e5 !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-indigo-900\/50 {
+  background: rgba(79, 70, 229, 0.15) !important;
+}
+html[data-theme="light"] .wohnungen-page .text-indigo-200 {
+  color: #4338ca !important;
+}
+
+/* Betten Count Badge */
+html[data-theme="light"] .wohnungen-page .bg-blue-900\/50 {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid #93c5fd !important;
+}
+
+/* Capacity Badge */
+html[data-theme="light"] .wohnungen-page .bg-purple-900\/50 {
+  background: rgba(147, 51, 234, 0.15) !important;
+  border: 1px solid #c084fc !important;
+}
+html[data-theme="light"] .wohnungen-page .text-purple-300 {
+  color: #7c3aed !important;
+}
+
+/* Bed Cards - Occupied (Blue) */
+html[data-theme="light"] .wohnungen-page .bg-blue-900\/50 {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-blue-500\/40 {
+  border: 1px solid #60a5fa !important;
+}
+html[data-theme="light"] .wohnungen-page .border-blue-400\/60 {
+  border-color: #3b82f6 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-blue-400 {
+  color: #1e40af !important;
+}
+
+/* Bed Cards - Free (Green) */
+html[data-theme="light"] .wohnungen-page .bg-green-900\/50 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-green-500\/40 {
+  border: 1px solid #34d399 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-green-400\/60 {
+  border-color: #10b981 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-green-300 {
+  color: #047857 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-green-200 {
+  color: #059669 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-green-400 {
+  color: #059669 !important;
+}
+
+/* Mieter Info Section (Purple) */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-br.from-purple-900\/40 {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-purple-600\/40 {
+  border: 1px solid #c084fc !important;
+}
+html[data-theme="light"] .wohnungen-page .text-purple-300 {
+  color: #7c3aed !important;
+}
+html[data-theme="light"] .wohnungen-page .border-purple-700\/50 {
+  border-color: #a78bfa !important;
+}
+html[data-theme="light"] .wohnungen-page .text-purple-200 {
+  color: #6d28d9 !important;
+}
+
+/* Rent Overview Cards */
+html[data-theme="light"] .wohnungen-page .bg-blue-500\/15 {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-blue-500\/30 {
+  border: 1px solid #60a5fa !important;
+}
+html[data-theme="light"] .wohnungen-page .border-blue-400\/50 {
+  border-color: #3b82f6 !important;
+}
+
+html[data-theme="light"] .wohnungen-page .bg-emerald-500\/15 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-emerald-500\/30 {
+  border: 1px solid #34d399 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-emerald-400\/50 {
+  border-color: #10b981 !important;
+}
+
+html[data-theme="light"] .wohnungen-page .bg-green-500\/15 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-green-500\/30 {
+  border: 1px solid #34d399 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-green-400\/50 {
+  border-color: #10b981 !important;
+}
+
+html[data-theme="light"] .wohnungen-page .bg-red-500\/15 {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-red-500\/30 {
+  border: 1px solid #f87171 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-red-400\/50 {
+  border-color: #ef4444 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-red-300 {
+  color: #dc2626 !important;
+}
+
+html[data-theme="light"] .wohnungen-page .bg-gray-500\/15 {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-gray-500\/30 {
+  border: 1px solid #9ca3af !important;
+}
+html[data-theme="light"] .wohnungen-page .text-gray-300 {
+  color: #4b5563 !important;
+}
+
+/* Open Payments Section */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-br.from-red-950\/50 {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-red-500\/40 {
+  border: 1px solid #f87171 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-red-200 {
+  color: #dc2626 !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-red-600\/20 {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-red-400\/50 {
+  border-color: #f87171 !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-orange-600\/15 {
+  background: rgba(249, 115, 22, 0.12) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-orange-400\/40 {
+  border-color: #fb923c !important;
+}
+html[data-theme="light"] .wohnungen-page .text-orange-300 {
+  color: #ea580c !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-red-600 {
+  background-color: #dc2626 !important;
+}
+html[data-theme="light"] .wohnungen-page .text-red-100 {
+  color: #ffffff !important;
+}
+
+/* Status Badge at Top */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-slate-700\/40 {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+  border: 1px solid #94a3b8 !important;
+}
+html[data-theme="light"] .wohnungen-page .border-slate-500\/40 {
+  border-color: #94a3b8 !important;
+}
+
+/* Purple/Blue Buttons */
+html[data-theme="light"] .wohnungen-page .bg-purple-600 {
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-purple-600:hover,
+html[data-theme="light"] .wohnungen-page .hover\:bg-purple-700:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+}
+
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-blue-600 {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-blue-600:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+}
+
+/* Additional Blue Badges */
+html[data-theme="light"] .wohnungen-page .bg-blue-500\/10 {
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-blue-500\/20 {
+  border-color: #93c5fd !important;
+}
+html[data-theme="light"] .wohnungen-page .bg-blue-500\/20 {
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+html[data-theme="light"] .wohnungen-page .text-blue-400 {
+  color: #1e40af !important;
+}
+
+/* Purple Badges */
+html[data-theme="light"] .wohnungen-page .bg-purple-500\/20 {
+  background: rgba(168, 85, 247, 0.15) !important;
+}
+html[data-theme="light"] .wohnungen-page .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+/* Green Badges for Free beds */
+html[data-theme="light"] .wohnungen-page .bg-green-500\/10 {
+  background: rgba(34, 197, 94, 0.1) !important;
+}
+html[data-theme="light"] .wohnungen-page .border-green-500\/20 {
+  border-color: #86efac !important;
+}
+
+/* Title Gradient */
+html[data-theme="light"] .wohnungen-page .bg-gradient-to-r.from-blue-300 {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Wohnungen detail redesign (light mode) */
+html[data-theme="light"] .wohnungen-page .wohnungen-detail-panel {
+  background: #ffffff !important;
+  border: 1px solid #dbe3ef !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06) !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-detail-title {
+  background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-status-pill {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-status-pill span {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-block {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid #dbe3ef !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-metric-card {
+  border-width: 1px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-metric-card.metric-total {
+  background: linear-gradient(135deg, #e8f0ff 0%, #dbeafe 100%) !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-metric-card.metric-income {
+  background: linear-gradient(135deg, #e8fff4 0%, #d1fae5 100%) !important;
+  border-color: #86efac !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-metric-card.metric-diff {
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-alert-block {
+  background: linear-gradient(180deg, #fff5f5 0%, #ffe4e6 100%) !important;
+  border: 1px solid #fca5a5 !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-alert-item {
+  background: #ffffff80 !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-alert-item.is-overdue {
+  background: #fee2e2 !important;
+  border-color: #f87171 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-info-tile {
+  background: #f8fafc !important;
+  border: 1px solid #dbe3ef !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-info-tile.tile-success {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border-color: #86efac !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-info-tile.tile-info {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] .wohnungen-page .mieter-block {
+  background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%) !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+html[data-theme="light"] .wohnungen-page .mieter-tile {
+  background: #ffffff8c !important;
+  border: 1px solid #c4b5fd !important;
+}
+
+html[data-theme="light"] .wohnungen-page .notes-block {
+  background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%) !important;
+  border: 1px solid #fcd34d !important;
+}
+
+html[data-theme="light"] .wohnungen-page .notes-block .text-amber-50\/90 {
+  color: #78350f !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-rooms-block {
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
+  border: 1px solid #bfd2ff !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-room-card {
+  background: #ffffff !important;
+  border: 1px solid #cdd9ee !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-bed-card {
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-bed-card.is-occupied {
+  background: linear-gradient(135deg, #eaf2ff 0%, #dbeafe 100%) !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-bed-card.is-free {
+  background: linear-gradient(135deg, #ebfff5 0%, #d1fae5 100%) !important;
+  border-color: #86efac !important;
+}
+
+html[data-theme="light"] .wohnungen-page .wohnungen-bed-meta {
+  border-top: 1px solid #cbd5e1 !important;
+}
+
+
+

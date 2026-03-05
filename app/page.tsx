@@ -263,9 +263,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <div className="rounded-[28px] surface p-6 overflow-hidden relative">
+      <div className="hero-gradient rounded-[28px] surface p-8 overflow-hidden relative shadow-lg">
         <div
-          className="absolute inset-0 opacity-70 pointer-events-none"
+          className="absolute inset-0 opacity-70 pointer-events-none hero-bg-pattern"
           style={{
             background:
               "radial-gradient(900px 420px at 12% 22%, rgba(var(--accent),0.18), transparent 60%), radial-gradient(900px 520px at 82% 28%, rgba(255,255,255,0.05), transparent 62%)",
@@ -273,30 +273,30 @@ export default function DashboardPage() {
         />
         <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div>
-            <div className="text-xs muted">{t("companyLine")}</div>
-            <h1 className="mt-2 text-2xl font-semibold text-white">{t("dashboard")}</h1>
-            <p className="mt-1 text-sm muted">{t("whereMost")}</p>
+            <div className="text-xs font-medium hero-subtitle">{t("companyLine")}</div>
+            <h1 className="mt-2 text-3xl font-bold hero-title">{t("dashboard")}</h1>
+            <p className="mt-1 text-sm hero-description">{t("whereMost")}</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 hero-buttons">
-            <Link href="/items" className="rounded-2xl btn-accent px-4 py-3 text-sm font-semibold">
+            <Link href="/items" className="rounded-2xl btn-accent px-5 py-3 text-sm font-semibold shadow-md hover:shadow-lg transition-all">
               {t("items")}
             </Link>
             <Link
               href="/wareneingang"
-              className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400 hover:bg-green-500/20 transition"
+              className="rounded-2xl hero-btn-success px-5 py-3 text-sm font-semibold shadow-sm hover:shadow-md transition-all"
             >
               {t("wareneingang")}
             </Link>
             <Link
               href="/warenausgang"
-              className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400 hover:bg-red-500/20 transition"
+              className="rounded-2xl hero-btn-danger px-5 py-3 text-sm font-semibold shadow-sm hover:shadow-md transition-all"
             >
               {t("warenausgang")}
             </Link>
             <Link
               href="/settings"
-              className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
+              className="rounded-2xl hero-btn-secondary px-5 py-3 text-sm font-semibold shadow-sm hover:shadow-md transition-all"
             >
               {t("settings")}
             </Link>
@@ -305,65 +305,65 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="rounded-[28px] surface p-6">
-        <h2 className="text-lg font-semibold mb-4">Schnellzugriff</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="rounded-[28px] surface p-6 shadow-md">
+        <h2 className="text-lg font-bold mb-5 quick-actions-title">Schnellzugriff</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Link
             href="/items/new"
-            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+            className="quick-action-card rounded-2xl surface-2 p-5 hover:scale-105 transition-all group shadow-sm hover:shadow-md"
           >
-            <div className="text-2xl mb-2">📦</div>
-            <div className="text-sm font-semibold">Neues Item</div>
-            <div className="text-xs muted mt-1">Item hinzufügen</div>
+            <div className="text-3xl mb-3">📦</div>
+            <div className="text-sm font-bold quick-action-title">Neues Item</div>
+            <div className="text-xs quick-action-desc mt-1">Item hinzufügen</div>
           </Link>
           
           <Link
             href="/fuhrpark"
-            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+            className="quick-action-card rounded-2xl surface-2 p-5 hover:scale-105 transition-all group shadow-sm hover:shadow-md"
           >
-            <div className="text-2xl mb-2">🚗</div>
-            <div className="text-sm font-semibold">Neues Fahrzeug</div>
-            <div className="text-xs muted mt-1">Fuhrpark erweitern</div>
+            <div className="text-3xl mb-3">🚗</div>
+            <div className="text-sm font-bold quick-action-title">Neues Fahrzeug</div>
+            <div className="text-xs quick-action-desc mt-1">Fuhrpark erweitern</div>
           </Link>
           
           <Link
             href="/immobilien"
-            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+            className="quick-action-card rounded-2xl surface-2 p-5 hover:scale-105 transition-all group shadow-sm hover:shadow-md"
           >
-            <div className="text-2xl mb-2">🏢</div>
-            <div className="text-sm font-semibold">Immobilien</div>
-            <div className="text-xs muted mt-1">Verträge verwalten</div>
+            <div className="text-3xl mb-3">🏢</div>
+            <div className="text-sm font-bold quick-action-title">Immobilien</div>
+            <div className="text-xs quick-action-desc mt-1">Verträge verwalten</div>
           </Link>
           
           <Link
             href="/reports"
-            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+            className="quick-action-card rounded-2xl surface-2 p-5 hover:scale-105 transition-all group shadow-sm hover:shadow-md"
           >
-            <div className="text-2xl mb-2">📊</div>
-            <div className="text-sm font-semibold">Berichte</div>
-            <div className="text-xs muted mt-1">Statistiken ansehen</div>
+            <div className="text-3xl mb-3">📊</div>
+            <div className="text-sm font-bold quick-action-title">Berichte</div>
+            <div className="text-xs quick-action-desc mt-1">Statistiken ansehen</div>
           </Link>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-[28px] surface p-5">
-          <div className="text-sm text-white/90 font-semibold">{t("error") ?? "Error"}</div>
-          <div className="mt-1 text-sm muted">{error}</div>
-          <div className="mt-3 text-xs muted">
+        <div className="error-card rounded-[28px] surface p-6 shadow-md">
+          <div className="text-sm font-bold error-title">{t("error") ?? "Error"}</div>
+          <div className="mt-2 text-sm error-message">{error}</div>
+          <div className="mt-3 text-xs error-hint">
             {t("rulesHint") ?? "If you see 'Missing or insufficient permissions', update Firestore Rules to allow reads for signed-in users."}
           </div>
         </div>
       )}
 
       {/* KPI + Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="rounded-[28px] surface p-6 lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="rounded-[28px] surface p-7 lg:col-span-2 shadow-md">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-xs muted">{t("overview") ?? "Overview"}</div>
-              <div className="mt-2 text-3xl font-semibold dashboard-stat-number">{computed.total}</div>
-              <div className="mt-1 text-sm muted">{t("items")}</div>
+              <div className="text-xs font-semibold kpi-label">{t("overview") ?? "Overview"}</div>
+              <div className="mt-2 text-4xl font-bold kpi-number">{computed.total}</div>
+              <div className="mt-1 text-sm kpi-subtitle">{t("items")}</div>
             </div>
             <MiniDonut
               a={computed.byCond.available}
@@ -373,37 +373,37 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="rounded-2xl surface-2 p-5">
-              <div className="text-xs muted">{t("available")}</div>
-              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.available}</div>
+          <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="stat-card rounded-2xl surface-2 p-5 shadow-sm hover:shadow-md transition-all">
+              <div className="text-xs font-semibold stat-label">{t("available")}</div>
+              <div className="mt-2 text-2xl font-bold stat-value">{computed.byCond.available}</div>
               <ProgressBar value={computed.byCond.available} max={computed.total} />
             </div>
-            <div className="rounded-2xl surface-2 p-5">
-              <div className="text-xs muted">{t("needsRepair")}</div>
-              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.needsRepair}</div>
+            <div className="stat-card rounded-2xl surface-2 p-5 shadow-sm hover:shadow-md transition-all">
+              <div className="text-xs font-semibold stat-label">{t("needsRepair")}</div>
+              <div className="mt-2 text-2xl font-bold stat-value">{computed.byCond.needsRepair}</div>
               <ProgressBar value={computed.byCond.needsRepair} max={computed.total} />
             </div>
-            <div className="rounded-2xl surface-2 p-5">
-              <div className="text-xs muted">{t("missing")}</div>
-              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.missing}</div>
+            <div className="stat-card rounded-2xl surface-2 p-5 shadow-sm hover:shadow-md transition-all">
+              <div className="text-xs font-semibold stat-label">{t("missing")}</div>
+              <div className="mt-2 text-2xl font-bold stat-value">{computed.byCond.missing}</div>
               <ProgressBar value={computed.byCond.missing} max={computed.total} />
             </div>
-            <div className="rounded-2xl surface-2 p-5">
-              <div className="text-xs muted">{t("inUse") ?? "In use"}</div>
-              <div className="mt-2 text-2xl font-semibold dashboard-stat-number">{computed.byCond.inUse}</div>
+            <div className="stat-card rounded-2xl surface-2 p-5 shadow-sm hover:shadow-md transition-all">
+              <div className="text-xs font-semibold stat-label">{t("inUse") ?? "In use"}</div>
+              <div className="mt-2 text-2xl font-bold stat-value">{computed.byCond.inUse}</div>
               <ProgressBar value={computed.byCond.inUse} max={computed.total} />
             </div>
           </div>
 
-          {loading && <div className="mt-4 text-sm muted">Loading…</div>}
+          {loading && <div className="mt-5 text-sm loading-text font-semibold">Loading…</div>}
         </div>
 
         {/* Top Lager - Prominent */}
-        <div className="rounded-[28px] surface p-6">
+        <div className="rounded-[28px] surface p-7 shadow-md">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-xs muted">{t("topLager")}</div>
+              <div className="text-xs font-semibold lager-label">{t("topLager")}</div>
               <div className="mt-2 flex items-center gap-4">
                 <div className="shrink-0">
                   <MiniDonut
@@ -414,18 +414,18 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold dashboard-stat-number stat-number">{computed.lagerSorted[0]?.[0] ?? "—"}</div>
-                  <div className="mt-1 text-sm muted">{t("whereMostHint") ?? t("whereMost")}</div>
+                  <div className="text-3xl font-bold lager-name">{computed.lagerSorted[0]?.[0] ?? "—"}</div>
+                  <div className="mt-1 text-sm lager-subtitle">{t("whereMostHint") ?? t("whereMost")}</div>
                 </div>
               </div>
             </div>
 
             <div className="ml-auto text-right">
-              <div className="text-xs muted">{t("mostCount") ?? t("count")}</div>
-              <div className="mt-2 text-4xl font-extrabold dashboard-stat-number kpi-animate">{computed.maxLager}</div>
-              <div className="mt-4 w-44 rounded-full bg-white/6 overflow-hidden">
+              <div className="text-xs font-semibold lager-label">{t("mostCount") ?? t("count")}</div>
+              <div className="mt-2 text-4xl font-extrabold lager-count kpi-animate">{computed.maxLager}</div>
+              <div className="mt-4 w-44 rounded-full progress-bg overflow-hidden shadow-inner">
                 <div
-                  className="h-3"
+                  className="h-3 rounded-full transition-all duration-500"
                   style={{
                     width: `${computed.maxLager <= 0 ? 0 : Math.round((computed.maxLager / Math.max(1, computed.total)) * 100)}%`,
                     background: "rgb(var(--accent))",
@@ -435,19 +435,19 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-5 space-y-3">
+          <div className="mt-6 space-y-3">
             {computed.lagerSorted.length === 0 ? (
               <div className="text-sm muted">—</div>
             ) : (
               computed.lagerSorted.slice(0, 6).map(([lager, n], idx) => (
-                <div key={lager} className={`rounded-2xl surface-2 p-3 ${idx === 0 ? "sheen-animate theme-card-active" : ""}`}>
+                <div key={lager} className={`lager-item rounded-2xl surface-2 p-4 shadow-sm hover:shadow-md transition-all ${idx === 0 ? "sheen-animate theme-card-active" : ""}`}>
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-semibold dashboard-text">{lager}</div>
-                    <div className="text-sm dashboard-text-secondary font-semibold">{n}</div>
+                    <div className="text-sm font-bold lager-item-name">{lager}</div>
+                    <div className="text-sm lager-item-count font-bold">{n}</div>
                   </div>
-                  <div className="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div className="mt-3 h-2.5 rounded-full progress-bg overflow-hidden shadow-inner">
                     <div
-                      className="h-full"
+                      className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${computed.maxLager <= 0 ? 0 : Math.round((n / computed.maxLager) * 100)}%`,
                         background: "rgb(var(--accent))",
@@ -462,40 +462,40 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent bookings */}
-      <div className="rounded-[28px] surface p-6">
+      <div className="rounded-[28px] surface p-6 shadow-md">
         <div className="flex items-center justify-between gap-3">
-          <div className="text-sm font-semibold dashboard-text">{t("recentBookings")}</div>
-          <Link href="/items" className="text-sm text-white/80 hover:text-white transition">
+          <div className="text-lg font-bold bookings-title">{t("recentBookings")}</div>
+          <Link href="/items" className="text-sm bookings-link hover:underline transition font-semibold">
             {t("items")}
           </Link>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-5">
           {!hasBookingsCollection ? (
             <div className="text-sm muted">{t("noBookingsHint")}</div>
           ) : bookings.length === 0 ? (
             <div className="text-sm muted">{t("noBookingsYet")}</div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {bookings.map((b) => (
-                <div key={b.id} className="rounded-2xl surface-2 p-4">
+                <div key={b.id} className="booking-item rounded-2xl surface-2 p-4 shadow-sm hover:shadow-md transition-all">
                   <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-                    <div className="text-white/90">
-                      <span className="muted">Item:</span> <span className="font-semibold">{String(b.itemId ?? "—")}</span>
+                    <div className="booking-detail">
+                      <span className="booking-label">Item:</span> <span className="booking-value">{String(b.itemId ?? "—")}</span>
                     </div>
-                    <div className="text-white/80">
-                      <span className="muted">Lager:</span> <span className="font-semibold">{String(b.lagerId ?? "—")}</span>
+                    <div className="booking-detail">
+                      <span className="booking-label">Lager:</span> <span className="booking-value">{String(b.lagerId ?? "—")}</span>
                     </div>
-                    <div className="text-white/80">
-                      <span className="muted">User:</span> <span className="font-semibold">{String(b.userId ?? "—")}</span>
+                    <div className="booking-detail">
+                      <span className="booking-label">User:</span> <span className="booking-value">{String(b.userId ?? "—")}</span>
                     </div>
-                    <div className="text-white/80">
-                      <span className="muted">Action:</span> <span className="font-semibold">{String(b.aktion ?? "—")}</span>
+                    <div className="booking-detail">
+                      <span className="booking-label">Action:</span> <span className="booking-value">{String(b.aktion ?? "—")}</span>
                     </div>
-                    <div className="text-white/80">
-                      <span className="muted">Qty:</span> <span className="font-semibold">{safeNum(b.menge, 1)}</span>
+                    <div className="booking-detail">
+                      <span className="booking-label">Qty:</span> <span className="booking-value">{safeNum(b.menge, 1)}</span>
                     </div>
-                    <div className="ml-auto text-xs muted">{fmtTime(b.zeit)}</div>
+                    <div className="ml-auto text-xs booking-time">{fmtTime(b.zeit)}</div>
                   </div>
                 </div>
               ))}
