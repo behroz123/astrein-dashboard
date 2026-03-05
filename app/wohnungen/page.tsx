@@ -239,6 +239,21 @@ export default function WohnungenPage() {
     setError(null);
 
     try {
+      // Recalculate payments if rent changed
+      const roomsWithUpdatedPayments = rooms.map(room => ({
+        ...room,
+        beds: room.beds.map(bed => {
+          // If bed has tenant and rent, recalculate payments
+          if (bed.tenant && bed.rent && bed.moveInDate) {
+            return {
+              ...bed,
+              payments: generatePayments(bed.moveInDate, bed.rent, bed.moveOutDate)
+            };
+          }
+          return bed;
+        })
+      }));
+
       const data = {
         address: adresse.trim(), // For Schlüsselübergabe compatibility
         adresse: adresse.trim(), // Keep both fields
@@ -252,7 +267,7 @@ export default function WohnungenPage() {
         mietbeginn: mietbeginn.trim(),
         mietende: mietende.trim(),
         notizen: notizen.trim(),
-        rooms: rooms,
+        rooms: roomsWithUpdatedPayments,
         updatedAt: serverTimestamp(),
       };
 
