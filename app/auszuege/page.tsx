@@ -147,28 +147,41 @@ export default function AuszuegePage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] surface p-6">
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => router.push('/immobilien')}
-            className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/10 transition"
-          >
-            {t("contract.back")}
-          </button>
+    <div className="pb-8">
+      {/* Modern Header */}
+      <div className="mb-10">
+        <button
+          onClick={() => router.push('/immobilien')}
+          className="inline-flex items-center gap-2 mb-4 px-3 py-2 rounded-lg text-sm font-medium opacity-60 hover:opacity-100 transition-opacity"
+          style={{ color: "rgb(var(--foreground))" }}
+        >
+          Zurück
+        </button>
+        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" 
+             style={{ 
+               background: "rgba(var(--accent), 0.1)",
+               color: "rgb(var(--accent))"
+             }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "rgb(var(--accent))" }}></span>
+          Auszüge
         </div>
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-white">{t("moveouts.title")}</h1>
-            <div className="mt-1 text-sm muted">{t("moveouts.subtitle")}</div>
+            <h1 className="text-4xl font-bold mb-3 tracking-tight" style={{ color: "rgb(var(--foreground))" }}>
+              {t("moveouts.title")}
+            </h1>
+            <p className="text-lg opacity-60">
+              {t("moveouts.subtitle")}
+            </p>
           </div>
-          <div className="text-sm text-white/70">
+          <div className="text-sm font-semibold px-4 py-2 rounded-lg opacity-60"
+               style={{ background: "rgba(var(--accent), 0.1)", color: "rgb(var(--accent))" }}>
             {totalCount} {t("moveouts.count")}
           </div>
         </div>
       </div>
 
-      <div className="rounded-[28px] surface p-6">
+      <div className="space-y-6">
         <h2 className="text-lg font-semibold text-white mb-4">{t("moveouts.form.title")}</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

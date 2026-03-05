@@ -96,6 +96,13 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // auszuege (Auszüge - alternative collection)
+    match /auszuege/{auszugId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
     // moveins (Einzüge)
     match /moveins/{moveinId} {
       allow read: if signedIn();
@@ -136,6 +143,15 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create: if signedIn();
       allow update, delete: if isAdmin();
+    }
+
+    // ============ FUHRPARK / FLEET MANAGEMENT ============
+    
+    // vehicles (Fahrzeuge)
+    match /vehicles/{vehicleId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || isOwner("createdByUid");
     }
   }
 }

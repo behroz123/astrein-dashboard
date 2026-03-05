@@ -278,7 +278,7 @@ export default function DashboardPage() {
             <p className="mt-1 text-sm muted">{t("whereMost")}</p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 hero-buttons">
             <Link href="/items" className="rounded-2xl btn-accent px-4 py-3 text-sm font-semibold">
               {t("items")}
             </Link>
@@ -301,6 +301,48 @@ export default function DashboardPage() {
               {t("settings")}
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="rounded-[28px] surface p-6">
+        <h2 className="text-lg font-semibold mb-4">Schnellzugriff</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Link
+            href="/items/new"
+            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+          >
+            <div className="text-2xl mb-2">📦</div>
+            <div className="text-sm font-semibold">Neues Item</div>
+            <div className="text-xs muted mt-1">Item hinzufügen</div>
+          </Link>
+          
+          <Link
+            href="/fuhrpark"
+            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+          >
+            <div className="text-2xl mb-2">🚗</div>
+            <div className="text-sm font-semibold">Neues Fahrzeug</div>
+            <div className="text-xs muted mt-1">Fuhrpark erweitern</div>
+          </Link>
+          
+          <Link
+            href="/immobilien"
+            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+          >
+            <div className="text-2xl mb-2">🏢</div>
+            <div className="text-sm font-semibold">Immobilien</div>
+            <div className="text-xs muted mt-1">Verträge verwalten</div>
+          </Link>
+          
+          <Link
+            href="/reports"
+            className="rounded-xl surface-2 p-4 hover:bg-white/5 transition group"
+          >
+            <div className="text-2xl mb-2">📊</div>
+            <div className="text-sm font-semibold">Berichte</div>
+            <div className="text-xs muted mt-1">Statistiken ansehen</div>
+          </Link>
         </div>
       </div>
 

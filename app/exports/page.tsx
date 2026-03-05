@@ -128,6 +128,38 @@ export default function ExportsPage() {
     }
   }
 
+  async function exportFuhrpark() {
+    setExporting("fuhrpark");
+    try {
+      const snap = await getDocs(collection(db, "vehicles"));
+      const vehicles = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+      const headers = ['Kennzeichen', 'Modell', 'Fahrzeugname', 'FIN', 'Kilometerstand', 'Letzter Service', 'Fahrer Vorname', 'Fahrer Name', 'Geburtsdatum', 'Adresse', 'Versicherungsnr', 'Versicherung'];
+      const rows = vehicles.map((v: any) => [
+        v.kennzeichen || '',
+        v.modell || '',
+        v.fahrzeugName || '',
+        v.fin || '',
+        v.kilometerstand || '',
+        v.letzterService || '',
+        v.fahrerVorname || '',
+        v.fahrerName || '',
+        v.fahrerGeburtsdatum || '',
+        v.fahrerAdresse || '',
+        v.versicherungsnummer || '',
+        v.versicherungsname || ''
+      ]);
+
+      const csv = [headers.join(","), ...rows.map(row => row.map(cell => `"${cell}"`).join(","))].join("\n");
+      downloadCSV('\uFEFF' + csv, `fuhrpark_${getDateString()}.csv`);
+    } catch (error) {
+      console.error("Error exporting fuhrpark:", error);
+      alert(t("error") || "Fehler beim Export");
+    } finally {
+      setExporting(null);
+    }
+  }
+
   function formatTimestampForCSV(ts: any): { date: string; time: string } {
     if (!ts) return { date: "", time: "" };
 
@@ -298,6 +330,42 @@ export default function ExportsPage() {
             className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {exporting === "warenausgang" ? (
+              <>
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {t("exports.exporting")}
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {t("exports.download")}
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Fuhrpark Export */}
+        <div className="rounded-[28px] surface p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+              <span className="text-2xl">🚗</span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Fuhrpark</h3>
+              <div className="text-xs muted">Alle Fahrzeuge exportieren</div>
+            </div>
+          </div>
+
+          <button
+            onClick={exportFuhrpark}
+            disabled={exporting !== null}
+            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-purple-500 text-white hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {exporting === "fuhrpark" ? (
               <>
                 <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

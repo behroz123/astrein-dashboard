@@ -74,6 +74,122 @@ html[data-theme="light"] svg circle.opacity-18 {
   stroke: #e5e7eb;
 }
 
+/* Light mode - Status badges and colored elements - with MUCH stronger contrast */
+html[data-theme="light"] .text-green-400 { color: #065f46 !important; }
+html[data-theme="light"] .text-blue-400 { color: #1e40af !important; }
+html[data-theme="light"] .text-orange-400 { color: #92400e !important; }
+html[data-theme="light"] .text-purple-400 { color: #6b21a8 !important; }
+html[data-theme="light"] .text-cyan-400 { color: #164e63 !important; }
+html[data-theme="light"] .text-red-400 { color: #991b1b !important; }
+
+html[data-theme="light"] .bg-green-500\/5 { background-color: rgba(16, 185, 129, 0.08) !important; }
+html[data-theme="light"] .bg-blue-500\/5 { background-color: rgba(37, 99, 235, 0.08) !important; }
+html[data-theme="light"] .bg-orange-500\/5 { background-color: rgba(249, 115, 22, 0.08) !important; }
+html[data-theme="light"] .bg-purple-500\/5 { background-color: rgba(147, 51, 234, 0.08) !important; }
+html[data-theme="light"] .bg-cyan-500\/5 { background-color: rgba(6, 182, 212, 0.08) !important; }
+html[data-theme="light"] .bg-red-500\/5 { background-color: rgba(239, 68, 68, 0.08) !important; }
+
+html[data-theme="light"] .bg-green-500\/10 { background-color: rgba(16, 185, 129, 0.12) !important; }
+html[data-theme="light"] .bg-blue-500\/10 { background-color: rgba(37, 99, 235, 0.12) !important; }
+html[data-theme="light"] .bg-orange-500\/10 { background-color: rgba(249, 115, 22, 0.12) !important; }
+html[data-theme="light"] .bg-purple-500\/10 { background-color: rgba(147, 51, 234, 0.12) !important; }
+html[data-theme="light"] .bg-cyan-500\/10 { background-color: rgba(6, 182, 212, 0.12) !important; }
+html[data-theme="light"] .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.12) !important; }
+
+html[data-theme="light"] .bg-green-500\/20 { background-color: rgba(16, 185, 129, 0.15) !important; }
+html[data-theme="light"] .bg-blue-500\/20 { background-color: rgba(37, 99, 235, 0.15) !important; }
+html[data-theme="light"] .bg-orange-500\/20 { background-color: rgba(249, 115, 22, 0.15) !important; }
+html[data-theme="light"] .bg-purple-500\/20 { background-color: rgba(147, 51, 234, 0.15) !important; }
+html[data-theme="light"] .bg-cyan-500\/20 { background-color: rgba(6, 182, 212, 0.15) !important; }
+html[data-theme="light"] .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.15) !important; }
+
+html[data-theme="light"] .border-green-500\/20 { border-color: rgba(16, 185, 129, 0.35) !important; }
+html[data-theme="light"] .border-blue-500\/20 { border-color: rgba(37, 99, 235, 0.35) !important; }
+html[data-theme="light"] .border-orange-500\/20 { border-color: rgba(249, 115, 22, 0.35) !important; }
+html[data-theme="light"] .border-purple-500\/20 { border-color: rgba(147, 51, 234, 0.35) !important; }
+html[data-theme="light"] .border-cyan-500\/20 { border-color: rgba(6, 182, 212, 0.35) !important; }
+html[data-theme="light"] .border-red-500\/20 { border-color: rgba(239, 68, 68, 0.35) !important; }
+
+/* Light mode - Background darkening effects */
+html[data-theme="light"] .bg-black\/20 { background-color: rgba(0, 0, 0, 0.06) !important; }
+html[data-theme="light"] .bg-black\/25 { background-color: rgba(0, 0, 0, 0.08) !important; }
+html[data-theme="light"] .bg-black\/30 { background-color: rgba(0, 0, 0, 0.1) !important; }
+html[data-theme="light"] .bg-black\/35 { background-color: rgba(0, 0, 0, 0.12) !important; }
+
+/* Light mode - Ring colors for selections */
+html[data-theme="light"] .ring-blue-500 { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; }
+
+/* Light mode - Gradient buttons with MUCH darker shades for light background */
+html[data-theme="light"] .bg-gradient-to-r.from-green-600.to-green-500 {
+  background: linear-gradient(90deg, #065f46 0%, #047857 100%) !important;
+}
+html[data-theme="light"] .bg-gradient-to-r.from-blue-600.to-blue-500 {
+  background: linear-gradient(90deg, #1e40af 0%, #1d4ed8 100%) !important;
+}
+html[data-theme="light"] .bg-gradient-to-r.from-red-600.to-red-500 {
+  background: linear-gradient(90deg, #7f1d1d 0%, #991b1b 100%) !important;
+}
+html[data-theme="light"] .bg-gradient-to-r.from-purple-600.to-purple-500 {
+  background: linear-gradient(90deg, #6b21a8 0%, #7e22ce 100%) !important;
+}
+
+/* Light mode - Hover effects for buttons */
+html[data-theme="light"] .hover\:from-green-700 { }
+html[data-theme="light"] .hover\:to-green-600 { }
+html[data-theme="light"] .hover\:bg-green-700 { background-color: #065f46 !important; }
+html[data-theme="light"] .hover\:bg-blue-700 { background-color: #1e40af !important; }
+html[data-theme="light"] .hover\:bg-red-700 { background-color: #7f1d1d !important; }
+html[data-theme="light"] .hover\:bg-purple-700 { background-color: #6b21a8 !important; }
+
+/* Light mode - Text opacity on surfaces */
+html[data-theme="light"] .opacity-60 { opacity: 0.65 !important; }
+
+/* Light mode - Icon colors - with MUCH stronger contrast */
+html[data-theme="light"] svg.text-green-400 { color: #065f46 !important; }
+html[data-theme="light"] svg.text-blue-400 { color: #1e40af !important; }
+html[data-theme="light"] svg.text-orange-400 { color: #92400e !important; }
+html[data-theme="light"] svg.text-purple-400 { color: #6b21a8 !important; }
+html[data-theme="light"] svg.text-cyan-400 { color: #164e63 !important; }
+html[data-theme="light"] svg.text-red-400 { color: #991b1b !important; }
+
+/* Light mode - Inline SVG colors */
+html[data-theme="light"] svg path { stroke: currentColor !important; }
+
+/* Light mode - Link styling */
+html[data-theme="light"] a.text-blue-400 { color: #1e40af !important; }
+html[data-theme="light"] a.hover\:text-blue-300 { }
+html[data-theme="light"] a.text-blue-400:hover { color: #1e3a8a !important; }
+
+/* Light mode - Rounded container styling */
+html[data-theme="light"] .rounded-xl { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important; }
+html[data-theme="light"] .rounded-lg { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important; }
+
+/* Light mode - Badge styling with high contrast */
+html[data-theme="light"] .badge { 
+  background-color: rgba(0, 0, 0, 0.06) !important; 
+  color: #23272f !important;
+}
+html[data-theme="light"] .badge-green { 
+  background-color: rgba(16, 185, 129, 0.15) !important; 
+  color: #065f46 !important;
+}
+html[data-theme="light"] .badge-red { 
+  background-color: rgba(239, 68, 68, 0.15) !important; 
+  color: #991b1b !important;
+}
+html[data-theme="light"] .badge-blue { 
+  background-color: rgba(37, 99, 235, 0.15) !important; 
+  color: #1e40af !important;
+}
+html[data-theme="light"] .badge-orange { 
+  background-color: rgba(249, 115, 22, 0.15) !important; 
+  color: #92400e !important;
+}
+html[data-theme="light"] .badge-purple { 
+  background-color: rgba(147, 51, 234, 0.15) !important; 
+  color: #6b21a8 !important;
+}
+
 /* Date input styling for calendar picker */
 input[type="date"] {
   position: relative;
@@ -971,4 +1087,36 @@ html[data-theme="light"] .site-clock .date-chip{
   }
 }
 
+/* Mobile table responsiveness */
+@media (max-width: 1023px) {
+  .desktop-table {
+    display: none;
+  }
+  
+  .mobile-cards {
+    display: block;
+  }
+}
 
+@media (min-width: 1024px) {
+  .desktop-table {
+    display: block;
+  }
+  
+  .mobile-cards {
+    display: none;
+  }
+}
+
+/* Hero button adjustments */
+@media (max-width: 640px) {
+  .hero-buttons {
+    flex-direction: column !important;
+  }
+  
+  .hero-buttons a,
+  .hero-buttons button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

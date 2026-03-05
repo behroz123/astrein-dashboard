@@ -149,7 +149,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col">
         <header className="lg:hidden sticky top-0 z-20 border-b border-white/10 bg-black/40 backdrop-blur-xl">
           <div className="px-4 py-4 flex items-center justify-between">
             <Link href="/" className="text-sm text-white/90 font-semibold">
@@ -167,7 +167,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">{children}</main>
 
         {/* Footer */}
         <Footer />

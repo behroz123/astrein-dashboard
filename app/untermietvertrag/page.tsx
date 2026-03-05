@@ -425,24 +425,33 @@ export default function UntermietvertragPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] surface p-6">
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => router.push('/immobilien')}
-            className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/10 transition"
-          >
-            {t("contract.back")}
-          </button>
+    <div className="pb-8">
+      {/* Modern Header */}
+      <div className="mb-10">
+        <button
+          onClick={() => router.push('/immobilien')}
+          className="inline-flex items-center gap-2 mb-4 px-3 py-2 rounded-lg text-sm font-medium opacity-60 hover:opacity-100 transition-opacity"
+          style={{ color: "rgb(var(--foreground))" }}
+        >
+          {t("contract.back")}
+        </button>
+        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" 
+             style={{ 
+               background: "rgba(var(--accent), 0.1)",
+               color: "rgb(var(--accent))"
+             }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "rgb(var(--accent))" }}></span>
+          Untermietvertrag
         </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-white">
-            {t("untermietvertrag")}
-          </h1>
-          <div className="mt-1 text-sm muted">Professioneller Untermietvertrag nach Mustervorlage</div>
-        </div>
+        <h1 className="text-4xl font-bold mb-3 tracking-tight" style={{ color: "rgb(var(--foreground))" }}>
+          {t("untermietvertrag")}
+        </h1>
+        <p className="text-lg opacity-60">
+          Professioneller Untermietvertrag nach Mustervorlage
+        </p>
       </div>
 
+      <div className="space-y-6">
       <div className="rounded-[28px] surface p-6">
         <div className="space-y-6">
           {/* Hauptmieter */}
@@ -751,6 +760,7 @@ export default function UntermietvertragPage() {
               🖨️ PDF Drucken
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>

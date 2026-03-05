@@ -191,28 +191,38 @@ export default function LogsHistory({ logType }: LogsHistoryProps) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="rounded-[28px] surface p-6">
-        <div className="flex items-end justify-between gap-4">
+    <div className="pb-8">
+      {/* Modern Header */}
+      <div className="mb-10">
+        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" 
+             style={{ 
+               background: "rgba(var(--accent), 0.1)",
+               color: "rgb(var(--accent))"
+             }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "rgb(var(--accent))" }}></span>
+          {logType === "wareneingang" ? "Wareneingang" : "Warenausgang"}
+        </div>
+        <div className="flex items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-semibold text-white">{t(`${logType}.title`)}</h1>
-            <div className="mt-1 text-sm muted">
+            <h1 className="text-4xl font-bold mb-3 tracking-tight" style={{ color: "rgb(var(--foreground))" }}>
+              {t(`${logType}.title`)}
+            </h1>
+            <p className="text-lg opacity-60">
               {t(`${logType}.subtitle`)}
-            </div>
+            </p>
           </div>
 
           <Link
             href="/"
-            className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium opacity-60 hover:opacity-100 transition-opacity"
+            style={{ color: "rgb(var(--foreground))" }}
           >
             {t("common.back")}
           </Link>
         </div>
       </div>
 
-      {/* Filter */}
-      <div className="rounded-[28px] surface p-6">
+      <div className="space-y-6">
         <div className="mb-6">
           <div className="text-sm font-semibold text-white/90 mb-3">{t("filters")}</div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">

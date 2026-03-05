@@ -496,26 +496,38 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Back Button */}
-      <div className="rounded-[28px] surface p-6 mb-8">
+    <div className="pb-8">
+      {/* Modern Header */}
+      <div className="mb-10">
         <button
           onClick={() => router.push('/immobilien')}
-          className="mb-6 rounded-xl surface-2 px-4 py-2 text-sm muted hover:bg-white/5 transition flex items-center gap-2"
+          className="inline-flex items-center gap-2 mb-4 px-3 py-2 rounded-lg text-sm font-medium opacity-60 hover:opacity-100 transition-opacity"
+          style={{ color: "rgb(var(--foreground))" }}
         >
           {t("contract.back")}
         </button>
-        <div className="flex items-start gap-4">
+        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" 
+             style={{ 
+               background: "rgba(var(--accent), 0.1)",
+               color: "rgb(var(--accent))"
+             }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "rgb(var(--accent))" }}></span>
+          Wasservertrag
+        </div>
+        <div className="flex items-start gap-4 mb-3">
           <div className="text-5xl">💧</div>
           <div>
-            <h1 className="text-3xl font-bold">{t("wasserVertrag.title")}</h1>
-            <p className="mt-2 text-sm muted">
+            <h1 className="text-4xl font-bold tracking-tight" style={{ color: "rgb(var(--foreground))" }}>
+              {t("wasserVertrag.title")}
+            </h1>
+            <p className="mt-2 text-lg opacity-60">
               {t("wasserVertrag.subtitle")}
             </p>
           </div>
         </div>
       </div>
 
+      <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Verträge Liste */}
         <div className="lg:col-span-1">
@@ -1034,6 +1046,7 @@ Ich beantrage die sofortige Beendigung der automatischen Abbuchungen von meinem 
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
