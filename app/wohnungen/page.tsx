@@ -791,82 +791,94 @@ export default function WohnungenPage() {
 
   return (
     <div className="pb-12">
-      {/* Professional Header */}
+      {/* Professional Header with Gradient */}
       <div className="mb-12">
         <button
           onClick={() => router.push('/immobilien')}
-          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-sm font-medium opacity-70 hover:opacity-100 transition-opacity"
-          style={{ color: "rgb(var(--foreground))" }}
+          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
         >
-          {t("common.back")}
+          ← {t("common.back")}
         </button>
         
-        <div className="flex items-end gap-4 mb-2">
-          <div className="text-6xl">🏢</div>
+        <div className="flex items-end gap-6 mb-4">
+          <div className="text-7xl">🏢</div>
           <div>
-            <h1 className="text-5xl font-bold tracking-tight mb-2" style={{ color: "rgb(var(--foreground))" }}>
+            <h1 className="text-6xl font-bold tracking-tight mb-2 bg-gradient-to-r from-blue-400 via-cyan-400 to-green-400 bg-clip-text text-transparent">
               {t("wohnungen.title")}
             </h1>
-            <p className="text-base opacity-70">
-              {t("fahrzeuge.description")}
+            <p className="text-lg text-slate-400">
+              Professionelle Verwaltung aller Wohnungen und Mieterverhältnisse
             </p>
           </div>
         </div>
       </div>
 
-      {/* Statistics - Minimalist Style */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
-        <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.total")}</div>
-          <div className="text-3xl font-bold">{stats.total}</div>
+      {/* Statistics - Modern Professional Style */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-10">
+        <div className="rounded-xl bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/20 p-5 hover:border-blue-400/30 transition-all">
+          <div className="text-xs font-semibold text-blue-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.total")}</div>
+          <div className="text-3xl font-bold text-white">{stats.total}</div>
         </div>
-        <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.verfuegbar")}</div>
-          <div className="text-3xl font-bold">{stats.verfügbar}</div>
+        <div className="rounded-xl bg-gradient-to-br from-green-900/40 to-green-800/20 border border-green-500/20 p-5 hover:border-green-400/30 transition-all">
+          <div className="text-xs font-semibold text-green-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.verfuegbar")}</div>
+          <div className="text-3xl font-bold text-white">{stats.verfügbar}</div>
         </div>
-        <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.vermietet")}</div>
-          <div className="text-3xl font-bold">{stats.vermietet}</div>
+        <div className="rounded-xl bg-gradient-to-br from-purple-900/40 to-purple-800/20 border border-purple-500/20 p-5 hover:border-purple-400/30 transition-all">
+          <div className="text-xs font-semibold text-purple-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.vermietet")}</div>
+          <div className="text-3xl font-bold text-white">{stats.vermietet}</div>
         </div>
-        <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.renovierung")}</div>
-          <div className="text-3xl font-bold">{stats.renovierung}</div>
+        <div className="rounded-xl bg-gradient-to-br from-orange-900/40 to-orange-800/20 border border-orange-500/20 p-5 hover:border-orange-400/30 transition-all">
+          <div className="text-xs font-semibold text-orange-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.renovierung")}</div>
+          <div className="text-3xl font-bold text-white">{stats.renovierung}</div>
         </div>
-        <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.zimmer")}</div>
-          <div className="text-3xl font-bold">{stats.totalRooms}</div>
+        <div className="rounded-xl bg-gradient-to-br from-cyan-900/40 to-cyan-800/20 border border-cyan-500/20 p-5 hover:border-cyan-400/30 transition-all">
+          <div className="text-xs font-semibold text-cyan-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.zimmer")}</div>
+          <div className="text-3xl font-bold text-white">{stats.totalRooms}</div>
         </div>
-        <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.betten")}</div>
-          <div className="text-3xl font-bold">{stats.totalBeds}</div>
+        <div className="rounded-xl bg-gradient-to-br from-indigo-900/40 to-indigo-800/20 border border-indigo-500/20 p-5 hover:border-indigo-400/30 transition-all">
+          <div className="text-xs font-semibold text-indigo-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.betten")}</div>
+          <div className="text-3xl font-bold text-white">{stats.totalBeds}</div>
         </div>
-        <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.belegt")}</div>
-          <div className="text-3xl font-bold">{stats.occupiedBeds}/{stats.totalBeds}</div>
+        <div className="rounded-xl bg-gradient-to-br from-pink-900/40 to-pink-800/20 border border-pink-500/20 p-5 hover:border-pink-400/30 transition-all">
+          <div className="text-xs font-semibold text-pink-300 mb-2 uppercase tracking-wide">{t("wohnungen.stats.belegt")}</div>
+          <div className="text-3xl font-bold text-white">{stats.occupiedBeds}/{stats.totalBeds}</div>
         </div>
       </div>
 
-      {/* Rent Overview Section - Minimalist */}
-      <div className="mb-8">
+      {/* Rent Overview Section - Modern Professional */}
+      <div className="mb-10">
         {(() => {
           const rentOverview = calculateTotalRentOverview();
           const openPayments = getOpenPayments();
           
           return (
-            <div className="space-y-4">
-              {/* Main Overview Cards - Minimalist */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.rent.total")}</div>
-                  <div className="text-2xl font-bold">{rentOverview.totalRent}€</div>
+            <div className="space-y-5">
+              {/* Main Overview Cards - Modern Gradient Design */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 p-6 hover:border-slate-500/70 transition-all shadow-lg">
+                  <div className="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-widest">Gesamtmiete</div>
+                  <div className="text-4xl font-bold text-white mb-1">{rentOverview.totalRent}€</div>
+                  <div className="text-xs text-slate-400">Alle Wohnungen</div>
                 </div>
-                <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.rent.income")}</div>
-                  <div className="text-2xl font-bold">{rentOverview.totalPaid}€</div>
+                <div className="rounded-xl bg-gradient-to-br from-emerald-900/40 to-emerald-800/20 border border-emerald-500/30 p-6 hover:border-emerald-400/50 transition-all shadow-lg">
+                  <div className="text-xs font-semibold text-emerald-300 mb-3 uppercase tracking-widest">Einnahmen</div>
+                  <div className="text-4xl font-bold text-emerald-300 mb-1">{rentOverview.totalPaid}€</div>
+                  <div className="text-xs text-emerald-400">Bezahlte Mieten</div>
                 </div>
-                <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.rent.difference")}</div>
-                  <div className="text-2xl font-bold">{rentOverview.difference >= 0 ? '+' : ''}{rentOverview.difference}€</div>
+                <div className={`rounded-xl border p-6 hover:border-opacity-70 transition-all shadow-lg ${
+                  rentOverview.difference >= 0 
+                    ? 'bg-gradient-to-br from-green-900/40 to-green-800/20 border-green-500/30' 
+                    : 'bg-gradient-to-br from-red-900/40 to-red-800/20 border-red-500/30'
+                }`}>
+                  <div className="text-xs font-semibold mb-3 uppercase tracking-widest" style={{
+                    color: rentOverview.difference >= 0 ? 'rgb(134, 239, 172)' : 'rgb(248, 113, 113)'
+                  }}>Differenz</div>
+                  <div className="text-4xl font-bold mb-1" style={{
+                    color: rentOverview.difference >= 0 ? 'rgb(134, 239, 172)' : 'rgb(248, 113, 113)'
+                  }}>{rentOverview.difference >= 0 ? '+' : ''}{rentOverview.difference}€</div>
+                  <div className="text-xs" style={{
+                    color: rentOverview.difference >= 0 ? 'rgb(187, 247, 208)' : 'rgb(254, 226, 226)'
+                  }}>{rentOverview.difference >= 0 ? 'Überschuss' : 'Defizit'}</div>
                 </div>
               </div>
 
@@ -957,10 +969,10 @@ export default function WohnungenPage() {
                     setIsEditing(false);
                     setShowMobileList(false);
                   }}
-                  className={`w-full text-left rounded-xl p-4 transition border ${
+                  className={`w-full text-left rounded-xl p-4 transition border-2 ${
                     selectedWohnung?.id === wohnung.id 
-                      ? "surface-2 border-blue-500/50 bg-blue-500/10" 
-                      : "surface-2 border-white/10 hover:border-white/20"
+                      ? "surface-2 border-blue-500/60 bg-gradient-to-r from-blue-600/15 to-cyan-600/10 shadow-lg shadow-blue-600/20" 
+                      : "surface-2 border-slate-700/40 hover:border-slate-600/60"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
@@ -968,7 +980,10 @@ export default function WohnungenPage() {
                       <div className="font-semibold text-sm truncate">{wohnung.adresse || wohnung.address || "—"}</div>
                       <div className="text-xs opacity-60 truncate">{wohnung.stadtplz || "—"}</div>
                     </div>
-                    <div className="px-2.5 py-1 rounded-lg text-xs font-semibold flex-shrink-0 bg-white/10 border border-white/20">
+                    <div className="px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-slate-700/50 to-slate-800/40 border border-slate-600/50">
+                      {wohnung.status === "verfügbar" && <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>}
+                      {wohnung.status === "vermietet" && <div className="w-2 h-2 rounded-full bg-blue-400"></div>}
+                      {wohnung.status === "renovierung" && <div className="w-2 h-2 rounded-full bg-orange-400"></div>}
                       {(() => {
                         if (wohnung.status === "verfügbar") {
                           const totalBeds = (wohnung.rooms || []).reduce((sum, room) => sum + room.beds.length, 0);
@@ -980,44 +995,42 @@ export default function WohnungenPage() {
                             room.beds.every(bed => !bed.occupied)).length;
                           
                           // Wenn keine Zimmer/Betten existieren
-                          if (totalBeds === 0) return "Frei";
+                          if (totalBeds === 0) return "Verfügbar";
                           
                           // Wenn alle Betten belegt sind
                           if (freeBeds === 0) {
-                            return "Full";
+                            return "Vollständig";
                           }
                           
                           // Wenn komplette Zimmer frei sind
                           if (freeRooms > 0 && freeRooms === totalRooms) {
-                            return `${freeRooms} Zimmer frei`;
+                            return `${freeRooms} Z. frei`;
                           }
                           
                           // Wenn einzelne Betten frei sind
                           if (freeBeds > 0) {
-                            return `${freeBeds} Bett${freeBeds > 1 ? 'en' : ''} frei`;
+                            return `${freeBeds}B frei`;
                           }
                           
                           return "Frei";
                         }
-                        return wohnung.status === "vermietet" ? "Vermietet" : "Ren.";
+                        return wohnung.status === "vermietet" ? "Vermietet" : "Renov.";
                       })()}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs opacity-60 mb-2">
-                    <span>{wohnung.zimmerzahl || "?"} Zi.</span>
-                    <span>•</span>
-                    <span>{wohnung.quadratmeter || "?"} m²</span>
+                  <div className="flex items-center gap-2 text-xs text-slate-300/70 mb-3 font-medium">
+                    <span className="px-2 py-1 rounded bg-slate-700/40 border border-slate-600/40">{wohnung.zimmerzahl || "?"} Zimmer</span>
+                    <span className="px-2 py-1 rounded bg-slate-700/40 border border-slate-600/40">{wohnung.quadratmeter || "?"} m²</span>
                     {wohnung.miete && (
-                      <>
-                        <span>•</span>
-                        <span>{wohnung.miete}€</span>
-                      </>
+                      <span className="px-2 py-1 rounded bg-emerald-700/40 border border-emerald-600/40 text-emerald-300 font-semibold">
+                        {wohnung.miete}€
+                      </span>
                     )}
                   </div>
                   
                   {/* Rent Calculation */}
                   {wohnung.status === "vermietet" && wohnung.miete && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mt-2 p-2.5 rounded-lg bg-gradient-to-r from-emerald-900/30 to-emerald-800/20 border border-emerald-600/40">
                       {(() => {
                         const diff = calculateRentDifference(wohnung);
                         const tenantsRent = (wohnung.rooms || []).reduce((sum, room) => {
@@ -1028,12 +1041,14 @@ export default function WohnungenPage() {
                         
                         return (
                           <>
-                            <span className="text-xs opacity-60">Einnahmen:</span>
-                            <span className="text-xs font-semibold">{tenantsRent}€</span>
+                            <span className="text-xs text-emerald-300/80 font-medium">Einnahmen:</span>
+                            <span className="text-xs font-bold text-emerald-200">{tenantsRent}€</span>
                             {diff !== 0 && (
                               <>
-                                <span className="text-xs opacity-60">•</span>
-                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-white/10 border border-white/20">
+                                <span className="text-xs text-emerald-300/60">•</span>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                                  diff > 0 ? 'bg-green-600/40 text-green-300 border border-green-500/40' : 'bg-red-600/40 text-red-300 border border-red-500/40'
+                                }`}>
                                   {diff > 0 ? '+' : ''}{diff}€
                                 </span>
                               </>
@@ -1467,72 +1482,77 @@ export default function WohnungenPage() {
               <div className="flex-1">
                 <button
                   onClick={() => setShowMobileList(true)}
-                  className="lg:hidden text-sm text-blue-400 hover:text-blue-300 mb-3"
+                  className="lg:hidden text-sm text-blue-400 hover:text-blue-300 mb-3 transition"
                 >
                   ← Zurück
                 </button>
-                <h2 className="text-3xl font-bold">{selectedWohnung.adresse || selectedWohnung.address || "—"}</h2>
-                <p className="text-sm opacity-60 mt-1">{selectedWohnung.stadtplz || "—"}</p>
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">{selectedWohnung.adresse || selectedWohnung.address || "—"}</h2>
+                <p className="text-base text-slate-400 mt-2 font-medium">{selectedWohnung.stadtplz || "—"}</p>
               </div>
               <div className="flex flex-col gap-2 flex-shrink-0">
                 <button
                   onClick={() => handleEdit(selectedWohnung)}
-                  className="rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition"
+                  className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
                 >
-                  ✎ Edit
+                  ✎ Bearbeiten
                 </button>
                 <button
                   onClick={() => handleDelete(selectedWohnung)}
-                  className="rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition"
+                  className="rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
                 >
-                  🗑️ Del
+                  🗑️ Löschen
                 </button>
               </div>
             </div>
 
-            {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white/20 border border-white/40">
-              {selectedWohnung.status === "verfügbar" ? <CheckCircle className="w-4 h-4" /> :
-               selectedWohnung.status === "vermietet" ? <User className="w-4 h-4" /> :
-               <XCircle className="w-4 h-4" />}
-              {(() => {
-                if (selectedWohnung.status === "verfügbar") {
-                  const totalBeds = (selectedWohnung.rooms || []).reduce((sum, room) => sum + room.beds.length, 0);
-                  const occupiedBeds = (selectedWohnung.rooms || []).reduce((sum, room) => 
-                    sum + room.beds.filter(bed => bed.occupied).length, 0);
-                  const freeBeds = totalBeds - occupiedBeds;
-                  const totalRooms = (selectedWohnung.rooms || []).length;
-                  const freeRooms = (selectedWohnung.rooms || []).filter(room => 
-                    room.beds.every(bed => !bed.occupied)).length;
-                  
-                  // Wenn keine Zimmer/Betten existieren
-                  if (totalBeds === 0) return "Verfügbar";
-                  
-                  // Wenn alle Betten belegt sind
-                  if (freeBeds === 0) {
-                    return "Full";
+            {/* Status Badge - Premium Style */}
+            <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-slate-700/40 to-slate-800/40 border border-slate-500/40 shadow-lg">
+              {selectedWohnung.status === "verfügbar" ? 
+                <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></div> :
+               selectedWohnung.status === "vermietet" ? 
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div> :
+                <div className="w-2.5 h-2.5 rounded-full bg-orange-400"></div>
+              }
+              <span className="text-slate-100">
+                {(() => {
+                  if (selectedWohnung.status === "verfügbar") {
+                    const totalBeds = (selectedWohnung.rooms || []).reduce((sum, room) => sum + room.beds.length, 0);
+                    const occupiedBeds = (selectedWohnung.rooms || []).reduce((sum, room) => 
+                      sum + room.beds.filter(bed => bed.occupied).length, 0);
+                    const freeBeds = totalBeds - occupiedBeds;
+                    const totalRooms = (selectedWohnung.rooms || []).length;
+                    const freeRooms = (selectedWohnung.rooms || []).filter(room => 
+                      room.beds.every(bed => !bed.occupied)).length;
+                    
+                    // Wenn keine Zimmer/Betten existieren
+                    if (totalBeds === 0) return "Verfügbar";
+                    
+                    // Wenn alle Betten belegt sind
+                    if (freeBeds === 0) {
+                      return "Vollständig belegt";
+                    }
+                    
+                    // Wenn komplette Zimmer frei sind
+                    if (freeRooms > 0 && freeRooms === totalRooms) {
+                      return `${freeRooms} Zimmer frei`;
+                    }
+                    
+                    // Wenn einzelne Betten frei sind
+                    if (freeBeds > 0) {
+                      return `${freeBeds} Bett${freeBeds > 1 ? 'en' : ''} frei`;
+                    }
+                    
+                    return "Verfügbar";
                   }
-                  
-                  // Wenn komplette Zimmer frei sind
-                  if (freeRooms > 0 && freeRooms === totalRooms) {
-                    return `${freeRooms} Zimmer frei`;
-                  }
-                  
-                  // Wenn einzelne Betten frei sind
-                  if (freeBeds > 0) {
-                    return `${freeBeds} Bett${freeBeds > 1 ? 'en' : ''} frei`;
-                  }
-                  
-                  return "Verfügbar";
-                }
-                return selectedWohnung.status === "vermietet" ? "Vermietet" : "Renovierung";
-              })()}
+                  return selectedWohnung.status === "vermietet" ? "Vermietet" : "In Renovierung";
+                })()}
+              </span>
             </div>
 
             {/* Rent Overview */}
             {selectedWohnung.miete && (
-              <div className="rounded-lg surface-2 border border-white/10 p-4">
-                <h3 className="text-sm font-semibold mb-4">Mietübersicht</h3>
+              <div className="rounded-xl bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-600/40 p-6 shadow-lg">
+                <h3 className="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wide">Mietübersicht</h3>
                 {(() => {
                   const totalRent = parseInt(selectedWohnung.miete || "0") || 0;
                   const tenantsRent = (selectedWohnung.rooms || []).reduce((sum, room) => {
@@ -1544,24 +1564,24 @@ export default function WohnungenPage() {
                   
                   return (
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3">
-                        <div className="text-xs text-blue-400 font-medium">Gesamtmiete</div>
-                        <div className="text-2xl font-bold text-blue-400 mt-2">{totalRent}€</div>
+                      <div className="rounded-lg bg-blue-500/15 border border-blue-500/30 p-4 hover:border-blue-400/50 transition-all">
+                        <div className="text-xs text-blue-300 font-semibold uppercase tracking-wider">Gesamtmiete</div>
+                        <div className="text-3xl font-bold text-blue-300 mt-2">{totalRent}€</div>
                       </div>
-                      <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-3">
-                        <div className="text-xs opacity-60 font-medium">Einnahmen</div>
-                        <div className="text-2xl font-bold mt-2">{tenantsRent}€</div>
+                      <div className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 p-4 hover:border-emerald-400/50 transition-all">
+                        <div className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Einnahmen</div>
+                        <div className="text-3xl font-bold text-emerald-300 mt-2">{tenantsRent}€</div>
                       </div>
-                      <div className={`rounded-lg p-3 border ${
-                        diff > 0 ? "bg-green-500/10 border-green-500/20" : diff < 0 ? "bg-red-500/10 border-red-500/20" : "bg-gray-500/10 border-gray-500/20"
+                      <div className={`rounded-lg p-4 border transition-all ${
+                        diff > 0 ? "bg-green-500/15 border-green-500/30 hover:border-green-400/50" : diff < 0 ? "bg-red-500/15 border-red-500/30 hover:border-red-400/50" : "bg-gray-500/15 border-gray-500/30 hover:border-gray-400/50"
                       }`}>
-                        <div className={`text-xs font-medium ${
-                          diff > 0 ? "text-green-400" : diff < 0 ? "text-red-400" : "text-gray-400"
+                        <div className={`text-xs font-semibold uppercase tracking-wider ${
+                          diff > 0 ? "text-green-300" : diff < 0 ? "text-red-300" : "text-gray-300"
                         }`}>
                           Differenz
                         </div>
-                        <div className={`text-2xl font-bold mt-2 ${
-                          diff > 0 ? "text-green-400" : diff < 0 ? "text-red-400" : "text-gray-400"
+                        <div className={`text-3xl font-bold mt-2 ${
+                          diff > 0 ? "text-green-300" : diff < 0 ? "text-red-300" : "text-gray-300"
                         }`}>
                           {diff > 0 ? '+' : ''}{diff}€
                         </div>
@@ -1578,34 +1598,39 @@ export default function WohnungenPage() {
               if (openPaymentsForProperty.length === 0) return null;
               
               return (
-                <div className="rounded-2xl surface border border-orange-500/20 bg-orange-500/5 p-6">
-                  <div className="text-lg font-semibold mb-4 text-orange-400">📋 Offene Mieten ({openPaymentsForProperty.length})</div>
-                  <div className="space-y-3">
+                <div className="rounded-xl bg-gradient-to-br from-red-950/50 to-red-900/30 border border-red-500/40 p-6 shadow-lg">
+                  <div className="text-lg font-semibold mb-4 text-red-200 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    Offene Mieten ({openPaymentsForProperty.length})
+                  </div>
+                  <div className="space-y-2.5">
                     {openPaymentsForProperty.map((payment, idx) => (
-                      <div key={idx} className={`flex items-center justify-between p-3 rounded-lg border ${
+                      <div key={idx} className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
                         payment.isOverdue 
-                          ? 'bg-red-500/10 border-red-500/30' 
-                          : 'bg-black/20 border-orange-500/20'
+                          ? 'bg-red-600/20 border-red-400/50 shadow-lg shadow-red-600/20' 
+                          : 'bg-orange-600/15 border-orange-400/40'
                       }`}>
                         <div className="flex-1">
-                          <div className="font-medium text-sm flex items-center gap-2">
+                          <div className="font-semibold text-sm text-slate-100 flex items-center gap-2">
                             {payment.tenantName}
                             {payment.isOverdue && (
-                              <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-semibold">
+                              <span className="text-xs bg-red-600 text-red-100 px-2.5 py-1 rounded font-bold">
                                 ÜBERFÄLLIG
                               </span>
                             )}
                           </div>
-                          <div className="text-xs opacity-60 mt-1">
+                          <div className="text-xs text-slate-300 mt-1.5">
                             {payment.roomName} • Bett {payment.bedNumber}
                           </div>
-                          <div className="text-xs opacity-60 mt-1">
+                          <div className="text-xs text-slate-400 mt-1">
                             {new Date(payment.year, payment.month - 1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-                            <span className="opacity-50"> • Fällig bis 03.</span>
+                            <span className=""> • Fällig bis 03.</span>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className={`font-bold ${payment.isOverdue ? 'text-red-400' : 'text-orange-400'}`}>
+                        <div className="text-right ml-4 flex-shrink-0">
+                          <div className={`font-bold text-lg ${payment.isOverdue ? 'text-red-300' : 'text-orange-300'}`}>
                             {payment.openAmount}€
                           </div>
                         </div>
@@ -1617,44 +1642,44 @@ export default function WohnungenPage() {
             })()}
 
             {/* Wohnungsinfo */}
-            <div className="rounded-lg surface-2 border border-white/10 p-4">
-              <h3 className="text-sm font-semibold mb-3">Wohnungsinformationen</h3>
+            <div className="rounded-xl bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-600/40 p-6 shadow-lg">
+              <h3 className="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wide">Wohnungsinformationen</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-xs opacity-60 font-medium">Zimmerzahl</div>
-                  <div className="font-semibold mt-1">{selectedWohnung.zimmerzahl || "—"}</div>
+                <div className="bg-slate-900/50 rounded-lg p-3.5 border border-slate-700/50">
+                  <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Zimmerzahl</div>
+                  <div className="font-bold text-slate-100 mt-2">{selectedWohnung.zimmerzahl || "—"}</div>
                 </div>
-                <div>
-                  <div className="text-xs opacity-60 font-medium">Quadratmeter</div>
-                  <div className="font-semibold mt-1">{selectedWohnung.quadratmeter ? `${selectedWohnung.quadratmeter} m²` : "—"}</div>
+                <div className="bg-slate-900/50 rounded-lg p-3.5 border border-slate-700/50">
+                  <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Quadratmeter</div>
+                  <div className="font-bold text-slate-100 mt-2">{selectedWohnung.quadratmeter ? `${selectedWohnung.quadratmeter} m²` : "—"}</div>
                 </div>
-                <div>
-                  <div className="text-xs opacity-60 font-medium">Miete</div>
-                  <div className="font-semibold opacity-80 mt-1">{selectedWohnung.miete ? `${selectedWohnung.miete} €` : "—"}</div>
+                <div className="bg-emerald-900/30 rounded-lg p-3.5 border border-emerald-600/40">
+                  <div className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Miete</div>
+                  <div className="font-bold text-emerald-200 mt-2">{selectedWohnung.miete ? `${selectedWohnung.miete} €` : "—"}</div>
                 </div>
-                <div>
-                  <div className="text-xs opacity-60 font-medium">Kaution</div>
-                  <div className="font-semibold mt-1">{selectedWohnung.kaution ? `${selectedWohnung.kaution} €` : "—"}</div>
+                <div className="bg-blue-900/30 rounded-lg p-3.5 border border-blue-600/40">
+                  <div className="text-xs text-blue-300 font-semibold uppercase tracking-wider">Kaution</div>
+                  <div className="font-bold text-blue-200 mt-2">{selectedWohnung.kaution ? `${selectedWohnung.kaution} €` : "—"}</div>
                 </div>
               </div>
             </div>
 
             {/* Mieterinfo */}
             {selectedWohnung.status === "vermietet" && (
-              <div className="rounded-lg surface-2 border border-white/10 p-4">
-                <h3 className="text-sm font-semibold mb-3">Mieterinformationen</h3>
+              <div className="rounded-xl bg-gradient-to-br from-purple-900/40 to-purple-800/30 border border-purple-600/40 p-6 shadow-lg">
+                <h3 className="text-sm font-semibold text-purple-200 mb-4 uppercase tracking-wide">Mieterinformationen</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="col-span-2">
-                    <div className="text-xs opacity-60 font-medium">Aktueller Mieter</div>
-                    <div className="font-semibold mt-1">{selectedWohnung.aktuellerMieter || "—"}</div>
+                  <div className="col-span-2 bg-purple-900/50 rounded-lg p-3.5 border border-purple-700/50">
+                    <div className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Aktueller Mieter</div>
+                    <div className="font-bold text-purple-100 mt-2">{selectedWohnung.aktuellerMieter || "—"}</div>
                   </div>
-                  <div>
-                    <div className="text-xs opacity-60 font-medium">Mietbeginn</div>
-                    <div className="font-semibold mt-1">{selectedWohnung.mietbeginn || "—"}</div>
+                  <div className="bg-purple-900/50 rounded-lg p-3.5 border border-purple-700/50">
+                    <div className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Mietbeginn</div>
+                    <div className="font-bold text-purple-100 mt-2">{selectedWohnung.mietbeginn || "—"}</div>
                   </div>
-                  <div>
-                    <div className="text-xs opacity-60 font-medium">Mietende</div>
-                    <div className="font-semibold mt-1">{selectedWohnung.mietende || "—"}</div>
+                  <div className="bg-purple-900/50 rounded-lg p-3.5 border border-purple-700/50">
+                    <div className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Mietende</div>
+                    <div className="font-bold text-purple-100 mt-2">{selectedWohnung.mietende || "—"}</div>
                   </div>
                 </div>
               </div>
@@ -1662,34 +1687,34 @@ export default function WohnungenPage() {
 
             {/* Notizen */}
             {selectedWohnung.notizen && (
-              <div className="rounded-lg surface-2 border border-white/10 p-4">
-                <h3 className="text-sm font-semibold mb-3">Notizen</h3>
-                <div className="text-sm opacity-90 whitespace-pre-wrap">{selectedWohnung.notizen}</div>
+              <div className="rounded-xl bg-gradient-to-br from-amber-900/40 to-amber-800/30 border border-amber-600/40 p-6 shadow-lg">
+                <h3 className="text-sm font-semibold text-amber-200 mb-3 uppercase tracking-wide">📝 Notizen</h3>
+                <div className="text-sm text-amber-50/90 whitespace-pre-wrap leading-relaxed">{selectedWohnung.notizen}</div>
               </div>
             )}
 
             {/* Zimmer & Betten */}
             {selectedWohnung.rooms && selectedWohnung.rooms.length > 0 && (
-              <div className="rounded-lg surface-2 border border-white/10 p-4">
-                <h3 className="text-sm font-semibold mb-4">Zimmer & Betten</h3>
+              <div className="rounded-xl bg-gradient-to-br from-indigo-900/40 to-indigo-800/30 border border-indigo-600/40 p-6 shadow-lg">
+                <h3 className="text-sm font-semibold text-indigo-200 mb-4 uppercase tracking-wide">🛏️ Zimmer & Betten</h3>
                 <div className="space-y-4">
                   {selectedWohnung.rooms.map((room) => (
-                    <div key={room.id} className="rounded-lg bg-white/5 border border-white/10 p-3">
-                      <div className="flex items-center gap-2 mb-3 flex-wrap">
-                        <DoorOpen className="w-4 h-4 opacity-60" />
-                        <span className="font-semibold">{room.name}</span>
-                        <span className="text-xs opacity-50">({room.beds.length})</span>
-                        <span className="text-xs opacity-60 bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">
-                          {room.capacity || 1} Pers.
+                    <div key={room.id} className="rounded-lg bg-indigo-900/40 border border-indigo-500/30 p-4 hover:border-indigo-400/50 transition-all">
+                      <div className="flex items-center gap-2 mb-4 flex-wrap">
+                        <DoorOpen className="w-5 h-5 text-indigo-300" />
+                        <span className="font-semibold text-indigo-100">{room.name}</span>
+                        <span className="text-xs text-indigo-300/70 bg-indigo-900/50 px-2.5 py-1 rounded">({room.beds.length} Betten)</span>
+                        <span className="text-xs text-blue-300 bg-blue-900/50 px-2.5 py-1 rounded font-medium">
+                          👥 {room.capacity || 1} Pers.
                         </span>
                         {room.suitableForCouple && (
-                          <span className="text-xs opacity-60 bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">
-                            👥 Paar
+                          <span className="text-xs text-purple-300 bg-purple-900/50 px-2.5 py-1 rounded font-medium">
+                            💑 Paar
                           </span>
                         )}
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="grid grid-cols-2 gap-2.5 text-xs">
                         {room.beds.map((bed, idx) => (
                           <button
                             key={bed.id}
@@ -1698,20 +1723,20 @@ export default function WohnungenPage() {
                               setSelectedBedContext({ roomId: room.id, bedId: bed.id });
                               setShowBedDetail(true);
                             }}
-                            className={`rounded-lg p-2 text-left transition hover:scale-105 ${
-                              bed.occupied ? "bg-blue-500/10 border border-blue-500/20" : "bg-green-500/10 border border-green-500/20"
+                            className={`rounded-lg p-3 text-left transition hover:scale-105 border-2 ${
+                              bed.occupied ? "bg-blue-900/50 border-blue-500/40 hover:border-blue-400/60" : "bg-green-900/50 border-green-500/40 hover:border-green-400/60"
                             }`}
                           >
-                            <div className="flex items-center gap-1 mb-1">
-                              <Bed className={`w-3 h-3 ${bed.occupied ? "text-blue-400" : "text-green-400"}`} />
-                              <span className="font-medium">Bett {idx + 1}</span>
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <Bed className={`w-3.5 h-3.5 ${bed.occupied ? "text-blue-300" : "text-green-300"}`} />
+                              <span className="font-bold">{bed.occupied ? 'Belegt' : 'Frei'}</span>
                             </div>
                             {bed.tenant && (
-                              <div className="space-y-0.5 mt-1 opacity-80">
-                                <div>{bed.tenant}</div>
-                                {bed.rent && <div className="text-green-400">{bed.rent}€</div>}
+                              <div className="space-y-1 mt-2 border-t border-white/10 pt-2 opacity-90">
+                                <div className="font-semibold">{bed.tenant}</div>
+                                {bed.rent && <div className="text-green-300 font-bold">{bed.rent}€</div>}
                                 {bed.moveOutDate && (
-                                  <div className="text-orange-400 text-[10px] mt-1">
+                                  <div className="text-orange-300 text-[10px] mt-1 font-medium">
                                     📤 Auszug: {bed.moveOutDate}
                                   </div>
                                 )}
