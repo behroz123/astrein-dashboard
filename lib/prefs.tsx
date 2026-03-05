@@ -351,13 +351,6 @@ count: "Anzahl",
     "action.saving": "Bitte warten…",
     "action.cancel": "Abbrechen",
     "common.back": "Zurück",
-    "common.loading": "Lädt...",
-    "common.edit": "Bearbeiten",
-    "common.delete": "Löschen",
-    "common.refresh": "Aktualisieren",
-    "common.search": "Suchen",
-    "common.confirm": "Bestätigen",
-    "common.confirmDelete": "Wirklich löschen?",
 
     // Wohnungen
     "wohnungen.title": "Wohnungsverwaltung",
@@ -394,13 +387,7 @@ count: "Anzahl",
     "fahrzeuge.stats.total": "Fahrzeuge",
     "fahrzeuge.empty": "Keine Fahrzeuge vorhanden",
 
-    // Verträge (Strom, Wasser, etc.)
-    "contract.error": "Fehler beim Speichern. Überprüfen Sie Firestore Rules.",
-    "contract.validation": "Bitte füllen Sie alle erforderlichen Felder aus!",
-    "contract.selectObject": "Objekt auswählen *",
-    "contract.provider": "Anbieter *",
-    "contract.placeholder.selectObject": "Objekt auswählen",
-    "contract.placeholder.enterProvider": "z.B. E.ON, Vattenfall, etc.",
+    // Verträge (Strom, Wasser, etc.) - see contract keys earlier
 
     // Wohnung Checken
     "wohnungChecken.document": "Wohnungszustand Dokumentieren",
@@ -751,13 +738,6 @@ count: "Count",
     "action.saving": "Please wait…",
     "action.cancel": "Cancel",
     "common.back": "Back",
-    "common.loading": "Loading...",
-    "common.edit": "Edit",
-    "common.delete": "Delete",
-    "common.refresh": "Refresh",
-    "common.search": "Search",
-    "common.confirm": "Confirm",
-    "common.confirmDelete": "Really delete?",
 
     // Wohnungen
     "wohnungen.title": "Apartment Management",
@@ -794,13 +774,7 @@ count: "Count",
     "fahrzeuge.stats.total": "Vehicles",
     "fahrzeuge.empty": "No vehicles available",
 
-    // Verträge (Strom, Wasser, etc.)
-    "contract.error": "Save failed. Check Firestore Rules.",
-    "contract.validation": "Please fill in all required fields!",
-    "contract.selectObject": "Select object *",
-    "contract.provider": "Provider *",
-    "contract.placeholder.selectObject": "Select object",
-    "contract.placeholder.enterProvider": "e.g. E.ON, Vattenfall, etc.",
+    // Verträge (Strom, Wasser, etc.) - see contract keys earlier
 
     // Wohnung Checken
     "wohnungChecken.document": "Document Apartment Condition",
@@ -1003,13 +977,7 @@ count: "Sayı",
     "fahrzeuge.stats.total": "Araçlar",
     "fahrzeuge.empty": "Kullanılabilir araç yok",
 
-    // Verträge (Strom, Wasser, etc.)
-    "contract.error": "Kaydetme hatası. Firestore Rules'ı kontrol edin.",
-    "contract.validation": "Lütfen tüm gerekli alanları doldurun!",
-    "contract.selectObject": "Nesne seç *",
-    "contract.provider": "Sağlayıcı *",
-    "contract.placeholder.selectObject": "Nesne seç",
-    "contract.placeholder.enterProvider": "örn. E.ON, Vattenfall, vb.",
+    // Verträge (Strom, Wasser, etc.) - see contract keys earlier
 
     // Wohnung Checken
     "wohnungChecken.document": "Daire Durumunu Belgele",
@@ -1151,13 +1119,6 @@ count: "Sayı",
     confirm: "Onayla",
 
     saved: "Kaydedildi",
-    // common.* aliases used across app
-    "common.loading": "Yükleniyor...",
-    "common.refresh": "Yenile",
-    "common.edit": "Düzenle",
-    "common.close": "Kapat",
-    "common.pleaseWait": "Lütfen bekleyin...",
-    "common.delete": "Sil",
 
     // nav / role / items
     "role": "Rol",
@@ -1359,13 +1320,7 @@ count: "Număr",
     "contract.currentContract": "Contract curent",
     "contract.open": "Deschideți",
 
-    "common.loading": "Se încarcă...",
-    "common.edit": "Editare",
-    "common.delete": "Ștergere",
-    "common.refresh": "Reîncărcați",
-    "common.search": "Căutare",
-    "common.confirm": "Confirmare",
-    "common.confirmDelete": "Sigur să ștergeți?",
+
 
     // Wohnungen
     "wohnungen.title": "Gestionarea Apartamentelor",
@@ -1402,13 +1357,7 @@ count: "Număr",
     "fahrzeuge.stats.total": "Vehicule",
     "fahrzeuge.empty": "Nu sunt vehicule disponibile",
 
-    // Verträge (Strom, Wasser, etc.)
-    "contract.error": "Salvarea a eșuat. Verificați regulile Firestore.",
-    "contract.validation": "Vă rugăm să completați toate câmpurile necesare!",
-    "contract.selectObject": "Selectare obiect *",
-    "contract.provider": "Furnizor *",
-    "contract.placeholder.selectObject": "Selectare obiect",
-    "contract.placeholder.enterProvider": "ex. E.ON, Vattenfall, etc.",
+    // Verträge (Strom, Wasser, etc.) - see contract keys earlier
 
     // Wohnung Checken
     "wohnungChecken.document": "Documentare stare apartament",
@@ -1554,13 +1503,6 @@ count: "Număr",
     confirm: "Confirmă",
 
     saved: "Salvat",
-    // common.* aliases used across app
-    "common.loading": "Se încarcă...",
-    "common.refresh": "Reîmprospătează",
-    "common.edit": "Editează",
-    "common.close": "Închide",
-    "common.pleaseWait": "Vă rugăm așteptați...",
-    "common.delete": "Șterge",
 
     // nav / role / items
     "role": "Rol",
@@ -1766,13 +1708,7 @@ count: "Количество",
     "contract.saving": "Сохранение...",
     "contract.back": "← Назад",
 
-    "common.loading": "Загрузка...",
-    "common.edit": "Редактировать",
-    "common.delete": "Удалить",
-    "common.refresh": "Обновить",
-    "common.search": "Поиск",
-    "common.confirm": "Подтвердить",
-    "common.confirmDelete": "Вы уверены?",
+
 
     // Wohnungen
     "wohnungen.title": "Управление квартирами",
@@ -1809,13 +1745,7 @@ count: "Количество",
     "fahrzeuge.stats.total": "Автомобили",
     "fahrzeuge.empty": "Нет доступных автомобилей",
 
-    // Verträge (Strom, Wasser, etc.)
-    "contract.error": "Ошибка сохранения. Проверьте правила Firestore.",
-    "contract.validation": "Пожалуйста, заполните все обязательные поля!",
-    "contract.selectObject": "Выберите объект *",
-    "contract.provider": "Поставщик *",
-    "contract.placeholder.selectObject": "Выберите объект",
-    "contract.placeholder.enterProvider": "например E.ON, Vattenfall и т.д.",
+    // Verträge (Strom, Wasser, etc.) - see contract keys earlier
 
     // Wohnung Checken
     "wohnungChecken.document": "Документирование состояния квартиры",
@@ -1957,13 +1887,6 @@ count: "Количество",
     confirm: "Подтвердить",
 
     saved: "Сохранено",
-    // common.* aliases used across app
-    "common.loading": "Загрузка...",
-    "common.refresh": "Обновить",
-    "common.edit": "Редактировать",
-    "common.close": "Закрыть",
-    "common.pleaseWait": "Пожалуйста, подождите...",
-    "common.delete": "Удалить",
 
     // nav / role / items
     "role": "Роль",

@@ -108,7 +108,7 @@ export default function ImmobilienPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6" style={{ color: "rgb(var(--foreground))" }}>
-        {t?.immobilien ?? "Immobilienverwaltung"}
+        {t("immobilien")}
       </h1>
 
       {/* All sections combined */}
