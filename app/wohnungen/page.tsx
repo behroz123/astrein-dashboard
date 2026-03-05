@@ -752,17 +752,17 @@ export default function WohnungenPage() {
           className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-sm font-medium opacity-70 hover:opacity-100 transition-opacity"
           style={{ color: "rgb(var(--foreground))" }}
         >
-          ← Zurück
+          {t("common.back")}
         </button>
         
         <div className="flex items-end gap-4 mb-2">
           <div className="text-6xl">🏢</div>
           <div>
             <h1 className="text-5xl font-bold tracking-tight mb-2" style={{ color: "rgb(var(--foreground))" }}>
-              Wohnungsverwaltung
+              {t("wohnungen.title")}
             </h1>
             <p className="text-base opacity-70">
-              Verwalten Sie alle Wohnungen, Zimmer und Mietinformationen
+              {t("fahrzeuge.description")}
             </p>
           </div>
         </div>
@@ -771,31 +771,31 @@ export default function WohnungenPage() {
       {/* Statistics - Minimalist Style */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
         <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Gesamt</div>
+          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.total")}</div>
           <div className="text-3xl font-bold">{stats.total}</div>
         </div>
         <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Verfügbar</div>
+          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.verfuegbar")}</div>
           <div className="text-3xl font-bold">{stats.verfügbar}</div>
         </div>
         <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Vermietet</div>
+          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.vermietet")}</div>
           <div className="text-3xl font-bold">{stats.vermietet}</div>
         </div>
         <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Renovierung</div>
+          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.renovierung")}</div>
           <div className="text-3xl font-bold">{stats.renovierung}</div>
         </div>
         <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Zimmer</div>
+          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.zimmer")}</div>
           <div className="text-3xl font-bold">{stats.totalRooms}</div>
         </div>
         <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Betten</div>
+          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.betten")}</div>
           <div className="text-3xl font-bold">{stats.totalBeds}</div>
         </div>
         <div className="rounded-2xl surface p-4 border border-white/10">
-          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Belegt</div>
+          <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.stats.belegt")}</div>
           <div className="text-3xl font-bold">{stats.occupiedBeds}/{stats.totalBeds}</div>
         </div>
       </div>
@@ -811,15 +811,15 @@ export default function WohnungenPage() {
               {/* Main Overview Cards - Minimalist */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Gesamtmiete</div>
+                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.rent.total")}</div>
                   <div className="text-2xl font-bold">{rentOverview.totalRent}€</div>
                 </div>
                 <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Einnahmen</div>
+                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.rent.income")}</div>
                   <div className="text-2xl font-bold">{rentOverview.totalPaid}€</div>
                 </div>
                 <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">Differenz</div>
+                  <div className="text-xs opacity-60 font-medium mb-2 uppercase tracking-wide">{t("wohnungen.rent.difference")}</div>
                   <div className="text-2xl font-bold">{rentOverview.difference >= 0 ? '+' : ''}{rentOverview.difference}€</div>
                 </div>
               </div>
@@ -827,7 +827,7 @@ export default function WohnungenPage() {
               {/* Open Payments List - Minimalist */}
               {openPayments.length > 0 && (
                 <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-sm font-semibold mb-3 opacity-80">Offene Mieten ({openPayments.length})</div>
+                  <div className="text-sm font-semibold mb-3 opacity-80">{t("wohnungen.payments.open")} ({openPayments.length})</div>
                   <div className="space-y-2 text-sm">
                     {openPayments.map((payment, idx) => (
                       <div key={idx} className="flex items-center justify-between py-2 px-3 rounded-lg border border-white/5">
@@ -838,7 +838,7 @@ export default function WohnungenPage() {
                         <div className="text-right flex-shrink-0 ml-2">
                           <div className="font-semibold">{payment.openAmount}€</div>
                           {payment.isOverdue && (
-                            <div className="text-xs opacity-70 font-medium">Überfällig</div>
+                            <div className="text-xs opacity-70 font-medium">{t("wohnungen.payments.overdue")}</div>
                           )}
                         </div>
                       </div>
@@ -857,7 +857,7 @@ export default function WohnungenPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
-            placeholder="Nach Adresse oder PLZ suchen..."
+            placeholder={t("items.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="input flex-1 rounded-lg"
@@ -868,17 +868,17 @@ export default function WohnungenPage() {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="input rounded-lg sm:w-auto"
           >
-            <option value="all">Alle Status</option>
-            <option value="verfügbar">Verfügbar</option>
-            <option value="vermietet">Vermietet</option>
-            <option value="renovierung">Renovierung</option>
+            <option value="all">{t("inventory.allStatuses")}</option>
+            <option value="verfügbar">{t("wohnungen.stats.verfuegbar")}</option>
+            <option value="vermietet">{t("wohnungen.stats.vermietet")}</option>
+            <option value="renovierung">{t("wohnungen.stats.renovierung")}</option>
           </select>
           
           <button
             onClick={handleNew}
             className="rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-6 py-2.5 text-sm font-semibold text-white transition shadow-lg whitespace-nowrap"
           >
-            + Neue Wohnung
+            + {t("wohnungen.newWohnung")}
           </button>
           
           <div className="text-sm opacity-70 py-2.5 whitespace-nowrap">
@@ -891,13 +891,13 @@ export default function WohnungenPage() {
       {/* Wohnungen Liste - Professionell */}
       <div className={`lg:col-span-1 ${!showMobileList && (selectedWohnung || isEditing) ? 'hidden lg:block' : ''}`}>
         <div className="rounded-2xl surface border border-white/5 p-5 sticky top-4">
-          <h2 className="text-lg font-semibold mb-4">Wohnungen</h2>
+          <h2 className="text-lg font-semibold mb-4">{t("wohnungen.title")}</h2>
 
           <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
             {filteredWohnungen.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-3xl mb-2">🏢</div>
-                <div className="text-sm opacity-60">Keine Wohnungen gefunden</div>
+                <div className="text-sm opacity-60">{t("fahrzeuge.empty")}</div>
               </div>
             ) : (
               filteredWohnungen.map((wohnung) => (
