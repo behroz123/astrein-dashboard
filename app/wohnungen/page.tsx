@@ -857,30 +857,59 @@ export default function WohnungenPage() {
             <div className="space-y-5">
               {/* Main Overview Cards - Modern Gradient Design */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 border border-slate-600/50 p-6 hover:border-slate-500/70 transition-all shadow-lg">
-                  <div className="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-widest">Gesamtmiete</div>
-                  <div className="text-4xl font-bold text-white mb-1">{rentOverview.totalRent}€</div>
-                  <div className="text-xs text-slate-400">Alle Wohnungen</div>
+                <div 
+                  className="rounded-xl border p-6 transition-all shadow-lg"
+                  style={{
+                    backgroundColor: themeConfig.surface,
+                    borderColor: themeConfig.border,
+                    color: themeConfig.text
+                  }}
+                >
+                  <div 
+                    className="text-xs font-semibold mb-3 uppercase tracking-widest"
+                    style={{ color: themeConfig.textMuted }}
+                  >Gesamtmiete</div>
+                  <div className="text-4xl font-bold mb-1">{rentOverview.totalRent}€</div>
+                  <div 
+                    className="text-xs"
+                    style={{ color: themeConfig.textMuted }}
+                  >Alle Wohnungen</div>
                 </div>
-                <div className="rounded-xl bg-gradient-to-br from-emerald-900/40 to-emerald-800/20 border border-emerald-500/30 p-6 hover:border-emerald-400/50 transition-all shadow-lg">
-                  <div className="text-xs font-semibold text-emerald-300 mb-3 uppercase tracking-widest">Einnahmen</div>
-                  <div className="text-4xl font-bold text-emerald-300 mb-1">{rentOverview.totalPaid}€</div>
-                  <div className="text-xs text-emerald-400">Bezahlte Mieten</div>
+                <div 
+                  className="rounded-xl border p-6 transition-all shadow-lg"
+                  style={{
+                    backgroundColor: themeConfig.surface,
+                    borderColor: themeConfig.border,
+                    color: themeConfig.success
+                  }}
+                >
+                  <div 
+                    className="text-xs font-semibold mb-3 uppercase tracking-widest"
+                    style={{ color: themeConfig.success }}
+                  >Einnahmen</div>
+                  <div className="text-4xl font-bold mb-1">{rentOverview.totalPaid}€</div>
+                  <div 
+                    className="text-xs"
+                    style={{ color: themeConfig.success }}
+                  >Bezahlte Mieten</div>
                 </div>
-                <div className={`rounded-xl border p-6 hover:border-opacity-70 transition-all shadow-lg ${
-                  rentOverview.difference >= 0 
-                    ? 'bg-gradient-to-br from-green-900/40 to-green-800/20 border-green-500/30' 
-                    : 'bg-gradient-to-br from-red-900/40 to-red-800/20 border-red-500/30'
-                }`}>
-                  <div className="text-xs font-semibold mb-3 uppercase tracking-widest" style={{
-                    color: rentOverview.difference >= 0 ? 'rgb(134, 239, 172)' : 'rgb(248, 113, 113)'
-                  }}>Differenz</div>
-                  <div className="text-4xl font-bold mb-1" style={{
-                    color: rentOverview.difference >= 0 ? 'rgb(134, 239, 172)' : 'rgb(248, 113, 113)'
-                  }}>{rentOverview.difference >= 0 ? '+' : ''}{rentOverview.difference}€</div>
-                  <div className="text-xs" style={{
-                    color: rentOverview.difference >= 0 ? 'rgb(187, 247, 208)' : 'rgb(254, 226, 226)'
-                  }}>{rentOverview.difference >= 0 ? 'Überschuss' : 'Defizit'}</div>
+                <div 
+                  className="rounded-xl border p-6 transition-all shadow-lg"
+                  style={{
+                    backgroundColor: themeConfig.surface,
+                    borderColor: rentOverview.difference >= 0 ? themeConfig.success : themeConfig.error,
+                    color: rentOverview.difference >= 0 ? themeConfig.success : themeConfig.error
+                  }}
+                >
+                  <div 
+                    className="text-xs font-semibold mb-3 uppercase tracking-widest"
+                    style={{ color: rentOverview.difference >= 0 ? themeConfig.success : themeConfig.error }}
+                  >Differenz</div>
+                  <div className="text-4xl font-bold mb-1">{rentOverview.difference >= 0 ? '+' : ''}{rentOverview.difference}€</div>
+                  <div 
+                    className="text-xs"
+                    style={{ color: rentOverview.difference >= 0 ? themeConfig.success : themeConfig.error }}
+                  >{rentOverview.difference >= 0 ? 'Überschuss' : 'Defizit'}</div>
                 </div>
               </div>
 
