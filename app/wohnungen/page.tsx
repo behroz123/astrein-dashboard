@@ -689,7 +689,10 @@ export default function WohnungenPage() {
                 return { 
                   ...bed, 
                   moveOutDate: tempMoveOutDate,
-                  occupied: false  // Bett ist jetzt frei
+                  occupied: false,  // Bett ist jetzt frei
+                  tenant: "",       // Mieter löschen
+                  rent: "",         // Miete zurücksetzen
+                  moveInDate: ""    // Einzugsdatum zurücksetzen
                 };
               }
               return bed;
