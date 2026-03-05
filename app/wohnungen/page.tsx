@@ -431,6 +431,9 @@ export default function WohnungenPage() {
 
     (wohnung.rooms || []).forEach(room => {
       room.beds.forEach(bed => {
+        // Überspringe Betten, die bereits einen Auszug haben
+        if (bed.moveOutDate) return;
+        
         if (bed.payments) {
           bed.payments.forEach(payment => {
             // Nur zeigen wenn nicht bezahlt, Mieter existiert und es der aktuelle Monat ist
@@ -692,7 +695,8 @@ export default function WohnungenPage() {
                   occupied: false,  // Bett ist jetzt frei
                   tenant: "",       // Mieter löschen
                   rent: "",         // Miete zurücksetzen
-                  moveInDate: ""    // Einzugsdatum zurücksetzen
+                  moveInDate: "",   // Einzugsdatum zurücksetzen
+                  payments: payments  // Zahlungen mit korrekter Auszugsberechnung speichern
                 };
               }
               return bed;
