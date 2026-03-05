@@ -562,6 +562,31 @@ export default function WohnungenPage() {
     
     let currentDate = new Date(startDate);
     
+    // Check if move-out is in the same month as move-in
+    const moveOutDateObj = moveOutDate ? new Date(moveOutDate) : null;
+    const isSameMonth = moveOutDateObj && 
+      currentDate.getMonth() === moveOutDateObj.getMonth() && 
+      currentDate.getFullYear() === moveOutDateObj.getFullYear();
+    
+    if (isSameMonth && moveOutDateObj) {
+      // Same month - calculate pro-rata for partial month
+      const firstMonth = currentDate.getMonth() + 1;
+      const firstYear = currentDate.getFullYear();
+      const moveInDay = currentDate.getDate();
+      const moveOutDay = moveOutDateObj.getDate();
+      const daysInMonth = new Date(firstYear, firstMonth, 0).getDate();
+      const daysUsed = moveOutDay - moveInDay + 1;
+      const proRataAmount = (monthlyRent / daysInMonth * daysUsed).toFixed(2);
+      
+      payments.push({
+        month: firstMonth,
+        year: firstYear,
+        amount: proRataAmount,
+        paid: false,
+      });
+      return payments;
+    }
+    
     // Erster Monat - Pro-rata Berechnung
     const firstMonth = currentDate.getMonth() + 1;
     const firstYear = currentDate.getFullYear();
@@ -587,14 +612,13 @@ export default function WohnungenPage() {
       
       // Letzter Monat (bei Auszug) - Pro-rata Berechnung
       if (moveOutDate) {
-        const moveOutDateObj = new Date(moveOutDate);
-        const lastMonth = moveOutDateObj.getMonth() + 1;
-        const lastYear = moveOutDateObj.getFullYear();
+        const lastMonth = moveOutDateObj!.getMonth() + 1;
+        const lastYear = moveOutDateObj!.getFullYear();
         
         if (month === lastMonth && year === lastYear) {
-          const moveOutDay = moveOutDateObj.getDate();
+          const moveOutDay = moveOutDateObj!.getDate();
           const daysInLastMonth = new Date(lastYear, lastMonth, 0).getDate();
-          const daysUsed = moveOutDay;
+          const daysUsed = moveOutDay; // moveOutDay includes the full day of move-out
           const lastMonthAmount = (monthlyRent / daysInLastMonth * daysUsed).toFixed(2);
           
           payments.push({
