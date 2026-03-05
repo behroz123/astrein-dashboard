@@ -870,28 +870,31 @@ export default function WohnungenPage() {
                 </div>
               </div>
 
-              {/* Open Payments List - Only show in detail view */}
-              {!showMobileList && openPayments.length > 0 && selectedWohnung && (
-                <div className="rounded-2xl surface border border-white/10 p-4">
-                  <div className="text-sm font-semibold mb-3 opacity-80">{t("wohnungen.payments.open")} ({openPayments.length})</div>
-                  <div className="space-y-2 text-sm">
-                    {openPayments.map((payment, idx) => (
-                      <div key={idx} className="flex items-center justify-between py-2 px-3 rounded-lg border border-white/5">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium truncate">{payment.tenantName}</div>
-                          <div className="text-xs opacity-60 truncate">{payment.wohnungAdresse} • {payment.roomName}</div>
+              {/* Open Payments List - Only show in detail view for selected property */}
+              {!showMobileList && selectedWohnung && (() => {
+                const selectedPropertyPayments = getOpenPaymentsForWohnung(selectedWohnung);
+                return selectedPropertyPayments.length > 0 ? (
+                  <div className="rounded-2xl surface border border-white/10 p-4">
+                    <div className="text-sm font-semibold mb-3 opacity-80">{t("wohnungen.payments.open")} ({selectedPropertyPayments.length})</div>
+                    <div className="space-y-2 text-sm">
+                      {selectedPropertyPayments.map((payment, idx) => (
+                        <div key={idx} className="flex items-center justify-between py-2 px-3 rounded-lg border border-white/5">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{payment.tenantName}</div>
+                            <div className="text-xs opacity-60 truncate">{payment.roomName} • Bett {payment.bedNumber}</div>
+                          </div>
+                          <div className="text-right flex-shrink-0 ml-2">
+                            <div className="font-semibold">{payment.openAmount}€</div>
+                            {payment.isOverdue && (
+                              <div className="text-xs opacity-70 font-medium">{t("wohnungen.payments.overdue")}</div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right flex-shrink-0 ml-2">
-                          <div className="font-semibold">{payment.openAmount}€</div>
-                          {payment.isOverdue && (
-                            <div className="text-xs opacity-70 font-medium">{t("wohnungen.payments.overdue")}</div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : null;
+              })()}
             </div>
           );
         })()}
