@@ -87,6 +87,7 @@ export default function WohnungenPage() {
   const { config: themeConfig } = useTheme();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>("mitarbeiter");
   const [wohnungen, setWohnungen] = useState<Wohnung[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedWohnung, setSelectedWohnung] = useState<Wohnung | null>(null);
@@ -148,12 +149,28 @@ export default function WohnungenPage() {
   }
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
       if (!u) {
         router.replace("/login");
         return;
       }
       setUser(u);
+      
+      // Fetch user role
+      try {
+        const token = await u.getIdToken();
+        const response = await fetch("/api/get-user-role", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setUserRole(data.role || "mitarbeiter");
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+        setUserRole("mitarbeiter");
+      }
+      
       setReady(true);
     });
 
@@ -897,6 +914,9 @@ export default function WohnungenPage() {
     );
   }
 
+  // Check if user can manage properties (admin or mitarbeiter)
+  const canManageProperties = userRole === "admin" || userRole === "mitarbeiter";
+
   return (
     <div className="pb-12 wohnungen-page">
       {/* Professional Header with Gradient */}
@@ -1038,12 +1058,14 @@ export default function WohnungenPage() {
             <option value="renovierung">{t("wohnungen.stats.renovierung")}</option>
           </select>
           
-          <button
-            onClick={handleNew}
-            className="rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-6 py-2.5 text-sm font-semibold text-white transition shadow-lg whitespace-nowrap"
-          >
-            + {t("wohnungen.newWohnung")}
-          </button>
+          {canManageProperties && (
+            <button
+              onClick={handleNew}
+              className="rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-6 py-2.5 text-sm font-semibold text-white transition shadow-lg whitespace-nowrap"
+            >
+              + {t("wohnungen.newWohnung")}
+            </button>
+          )}
           
           <div className="text-sm opacity-70 py-2.5 whitespace-nowrap">
             {filteredWohnungen.length} von {wohnungen.length}
@@ -1604,12 +1626,14 @@ export default function WohnungenPage() {
                 </p>
               </div>
               <div className="flex flex-col gap-2 flex-shrink-0">
-                <button
-                  onClick={() => handleEdit(selectedWohnung)}
-                  className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
-                >
-                  ✎ Bearbeiten
-                </button>
+                {canManageProperties && (
+                  <button
+                    onClick={() => handleEdit(selectedWohnung)}
+                    className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
+                  >
+                    ✎ Bearbeiten
+                  </button>
+                )}
                 <button
                   onClick={() => handleDownloadPDF(selectedWohnung)}
                   className="rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg flex items-center justify-center gap-2"
@@ -1617,12 +1641,14 @@ export default function WohnungenPage() {
                   <Download size={16} />
                   PDF
                 </button>
-                <button
-                  onClick={() => handleDelete(selectedWohnung)}
-                  className="rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
-                >
-                  🗑️ Löschen
-                </button>
+                {canManageProperties && (
+                  <button
+                    onClick={() => handleDelete(selectedWohnung)}
+                    className="rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
+                  >
+                    🗑️ Löschen
+                  </button>
+                )}
               </div>
             </div>
 
