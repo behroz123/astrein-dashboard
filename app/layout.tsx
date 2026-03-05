@@ -7,6 +7,7 @@ import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { usePathname, useRouter } from "next/navigation";
 import { PrefsProvider, usePrefs } from "../lib/prefs";
+import { ThemeProvider } from "../lib/themeContext";
 import ChatAssistant from "../components/ChatAssistant";
 import SessionWarning from "../components/SessionWarning";
 import Footer from "../components/Footer";
@@ -207,7 +208,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="de">
       <body className="text-white">
         <PrefsProvider>
-          <AppShell>{children}</AppShell>
+          <ThemeProvider>
+            <AppShell>{children}</AppShell>
+          </ThemeProvider>
         </PrefsProvider>
       </body>
     </html>

@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePrefs } from "../../lib/prefs";
+import { useTheme } from "../../lib/themeContext";
+import { ThemeSelector } from "../../components/ThemeSelector";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
@@ -319,6 +321,15 @@ export default function SettingsPage() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Design Themes */}
+      <div className="rounded-[28px] surface p-6">
+        <div className="mb-6">
+          <div className="text-sm font-semibold text-white/90">Design Themes</div>
+          <div className="mt-1 text-xs muted">Wählen Sie ein professionelles Design-Theme</div>
+        </div>
+        <ThemeSelector />
       </div>
 
       {/* Accent */}
