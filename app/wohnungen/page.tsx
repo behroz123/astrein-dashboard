@@ -870,8 +870,8 @@ export default function WohnungenPage() {
                 </div>
               </div>
 
-              {/* Open Payments List - Only show when property is selected */}
-              {selectedWohnung && openPayments.length > 0 && (
+              {/* Open Payments List - Only show in detail view */}
+              {!showMobileList && openPayments.length > 0 && selectedWohnung && (
                 <div className="rounded-2xl surface border border-white/10 p-4">
                   <div className="text-sm font-semibold mb-3 opacity-80">{t("wohnungen.payments.open")} ({openPayments.length})</div>
                   <div className="space-y-2 text-sm">
