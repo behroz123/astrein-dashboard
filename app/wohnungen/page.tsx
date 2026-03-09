@@ -378,14 +378,24 @@ export default function WohnungenPage() {
 
   const filteredWohnungen = wohnungen
     .filter(w => {
-      const wohnungAdresse = w.adresse || w.address || "";
-      const matchesSearch = 
-        wohnungAdresse.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (w.stadtplz && w.stadtplz.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (w.aktuellerMieter && w.aktuellerMieter.toLowerCase().includes(searchTerm.toLowerCase()));
-      
+      const q = searchTerm.trim().toLowerCase();
+      const wohnungAdresse = (w.adresse || w.address || "").toLowerCase();
+      const stadtplz = (w.stadtplz || "").toLowerCase();
+      const aktuellerMieter = (w.aktuellerMieter || "").toLowerCase();
+
+      const hasTenantInBeds = (w.rooms || []).some((room) =>
+        (room.beds || []).some((bed) => (bed.tenant || "").toLowerCase().includes(q))
+      );
+
+      const matchesSearch =
+        q === "" ||
+        wohnungAdresse.includes(q) ||
+        stadtplz.includes(q) ||
+        aktuellerMieter.includes(q) ||
+        hasTenantInBeds;
+
       const matchesStatus = filterStatus === "all" || w.status === filterStatus;
-      
+
       return matchesSearch && matchesStatus;
     });
 
@@ -650,6 +660,22 @@ export default function WohnungenPage() {
     setShowRoomManager(true);
   }
 
+  function editRoomFromDetail(room: Room) {
+    if (!selectedWohnung) return;
+    handleEdit(selectedWohnung);
+    setTimeout(() => {
+      editRoom(room);
+    }, 0);
+  }
+
+  function editBedFromDetail(room: Room) {
+    if (!selectedWohnung) return;
+    handleEdit(selectedWohnung);
+    setTimeout(() => {
+      editRoom(room);
+    }, 0);
+  }
+
   function addBedToRoom() {
     const newBed: Bed = {
       id: Date.now().toString(),
@@ -906,6 +932,21 @@ export default function WohnungenPage() {
     }
   }
 
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+  useEffect(() => {
+    if (!selectedWohnung || isEditing || !normalizedSearchTerm) return;
+
+    const timer = setTimeout(() => {
+      const matchedBed = document.querySelector('[data-search-match="true"]') as HTMLElement | null;
+      if (matchedBed) {
+        matchedBed.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 180);
+
+    return () => clearTimeout(timer);
+  }, [selectedWohnung, isEditing, normalizedSearchTerm]);
+
   if (!ready || loading) {
     return (
       <div className="rounded-[28px] surface p-6 text-sm muted">
@@ -919,58 +960,97 @@ export default function WohnungenPage() {
 
   return (
     <div className="pb-12 wohnungen-page">
-      {/* Professional Header with Gradient */}
+      {/* Professional Header with Clean Design */}
       <div className="mb-12">
         <button
           onClick={() => router.push('/immobilien')}
-          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-violet-50"
           style={{ color: "var(--color-primary)" }}
         >
           ← {t("common.back")}
         </button>
         
-        <div className="flex items-end gap-6 mb-4">
-          <div className="text-7xl">🏢</div>
-          <div>
-            <h1 className="text-6xl font-bold tracking-tight mb-2" style={{ color: themeConfig.text }}>
-              {t("wohnungen.title")}
-            </h1>
-            <p className="text-lg" style={{ color: "var(--color-text-muted)" }}>
-              Professionelle Verwaltung aller Wohnungen und Mieterverhältnisse
-            </p>
+        {/* Clean Header with Side Accent */}
+        <div className="relative rounded-2xl overflow-hidden bg-white border-2 border-violet-200 shadow-xl">
+          {/* Left Accent Bar */}
+          <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-violet-500 via-purple-500 to-fuchsia-500"></div>
+          
+          <div className="flex items-center gap-6 p-8 pl-10">
+            {/* Icon */}
+            <div className="flex-shrink-0 text-7xl">🏢</div>
+            
+            {/* Text Content */}
+            <div className="flex-1">
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-2 text-gray-900">
+                {t("wohnungen.title")}
+              </h1>
+              <p className="text-lg text-gray-600">
+                Professionelle Verwaltung aller Wohnungen und Mieterverhältnisse
+              </p>
+            </div>
+            
+            {/* Stats Quick View */}
+            <div className="hidden xl:flex gap-4">
+              <div className="text-center px-4 py-3 rounded-xl bg-violet-50 border border-violet-200">
+                <div className="text-2xl font-bold text-violet-600">{stats.total}</div>
+                <div className="text-xs text-violet-600 font-medium">Wohnungen</div>
+              </div>
+              <div className="text-center px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                <div className="text-2xl font-bold text-emerald-600">{stats.verfügbar}</div>
+                <div className="text-xs text-emerald-600 font-medium">Verfügbar</div>
+              </div>
+              <div className="text-center px-4 py-3 rounded-xl bg-blue-50 border border-blue-200">
+                <div className="text-2xl font-bold text-blue-600">{stats.totalBeds}</div>
+                <div className="text-xs text-blue-600 font-medium">Betten</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Statistics - Modern Professional Style */}
+      {/* Statistics - Clean Minimal */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-10">
-        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
-          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--color-primary)" }}>{t("wohnungen.stats.total")}</div>
-          <div className="text-3xl font-bold" style={{ color: "var(--color-primary)" }}>{stats.total}</div>
+        <div className="group relative rounded-xl bg-white border-2 border-violet-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-violet-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-purple-500 rounded-t-xl"></div>
+          <div className="text-2xl mb-2">🏢</div>
+          <div className="text-3xl font-black text-gray-900 mb-1">{stats.total}</div>
+          <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.total")}</div>
         </div>
-        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
-          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--color-success)" }}>{t("wohnungen.stats.verfuegbar")}</div>
-          <div className="text-3xl font-bold" style={{ color: "var(--color-success)" }}>{stats.verfügbar}</div>
+        <div className="group relative rounded-xl bg-white border-2 border-emerald-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-green-500 rounded-t-xl"></div>
+          <div className="text-2xl mb-2">✨</div>
+          <div className="text-3xl font-black text-gray-900 mb-1">{stats.verfügbar}</div>
+          <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.verfuegbar")}</div>
         </div>
-        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
-          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--color-accent1)" }}>{t("wohnungen.stats.vermietet")}</div>
-          <div className="text-3xl font-bold" style={{ color: "var(--color-accent1)" }}>{stats.vermietet}</div>
+        <div className="group relative rounded-xl bg-white border-2 border-blue-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-blue-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-t-xl"></div>
+          <div className="text-2xl mb-2">🔑</div>
+          <div className="text-3xl font-black text-gray-900 mb-1">{stats.vermietet}</div>
+          <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.vermietet")}</div>
         </div>
-        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
-          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--color-warning)" }}>{t("wohnungen.stats.renovierung")}</div>
-          <div className="text-3xl font-bold" style={{ color: "var(--color-warning)" }}>{stats.renovierung}</div>
+        <div className="group relative rounded-xl bg-white border-2 border-amber-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-amber-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-t-xl"></div>
+          <div className="text-2xl mb-2">🔧</div>
+          <div className="text-3xl font-black text-gray-900 mb-1">{stats.renovierung}</div>
+          <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.renovierung")}</div>
         </div>
-        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
-          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--color-info)" }}>{t("wohnungen.stats.zimmer")}</div>
-          <div className="text-3xl font-bold" style={{ color: "var(--color-info)" }}>{stats.totalRooms}</div>
+        <div className="group relative rounded-xl bg-white border-2 border-indigo-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-indigo-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-t-xl"></div>
+          <div className="text-2xl mb-2">🚪</div>
+          <div className="text-3xl font-black text-gray-900 mb-1">{stats.totalRooms}</div>
+          <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.zimmer")}</div>
         </div>
-        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
-          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--color-accent2)" }}>{t("wohnungen.stats.betten")}</div>
-          <div className="text-3xl font-bold" style={{ color: "var(--color-accent2)" }}>{stats.totalBeds}</div>
+        <div className="group relative rounded-xl bg-white border-2 border-purple-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-purple-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-t-xl"></div>
+          <div className="text-2xl mb-2">🛏️</div>
+          <div className="text-3xl font-black text-gray-900 mb-1">{stats.totalBeds}</div>
+          <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.betten")}</div>
         </div>
-        <div className="rounded-xl border p-5 transition-all" style={{ backgroundColor: themeConfig.surface, borderColor: themeConfig.border }}>
-          <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--color-accent3)" }}>{t("wohnungen.stats.belegt")}</div>
-          <div className="text-3xl font-bold" style={{ color: "var(--color-accent3)" }}>{stats.occupiedBeds}/{stats.totalBeds}</div>
+        <div className="group relative rounded-xl bg-white border-2 border-pink-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-pink-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-rose-500 rounded-t-xl"></div>
+          <div className="text-2xl mb-2">👥</div>
+          <div className="text-3xl font-black text-gray-900 mb-1">{stats.occupiedBeds}/{stats.totalBeds}</div>
+          <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.belegt")}</div>
         </div>
       </div>
 
@@ -985,46 +1065,56 @@ export default function WohnungenPage() {
               {/* Main Overview Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div
-                  className="rounded-xl border-2 p-6 transition-all shadow-xl bg-gradient-to-br from-indigo-200/95 via-blue-100/95 to-cyan-200/95 border-indigo-400/60"
+                  className="group relative rounded-xl bg-white border-2 border-indigo-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-indigo-300"
                 >
-                  <div className="text-xs font-semibold mb-3 uppercase tracking-widest text-indigo-800">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-t-xl"></div>
+                  <div className="text-2xl mb-2">🏠</div>
+                  <div className="text-xs font-bold mb-2 uppercase tracking-wider text-indigo-700">
                     Gesamtmiete
                   </div>
-                  <div className="text-4xl font-bold mb-1 text-indigo-900">{rentOverview.totalRent}€</div>
-                  <div className="text-xs text-indigo-700">
+                  <div className="text-3xl font-black mb-1 text-gray-900">{rentOverview.totalRent}€</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Alle Wohnungen
                   </div>
                 </div>
                 <div
-                  className="rounded-xl border-2 p-6 transition-all shadow-xl bg-gradient-to-br from-emerald-200/95 via-green-100/95 to-teal-200/95 border-emerald-400/60"
+                  className="group relative rounded-xl bg-white border-2 border-emerald-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-emerald-300"
                 >
-                  <div className="text-xs font-semibold mb-3 uppercase tracking-widest text-emerald-800">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-green-500 rounded-t-xl"></div>
+                  <div className="text-2xl mb-2">💶</div>
+                  <div className="text-xs font-bold mb-2 uppercase tracking-wider text-emerald-700">
                     Einnahmen
                   </div>
-                  <div className="text-4xl font-bold mb-1 text-emerald-900">{rentOverview.totalPaid}€</div>
-                  <div className="text-xs text-emerald-700">
+                  <div className="text-3xl font-black mb-1 text-gray-900">{rentOverview.totalPaid}€</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Bezahlte Mieten
                   </div>
                 </div>
                 <div
-                  className={`rounded-xl border-2 p-6 transition-all shadow-xl ${
+                  className={`group relative rounded-xl bg-white border-2 p-5 transition-all duration-200 hover:shadow-lg ${
                     rentOverview.difference >= 0 
-                      ? 'bg-gradient-to-br from-green-200/95 via-green-100/95 to-lime-200/95 border-green-400/60'
-                      : 'bg-gradient-to-br from-red-200/95 via-red-100/95 to-rose-200/95 border-red-400/60'
+                      ? 'border-lime-200 hover:border-lime-300'
+                      : 'border-rose-200 hover:border-rose-300'
                   }`}
                 >
-                  <div className={`text-xs font-semibold mb-3 uppercase tracking-widest ${
-                    rentOverview.difference >= 0 ? 'text-green-800' : 'text-red-800'
+                  <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-xl ${
+                    rentOverview.difference >= 0
+                      ? 'bg-gradient-to-r from-lime-500 to-emerald-500'
+                      : 'bg-gradient-to-r from-rose-500 to-red-500'
+                  }`}></div>
+                  <div className="text-2xl mb-2">{rentOverview.difference >= 0 ? '📈' : '📉'}</div>
+                  <div className={`text-xs font-bold mb-2 uppercase tracking-wider ${
+                    rentOverview.difference >= 0 ? 'text-lime-700' : 'text-rose-700'
                   }`}>
                     Differenz
                   </div>
-                  <div className={`text-4xl font-bold mb-1 ${
-                    rentOverview.difference >= 0 ? 'text-green-900' : 'text-red-900'
+                  <div className={`text-3xl font-black mb-1 ${
+                    rentOverview.difference >= 0 ? 'text-lime-700' : 'text-rose-700'
                   }`}>
                     {rentOverview.difference >= 0 ? '+' : ''}{rentOverview.difference}€
                   </div>
-                  <div className={`text-xs ${
-                    rentOverview.difference >= 0 ? 'text-green-700' : 'text-red-700'
+                  <div className={`text-xs font-semibold uppercase tracking-wide ${
+                    rentOverview.difference >= 0 ? 'text-gray-500' : 'text-gray-500'
                   }`}>
                     {rentOverview.difference >= 0 ? 'Überschuss' : 'Defizit'}
                   </div>
@@ -1037,7 +1127,7 @@ export default function WohnungenPage() {
 
       <div className="space-y-8">
       {/* Filter Bar - Professional Style */}
-      <div className="rounded-2xl surface border border-white/5 p-5">
+      <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -1061,13 +1151,13 @@ export default function WohnungenPage() {
           {canManageProperties && (
             <button
               onClick={handleNew}
-              className="rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-6 py-2.5 text-sm font-semibold text-white transition shadow-lg whitespace-nowrap"
+              className="rounded-lg bg-violet-600 hover:bg-violet-700 px-6 py-2.5 text-sm font-semibold text-white transition shadow-sm whitespace-nowrap"
             >
               + {t("wohnungen.newWohnung")}
             </button>
           )}
           
-          <div className="text-sm opacity-70 py-2.5 whitespace-nowrap">
+          <div className="text-sm text-gray-500 py-2.5 whitespace-nowrap">
             {filteredWohnungen.length} von {wohnungen.length}
           </div>
         </div>
@@ -1076,7 +1166,7 @@ export default function WohnungenPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Wohnungen Liste - Professionell */}
       <div className={`lg:col-span-1 ${!showMobileList && (selectedWohnung || isEditing) ? 'hidden lg:block' : ''}`}>
-        <div className="rounded-2xl surface border border-white/5 p-5 sticky top-4">
+        <div className="rounded-2xl bg-white border border-gray-200 p-5 sticky top-4 shadow-sm">
           <h2 className="text-lg font-semibold mb-4">{t("wohnungen.title")}</h2>
 
           <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -1095,18 +1185,18 @@ export default function WohnungenPage() {
                     setIsEditing(false);
                     setShowMobileList(false);
                   }}
-                  className={`w-full text-left rounded-2xl p-5 transition-all duration-300 border-2 ${
+                  className={`w-full text-left rounded-2xl p-5 transition-all duration-200 border-2 ${
                     selectedWohnung?.id === wohnung.id 
-                      ? "bg-gradient-to-br from-violet-600/40 via-fuchsia-500/30 to-pink-500/35 border-fuchsia-400/70 shadow-2xl shadow-fuchsia-500/40 scale-[1.02]" 
-                      : "bg-gradient-to-br from-indigo-900/50 via-purple-800/40 to-blue-900/45 border-indigo-500/40 hover:border-purple-400/60 hover:shadow-xl hover:shadow-purple-600/30 hover:scale-[1.01]"
+                      ? "bg-violet-50 border-violet-300 shadow-md" 
+                      : "bg-white border-gray-200 hover:border-violet-200 hover:shadow-sm"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-base truncate text-slate-100">{wohnung.adresse || wohnung.address || "—"}</div>
-                      <div className="text-sm text-slate-300/80 truncate mt-1 font-medium">{wohnung.stadtplz || "—"}</div>
+                      <div className="font-bold text-base truncate text-gray-900">{wohnung.adresse || wohnung.address || "—"}</div>
+                      <div className="text-sm text-gray-500 truncate mt-1 font-medium">{wohnung.stadtplz || "—"}</div>
                     </div>
-                    <div className="px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 flex items-center gap-2 bg-gradient-to-br from-slate-700/70 to-slate-800/60 border-2 border-slate-500/60 shadow-lg">
+                    <div className="px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 flex items-center gap-2 bg-gray-50 border border-gray-200 text-gray-700">
                       {wohnung.status === "verfügbar" && <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50"></div>}
                       {wohnung.status === "vermietet" && <div className="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-lg shadow-blue-400/50"></div>}
                       {wohnung.status === "renovierung" && <div className="w-2.5 h-2.5 rounded-full bg-orange-400 shadow-lg shadow-orange-400/50"></div>}
@@ -1145,10 +1235,10 @@ export default function WohnungenPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-xs mb-3">
-                    <span className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-indigo-600/30 to-indigo-500/20 border-2 border-indigo-500/40 text-indigo-200 font-semibold shadow-md">{wohnung.zimmerzahl || "?"} Zimmer</span>
-                    <span className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-600/30 to-purple-500/20 border-2 border-purple-500/40 text-purple-200 font-semibold shadow-md">{wohnung.quadratmeter || "?"} m²</span>
+                    <span className="px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 font-semibold">{wohnung.zimmerzahl || "?"} Zimmer</span>
+                    <span className="px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 text-purple-700 font-semibold">{wohnung.quadratmeter || "?"} m²</span>
                     {wohnung.miete && (
-                      <span className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-emerald-600/40 to-emerald-500/30 border-2 border-emerald-400/50 text-emerald-100 font-bold shadow-md">
+                      <span className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold">
                         {wohnung.miete}€
                       </span>
                     )}
@@ -1156,7 +1246,7 @@ export default function WohnungenPage() {
                   
                   {/* Rent Calculation */}
                   {wohnung.status === "vermietet" && wohnung.miete && (
-                    <div className="flex items-center gap-2 mt-3 p-3 rounded-xl bg-gradient-to-br from-emerald-900/50 via-emerald-800/40 to-emerald-900/30 border-2 border-emerald-500/50 shadow-lg">
+                    <div className="flex items-center gap-2 mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
                       {(() => {
                         const diff = calculateRentDifference(wohnung);
                         const tenantsRent = (wohnung.rooms || []).reduce((sum, room) => {
@@ -1167,13 +1257,13 @@ export default function WohnungenPage() {
                         
                         return (
                           <>
-                            <span className="text-xs text-emerald-100 font-semibold">Einnahmen:</span>
-                            <span className="text-sm font-extrabold text-emerald-50">{tenantsRent}€</span>
+                            <span className="text-xs text-emerald-700 font-semibold">Einnahmen:</span>
+                            <span className="text-sm font-extrabold text-emerald-800">{tenantsRent}€</span>
                             {diff !== 0 && (
                               <>
-                                <span className="text-xs text-emerald-200/70">•</span>
+                                <span className="text-xs text-emerald-500">•</span>
                                 <span className={`text-xs font-bold px-2.5 py-1 rounded-lg shadow-md ${
-                                  diff > 0 ? 'bg-gradient-to-br from-green-600/60 to-green-500/40 text-green-50 border-2 border-green-400/60' : 'bg-gradient-to-br from-red-600/60 to-red-500/40 text-red-50 border-2 border-red-400/60'
+                                  diff > 0 ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
                                 }`}>
                                   {diff > 0 ? '+' : ''}{diff}€
                                 </span>
@@ -1195,7 +1285,7 @@ export default function WohnungenPage() {
       <div className={`lg:col-span-2 ${showMobileList && !isEditing && !selectedWohnung ? 'hidden lg:block' : ''}`}>
         {isEditing ? (
           // Edit Form - Modern Design
-          <div className="rounded-2xl surface border border-white/5 p-6 space-y-8">
+          <div className="rounded-2xl bg-white border border-gray-200 p-6 space-y-8 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">
                 {selectedWohnung ? "Wohnung bearbeiten" : "Neue Wohnung erstellen"}
@@ -1297,7 +1387,7 @@ export default function WohnungenPage() {
             </div>
 
             {/* Zimmer & Betten Verwaltung */}
-            <div className="rounded-xl surface-2 border border-blue-500/10 p-5">
+              <div className="rounded-xl bg-violet-50 border border-violet-200 p-5">
               <div className="flex items-center justify-between gap-3 mb-4">
                 <h3 className="text-base font-semibold">Zimmer & Betten</h3>
                 <button
@@ -1315,7 +1405,7 @@ export default function WohnungenPage() {
               </div>
 
               {showRoomManager && (
-                <div className="rounded-lg bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border-2 border-purple-500/40 p-4 mb-4 shadow-lg">
+                <div className="rounded-lg bg-white border border-violet-200 p-4 mb-4 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold">{editingRoom ? "Zimmer bearbeiten" : "Neues Zimmer"}</h4>
                     <button
@@ -1345,7 +1435,7 @@ export default function WohnungenPage() {
                     </div>
 
                     {/* Room Properties */}
-                    <div className="rounded-lg bg-gradient-to-br from-slate-800/60 to-slate-900/50 border-2 border-slate-600/40 p-3 space-y-3 shadow-lg">
+                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 space-y-3">
                       <div>
                         <label className="text-xs opacity-60 font-medium">Kapazität (Personen)</label>
                         <input
@@ -1375,7 +1465,7 @@ export default function WohnungenPage() {
                         <button
                           type="button"
                           onClick={addBedToRoom}
-                          className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1 rounded bg-blue-500/10"
+                          className="text-xs text-blue-700 hover:text-blue-800 px-2 py-1 rounded bg-blue-100"
                         >
                           + Bett
                         </button>
@@ -1383,13 +1473,13 @@ export default function WohnungenPage() {
 
                       <div className="space-y-3">
                         {roomBeds.map((bed, idx) => (
-                          <div key={bed.id} className="rounded-lg bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border-2 border-blue-500/40 p-4 shadow-md">
+                          <div key={bed.id} className="rounded-lg bg-blue-50 border border-blue-200 p-4">
                             <div className="flex items-center justify-between mb-4">
                               <span className="text-sm font-bold">Bett {idx + 1}</span>
                               <button
                                 type="button"
                                 onClick={() => deleteBed(bed.id)}
-                                className="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded bg-red-500/10"
+                                className="text-red-700 hover:text-red-800 text-xs px-2 py-1 rounded bg-red-100"
                               >
                                 🗑️ Löschen
                               </button>
@@ -1473,17 +1563,17 @@ export default function WohnungenPage() {
                   </div>
                 ) : (
                   rooms.map((room) => (
-                    <div key={room.id} className="rounded-lg bg-gradient-to-br from-slate-800/50 to-slate-900/40 border-2 border-slate-600/40 p-3 shadow-lg">
+                    <div key={room.id} className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <DoorOpen className="w-4 h-4 opacity-60" />
                           <span className="font-medium">{room.name}</span>
                           <span className="text-xs opacity-50">({room.beds.length} Betten)</span>
-                          <span className="text-xs opacity-60 bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
                             {room.capacity || 1} Pers.
                           </span>
                           {room.suitableForCouple && (
-                            <span className="text-xs opacity-60 bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">
+                            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-medium">
                               👥 Paar
                             </span>
                           )}
@@ -1492,14 +1582,14 @@ export default function WohnungenPage() {
                           <button
                             type="button"
                             onClick={() => editRoom(room)}
-                            className="text-blue-400 hover:text-blue-300 text-xs"
+                            className="text-blue-700 hover:text-blue-800 text-xs"
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => deleteRoom(room.id)}
-                            className="text-red-400 hover:text-red-300 text-xs"
+                            className="text-red-700 hover:text-red-800 text-xs"
                           >
                             Del
                           </button>
@@ -1536,7 +1626,7 @@ export default function WohnungenPage() {
 
             {/* Mieterdaten */}
             {status === "vermietet" && (
-              <div className="rounded-xl surface-2 border border-white/5 p-4">
+              <div className="rounded-xl bg-white border border-gray-200 p-4">
                 <h3 className="text-base font-semibold mb-4">Mieterdaten</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
@@ -1583,7 +1673,7 @@ export default function WohnungenPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/10">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
               <button
                 onClick={handleSave}
                 disabled={saving}
@@ -1603,7 +1693,7 @@ export default function WohnungenPage() {
           </div>
         ) : selectedWohnung ? (
           // Detail View - Professional
-          <div className="wohnungen-detail-panel rounded-2xl surface border border-white/5 p-6 space-y-6">
+          <div className="wohnungen-detail-panel rounded-2xl bg-white border border-gray-200 p-6 space-y-6 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <button
@@ -1652,54 +1742,134 @@ export default function WohnungenPage() {
               </div>
             </div>
 
-            {/* Status Badge - Premium Style */}
-            <div className="wohnungen-status-pill inline-flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-slate-700/40 to-slate-800/40 border border-slate-500/40 shadow-lg">
-              {selectedWohnung.status === "verfügbar" ? 
-                <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></div> :
-               selectedWohnung.status === "vermietet" ? 
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div> :
-                <div className="w-2.5 h-2.5 rounded-full bg-orange-400"></div>
+            {/* Status Badge - Premium Style with Click to Scroll */}
+            {(() => {
+              const totalBeds = (selectedWohnung.rooms || []).reduce((sum, room) => sum + room.beds.length, 0);
+              const occupiedBeds = (selectedWohnung.rooms || []).reduce((sum, room) => 
+                sum + room.beds.filter(bed => bed.occupied).length, 0);
+              const freeBeds = totalBeds - occupiedBeds;
+              const totalRooms = (selectedWohnung.rooms || []).length;
+              const freeRooms = (selectedWohnung.rooms || []).filter(room => 
+                room.beds.every(bed => !bed.occupied)).length;
+              
+              let statusText = "";
+              let statusIcon = "";
+              let bgGradient = "";
+              let borderColor = "";
+              let shadowColor = "";
+              let textColor = "";
+              let isClickable = false;
+              
+              if (selectedWohnung.status === "verfügbar") {
+                if (totalBeds === 0) {
+                  statusText = "Verfügbar";
+                  statusIcon = "🏠";
+                  bgGradient = "from-violet-100 to-purple-100";
+                  borderColor = "border-violet-200";
+                  shadowColor = "shadow-violet-100";
+                  textColor = "text-violet-700";
+                } else if (freeBeds === 0) {
+                  statusText = "Vollständig belegt";
+                  statusIcon = "🔒";
+                  bgGradient = "from-slate-100 to-slate-200";
+                  borderColor = "border-slate-300";
+                  shadowColor = "shadow-slate-100";
+                  textColor = "text-slate-700";
+                } else if (freeRooms > 0 && freeRooms === totalRooms) {
+                  statusText = `${freeRooms} Zimmer frei`;
+                  statusIcon = "🚪";
+                  bgGradient = "from-indigo-100 to-blue-100";
+                  borderColor = "border-indigo-200";
+                  shadowColor = "shadow-indigo-100";
+                  textColor = "text-indigo-700";
+                  isClickable = true;
+                } else if (freeBeds > 0) {
+                  statusText = `${freeBeds} Bett${freeBeds > 1 ? 'en' : ''} frei`;
+                  statusIcon = "🛏️";
+                  bgGradient = "from-purple-100 to-pink-100";
+                  borderColor = "border-purple-200";
+                  shadowColor = "shadow-purple-100";
+                  textColor = "text-purple-700";
+                  isClickable = true;
+                } else {
+                  statusText = "Verfügbar";
+                  statusIcon = "✓";
+                  bgGradient = "from-violet-100 to-purple-100";
+                  borderColor = "border-violet-200";
+                  shadowColor = "shadow-violet-100";
+                  textColor = "text-violet-700";
+                }
+              } else if (selectedWohnung.status === "vermietet") {
+                statusText = "Vermietet";
+                statusIcon = "🔑";
+                bgGradient = "from-indigo-100 to-violet-100";
+                borderColor = "border-indigo-200";
+                shadowColor = "shadow-indigo-100";
+                textColor = "text-indigo-700";
+              } else {
+                statusText = "In Renovierung";
+                statusIcon = "🔧";
+                bgGradient = "from-blue-100 to-indigo-100";
+                borderColor = "border-blue-200";
+                shadowColor = "shadow-blue-100";
+                textColor = "text-blue-700";
               }
-              <span className="text-slate-100">
-                {(() => {
-                  if (selectedWohnung.status === "verfügbar") {
-                    const totalBeds = (selectedWohnung.rooms || []).reduce((sum, room) => sum + room.beds.length, 0);
-                    const occupiedBeds = (selectedWohnung.rooms || []).reduce((sum, room) => 
-                      sum + room.beds.filter(bed => bed.occupied).length, 0);
-                    const freeBeds = totalBeds - occupiedBeds;
-                    const totalRooms = (selectedWohnung.rooms || []).length;
-                    const freeRooms = (selectedWohnung.rooms || []).filter(room => 
-                      room.beds.every(bed => !bed.occupied)).length;
-                    
-                    // Wenn keine Zimmer/Betten existieren
-                    if (totalBeds === 0) return "Verfügbar";
-                    
-                    // Wenn alle Betten belegt sind
-                    if (freeBeds === 0) {
-                      return "Vollständig belegt";
+              
+              const handleClick = () => {
+                if (!isClickable) return;
+                
+                // Find first free bed or room
+                const rooms = selectedWohnung.rooms || [];
+                for (let i = 0; i < rooms.length; i++) {
+                  const room = rooms[i];
+                  const freeBed = room.beds.find(bed => !bed.occupied);
+                  if (freeBed) {
+                    // Scroll to the rooms section
+                    const roomsSection = document.querySelector('.wohnungen-rooms-block');
+                    if (roomsSection) {
+                      roomsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      
+                      // Highlight the free bed briefly
+                      setTimeout(() => {
+                        const allBedButtons = Array.from(document.querySelectorAll('.wohnungen-room-card button'));
+                        const bedIndex = room.beds.indexOf(freeBed);
+                        if (allBedButtons[bedIndex]) {
+                          allBedButtons[bedIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          allBedButtons[bedIndex].classList.add('ring-4', 'ring-purple-400', 'animate-pulse');
+                          setTimeout(() => {
+                            allBedButtons[bedIndex].classList.remove('ring-4', 'ring-purple-400', 'animate-pulse');
+                          }, 2000);
+                        }
+                      }, 500);
                     }
-                    
-                    // Wenn komplette Zimmer frei sind
-                    if (freeRooms > 0 && freeRooms === totalRooms) {
-                      return `${freeRooms} Zimmer frei`;
-                    }
-                    
-                    // Wenn einzelne Betten frei sind
-                    if (freeBeds > 0) {
-                      return `${freeBeds} Bett${freeBeds > 1 ? 'en' : ''} frei`;
-                    }
-                    
-                    return "Verfügbar";
+                    break;
                   }
-                  return selectedWohnung.status === "vermietet" ? "Vermietet" : "In Renovierung";
-                })()}
-              </span>
-            </div>
+                }
+              };
+              
+              return (
+                <button
+                  onClick={handleClick}
+                  disabled={!isClickable}
+                  className={`inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br ${bgGradient} border ${borderColor} shadow-sm ${shadowColor} transition-all duration-200 ${
+                    isClickable ? 'hover:scale-105 hover:shadow-xl cursor-pointer hover:border-opacity-100' : 'cursor-default'
+                  }`}
+                >
+                  <span className="text-2xl">{statusIcon}</span>
+                  <span className={`font-bold text-base ${textColor} tracking-wide`}>
+                    {statusText}
+                  </span>
+                  {isClickable && (
+                    <span className="text-xs opacity-60 ml-1">👆</span>
+                  )}
+                </button>
+              );
+            })()}
 
             {/* Rent Overview */}
             {selectedWohnung.miete && (
-              <div className="wohnungen-block rounded-xl bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-600/40 p-6 shadow-lg">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wide">Mietübersicht</h3>
+              <div className="wohnungen-block rounded-xl bg-white border border-gray-200 p-6 shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">Mietübersicht</h3>
                 {(() => {
                   const totalRent = parseInt(selectedWohnung.miete || "0") || 0;
                   const tenantsRent = (selectedWohnung.rooms || []).reduce((sum, room) => {
@@ -1827,44 +1997,47 @@ export default function WohnungenPage() {
             })()}
 
             {/* Wohnungsinfo */}
-            <div className="wohnungen-block rounded-xl bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-600/40 p-6 shadow-lg">
-              <h3 className="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wide">Wohnungsinformationen</h3>
+            <div className="wohnungen-block rounded-2xl bg-white border border-slate-200 p-6 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.35)]">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wide">Wohnungsinformationen</h3>
+                <span className="text-xs text-slate-500 font-medium">Übersicht</span>
+              </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="wohnungen-info-tile bg-gradient-to-br from-indigo-200/95 to-indigo-100/95 rounded-lg p-3.5 border-2 border-indigo-400/60 shadow-md">
-                  <div className="text-xs text-indigo-800 font-semibold uppercase tracking-wider">Zimmerzahl</div>
-                  <div className="font-bold text-indigo-900 mt-2 text-lg">{selectedWohnung.zimmerzahl || "—"}</div>
+                <div className="wohnungen-info-tile rounded-xl p-4 border border-slate-200 bg-gradient-to-br from-slate-50 to-white shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Zimmerzahl</div>
+                  <div className="font-extrabold text-slate-900 mt-2 text-2xl">{selectedWohnung.zimmerzahl || "—"}</div>
                 </div>
-                <div className="wohnungen-info-tile bg-gradient-to-br from-purple-200/95 to-purple-100/95 rounded-lg p-3.5 border-2 border-purple-400/60 shadow-md">
-                  <div className="text-xs text-purple-800 font-semibold uppercase tracking-wider">Quadratmeter</div>
-                  <div className="font-bold text-purple-900 mt-2 text-lg">{selectedWohnung.quadratmeter ? `${selectedWohnung.quadratmeter} m²` : "—"}</div>
+                <div className="wohnungen-info-tile rounded-xl p-4 border border-slate-200 bg-gradient-to-br from-slate-50 to-white shadow-sm">
+                  <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Quadratmeter</div>
+                  <div className="font-extrabold text-slate-900 mt-2 text-2xl">{selectedWohnung.quadratmeter ? `${selectedWohnung.quadratmeter} m²` : "—"}</div>
                 </div>
-                <div className="wohnungen-info-tile tile-success bg-gradient-to-br from-emerald-200/95 to-emerald-100/95 rounded-lg p-3.5 border-2 border-emerald-400/60 shadow-md">
-                  <div className="text-xs text-emerald-800 font-semibold uppercase tracking-wider">Miete</div>
-                  <div className="font-bold text-emerald-900 mt-2 text-lg">{selectedWohnung.miete ? `${selectedWohnung.miete} €` : "—"}</div>
+                <div className="wohnungen-info-tile tile-success rounded-xl p-4 border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white shadow-sm">
+                  <div className="text-xs text-emerald-700 font-semibold uppercase tracking-wider">Miete</div>
+                  <div className="font-extrabold text-emerald-900 mt-2 text-2xl">{selectedWohnung.miete ? `${selectedWohnung.miete} €` : "—"}</div>
                 </div>
-                <div className="wohnungen-info-tile tile-info bg-gradient-to-br from-blue-200/95 to-blue-100/95 rounded-lg p-3.5 border-2 border-blue-400/60 shadow-md">
-                  <div className="text-xs text-blue-800 font-semibold uppercase tracking-wider">Kaution</div>
-                  <div className="font-bold text-blue-900 mt-2 text-lg">{selectedWohnung.kaution ? `${selectedWohnung.kaution} €` : "—"}</div>
+                <div className="wohnungen-info-tile tile-info rounded-xl p-4 border border-blue-200 bg-gradient-to-br from-blue-50 to-white shadow-sm">
+                  <div className="text-xs text-blue-700 font-semibold uppercase tracking-wider">Kaution</div>
+                  <div className="font-extrabold text-blue-900 mt-2 text-2xl">{selectedWohnung.kaution ? `${selectedWohnung.kaution} €` : "—"}</div>
                 </div>
               </div>
             </div>
 
             {/* Mieterinfo */}
             {selectedWohnung.status === "vermietet" && (
-              <div className="wohnungen-block mieter-block rounded-xl bg-gradient-to-br from-purple-900/40 to-purple-800/30 border border-purple-600/40 p-6 shadow-lg">
-                <h3 className="text-sm font-semibold text-purple-200 mb-4 uppercase tracking-wide">Mieterinformationen</h3>
+              <div className="wohnungen-block mieter-block rounded-xl bg-white border border-purple-200 p-6 shadow-sm">
+                <h3 className="text-sm font-semibold text-purple-700 mb-4 uppercase tracking-wide">Mieterinformationen</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="wohnungen-info-tile mieter-tile col-span-2 bg-purple-900/50 rounded-lg p-3.5 border border-purple-700/50">
-                    <div className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Aktueller Mieter</div>
-                    <div className="font-bold text-purple-100 mt-2">{selectedWohnung.aktuellerMieter || "—"}</div>
+                  <div className="wohnungen-info-tile mieter-tile col-span-2 bg-purple-50 rounded-lg p-3.5 border border-purple-200">
+                    <div className="text-xs text-purple-700 font-semibold uppercase tracking-wider">Aktueller Mieter</div>
+                    <div className="font-bold text-purple-900 mt-2">{selectedWohnung.aktuellerMieter || "—"}</div>
                   </div>
-                  <div className="wohnungen-info-tile mieter-tile bg-purple-900/50 rounded-lg p-3.5 border border-purple-700/50">
-                    <div className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Mietbeginn</div>
-                    <div className="font-bold text-purple-100 mt-2">{selectedWohnung.mietbeginn || "—"}</div>
+                  <div className="wohnungen-info-tile mieter-tile bg-purple-50 rounded-lg p-3.5 border border-purple-200">
+                    <div className="text-xs text-purple-700 font-semibold uppercase tracking-wider">Mietbeginn</div>
+                    <div className="font-bold text-purple-900 mt-2">{selectedWohnung.mietbeginn || "—"}</div>
                   </div>
-                  <div className="wohnungen-info-tile mieter-tile bg-purple-900/50 rounded-lg p-3.5 border border-purple-700/50">
-                    <div className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Mietende</div>
-                    <div className="font-bold text-purple-100 mt-2">{selectedWohnung.mietende || "—"}</div>
+                  <div className="wohnungen-info-tile mieter-tile bg-purple-50 rounded-lg p-3.5 border border-purple-200">
+                    <div className="text-xs text-purple-700 font-semibold uppercase tracking-wider">Mietende</div>
+                    <div className="font-bold text-purple-900 mt-2">{selectedWohnung.mietende || "—"}</div>
                   </div>
                 </div>
               </div>
@@ -1872,53 +2045,131 @@ export default function WohnungenPage() {
 
             {/* Notizen */}
             {selectedWohnung.notizen && (
-              <div className="wohnungen-block notes-block rounded-xl bg-gradient-to-br from-amber-900/40 to-amber-800/30 border border-amber-600/40 p-6 shadow-lg">
-                <h3 className="text-sm font-semibold text-amber-200 mb-3 uppercase tracking-wide">📝 Notizen</h3>
-                <div className="text-sm text-amber-50/90 whitespace-pre-wrap leading-relaxed">{selectedWohnung.notizen}</div>
+              <div className="wohnungen-block notes-block rounded-xl bg-white border border-amber-200 p-6 shadow-sm">
+                <h3 className="text-sm font-semibold text-amber-700 mb-3 uppercase tracking-wide">📝 Notizen</h3>
+                <div className="text-sm text-amber-900 whitespace-pre-wrap leading-relaxed">{selectedWohnung.notizen}</div>
               </div>
             )}
 
             {/* Zimmer & Betten */}
             {selectedWohnung.rooms && selectedWohnung.rooms.length > 0 && (
-              <div className="wohnungen-rooms-block rounded-xl bg-gradient-to-br from-slate-100/95 to-slate-200/90 border-2 border-slate-300/60 p-6 shadow-xl">
-                <h3 className="text-sm font-semibold text-slate-800 mb-4 uppercase tracking-wide">🛏️ Zimmer & Betten</h3>
+              <div className="wohnungen-rooms-block rounded-2xl bg-white border border-slate-200 p-6 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.35)]">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wide">🛏️ Zimmer & Betten</h3>
+                  <span className="text-xs text-slate-500 font-semibold">{selectedWohnung.rooms.length} Zimmer</span>
+                </div>
                 <div className="space-y-4">
                   {selectedWohnung.rooms.map((room) => (
-                    <div key={room.id} className="wohnungen-room-card rounded-xl bg-gradient-to-br from-indigo-100/95 to-purple-100/90 border-2 border-indigo-300/60 p-4 hover:border-indigo-400/70 transition-all shadow-lg">
+                    <div key={room.id} className="wohnungen-room-card rounded-xl bg-gradient-to-br from-white to-slate-50 border border-slate-200 p-4 hover:border-slate-300 transition-all shadow-sm">
                       <div className="flex items-center gap-2 mb-4 flex-wrap">
-                        <DoorOpen className="w-5 h-5 text-indigo-700" />
-                        <span className="font-bold text-indigo-900 text-base">{room.name}</span>
-                        <span className="text-xs text-indigo-800 bg-indigo-200/80 px-2.5 py-1.5 rounded-lg font-semibold border border-indigo-300/50">({room.beds.length} Betten)</span>
-                        <span className="text-xs text-blue-800 bg-blue-200/80 px-2.5 py-1.5 rounded-lg font-bold border border-blue-300/50">
+                        <DoorOpen className="w-5 h-5 text-slate-700" />
+                        <span className="font-bold text-slate-900 text-base">{room.name}</span>
+                        <span className="text-xs text-slate-700 bg-white px-2.5 py-1.5 rounded-lg font-semibold border border-slate-200">({room.beds.length} Betten)</span>
+                        <span className="text-xs text-slate-700 bg-white px-2.5 py-1.5 rounded-lg font-bold border border-slate-200">
                           👥 {room.capacity || 1} Pers.
                         </span>
                         {room.suitableForCouple && (
-                          <span className="text-xs text-purple-800 bg-purple-200/80 px-2.5 py-1.5 rounded-lg font-bold border border-purple-300/50">
+                          <span className="text-xs text-purple-700 bg-purple-50 px-2.5 py-1.5 rounded-lg font-bold border border-purple-200">
                             💑 Paar
                           </span>
+                        )}
+                        {canManageProperties && (
+                          <button
+                            type="button"
+                            onClick={() => editRoomFromDetail(room)}
+                            className="ml-auto text-xs font-semibold px-2.5 py-1 rounded-md bg-violet-100 text-violet-700 border border-violet-200 hover:bg-violet-200 transition"
+                          >
+                            ✎ Zimmer bearbeiten
+                          </button>
                         )}
                       </div>
                       
                       <div className="grid grid-cols-2 gap-3 text-sm">
-                        {room.beds.map((bed, idx) => (
-                          <button
+                        {room.beds.map((bed, idx) => {
+                          const tenantName = bed.tenant || "";
+                          const tenantNameLower = tenantName.toLowerCase();
+                          const isSearchMatch =
+                            normalizedSearchTerm.length > 0 &&
+                            tenantNameLower.includes(normalizedSearchTerm);
+                          const matchStart = isSearchMatch
+                            ? tenantNameLower.indexOf(normalizedSearchTerm)
+                            : -1;
+                          const matchEnd =
+                            matchStart >= 0
+                              ? matchStart + normalizedSearchTerm.length
+                              : -1;
+
+                          return (
+                          <div
                             key={bed.id}
+                            role="button"
+                            tabIndex={0}
+                            data-search-match={isSearchMatch ? "true" : "false"}
                             onClick={() => {
                               setSelectedBed(bed);
                               setSelectedBedContext({ roomId: room.id, bedId: bed.id });
                               setShowBedDetail(true);
                             }}
-                            className={`wohnungen-bed-card rounded-lg p-3 text-left transition hover:scale-105 border-2 ${
-                              bed.occupied ? "is-occupied bg-gradient-to-br from-blue-200/95 to-blue-100/95 border-blue-400/70 hover:border-blue-500/80 shadow-md" : "is-free bg-gradient-to-br from-green-200/95 to-green-100/95 border-green-400/70 hover:border-green-500/80 shadow-md"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setSelectedBed(bed);
+                                setSelectedBedContext({ roomId: room.id, bedId: bed.id });
+                                setShowBedDetail(true);
+                              }
+                            }}
+                            className={`wohnungen-bed-card rounded-xl p-3 text-left transition hover:scale-[1.015] border shadow-sm cursor-pointer ${
+                              bed.occupied
+                                ? "is-occupied bg-gradient-to-br from-sky-50 to-indigo-50 border-sky-200 hover:border-sky-300"
+                                : "is-free bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200 hover:border-emerald-300"
+                            } ${
+                              isSearchMatch ? "ring-4 ring-fuchsia-400 border-fuchsia-500 shadow-xl shadow-fuchsia-200" : ""
                             }`}
+                            style={
+                              bed.occupied
+                                ? {
+                                    background: "linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%)",
+                                    borderColor: "#60a5fa",
+                                    boxShadow: "0 8px 20px rgba(96, 165, 250, 0.28)",
+                                  }
+                                : {
+                                    background: "linear-gradient(135deg, #dcfce7 0%, #bef264 100%)",
+                                    borderColor: "#4ade80",
+                                    boxShadow: "0 8px 20px rgba(74, 222, 128, 0.28)",
+                                  }
+                            }
                           >
                             <div className="flex items-center gap-1.5 mb-2">
-                              <Bed className={`w-3.5 h-3.5 ${bed.occupied ? "text-blue-700" : "text-green-700"}`} />
-                              <span className={`font-bold ${bed.occupied ? 'text-blue-900' : 'text-green-900'}`}>{bed.occupied ? 'Belegt' : 'Frei'}</span>
+                              <Bed className={`w-3.5 h-3.5 ${bed.occupied ? "text-sky-700" : "text-emerald-700"}`} />
+                              <span className={`font-bold px-2 py-0.5 rounded-md text-xs border ${bed.occupied ? 'bg-sky-100 text-sky-800 border-sky-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'}`}>{bed.occupied ? 'Belegt' : 'Frei'}</span>
+                              {canManageProperties && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    editBedFromDetail(room);
+                                  }}
+                                  className="ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200 transition"
+                                >
+                                  ✎ Bett bearbeiten
+                                </button>
+                              )}
                             </div>
                             {bed.tenant && (
-                              <div className="space-y-1 mt-2 border-t border-slate-400/30 pt-2 opacity-90 wohnungen-bed-meta">
-                                <div className="font-semibold text-slate-800">{bed.tenant}</div>
+                              <div className="space-y-1 mt-2 border-t border-gray-200 pt-2 wohnungen-bed-meta">
+                                <div className="font-semibold text-slate-800">
+                                  {isSearchMatch && matchStart >= 0 ? (
+                                    <>
+                                      {tenantName.slice(0, matchStart)}
+                                      <span className="bg-fuchsia-200 text-fuchsia-900 px-1 rounded font-bold">
+                                        {tenantName.slice(matchStart, matchEnd)}
+                                      </span>
+                                      {tenantName.slice(matchEnd)}
+                                    </>
+                                  ) : (
+                                    tenantName
+                                  )}
+                                </div>
                                 {bed.rent && <div className="text-emerald-700 font-bold">{bed.rent}€</div>}
                                 {bed.moveOutDate && (
                                   <div className="text-orange-300 text-[10px] mt-1 font-medium">
@@ -1927,8 +2178,9 @@ export default function WohnungenPage() {
                                 )}
                               </div>
                             )}
-                          </button>
-                        ))}
+                          </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
@@ -1938,7 +2190,7 @@ export default function WohnungenPage() {
           </div>
         ) : (
           // Empty State
-          <div className="rounded-2xl surface border border-white/5 p-12 text-center flex flex-col items-center justify-center min-h-[500px]">
+          <div className="rounded-2xl bg-white border border-gray-200 p-12 text-center flex flex-col items-center justify-center min-h-[500px] shadow-sm">
             <button
               onClick={() => setShowMobileList(true)}
               className="lg:hidden text-sm text-blue-400 hover:text-blue-300 mb-6"
