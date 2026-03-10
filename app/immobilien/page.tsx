@@ -11,6 +11,7 @@ import {
   FileCheck,
   Zap,
   Droplet,
+  Flame,
   Users,
   ArrowRight,
   FolderOpen,
@@ -64,6 +65,13 @@ export default function ImmobilienPage() {
       color: "from-cyan-500 to-cyan-600",
     },
     {
+      icon: Flame,
+      label: "Gasvertrag",
+      desc: "Gasverträge verwalten",
+      path: "/gas-vertrag",
+      color: "from-orange-500 to-orange-600",
+    },
+    {
       icon: FolderOpen,
       label: "Einzüge",
       desc: "Neue Mieter verwalten",
@@ -75,7 +83,7 @@ export default function ImmobilienPage() {
       label: "Auszüge",
       desc: "Auszüge dokumentieren",
       path: "/auszuege",
-      color: "from-orange-500 to-orange-600",
+      color: "from-red-500 to-red-600",
     },
     {
       icon: FileCheck,
