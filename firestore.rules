@@ -124,6 +124,13 @@ service cloud.firestore {
       allow update, delete: if isAdmin() || isOwner("createdByUid");
     }
 
+    // gas contracts
+    match /gasContracts/{contractId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || isOwner("createdByUid");
+    }
+
     // ============ SUPPORT & COMMUNICATION ============
     
     // Support Tickets
