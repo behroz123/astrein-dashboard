@@ -9,15 +9,15 @@ import { auth, db } from "../../lib/firebase";
 import { usePrefs } from "../../lib/prefs";
 import jsPDF from "jspdf";
 
-type WohnungsAbrechnung = {
+type Tenant = {
   id: string;
+  firstName: string;
+  lastName: string;
   propertyId: string;
   propertyName: string;
+  propertyAddress: string;
+  monthlyPayment: number;
   startDate: string;
-  endDate?: string;
-  totalCosts: number;
-  totalPaid: number;
-  notes?: string;
   createdAt: any;
   createdByName: string;
 };
@@ -29,13 +29,14 @@ export default function ExportsPage() {
   const [exporting, setExporting] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
-  const [abrechnungen, setAbrechnungen] = useState<WohnungsAbrechnung[]>([]);
-  const [showAbrechForm, setShowAbrechForm] = useState(false);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [showTenantOptions, setShowTenantOptions] = useState(false);
+  const [showTenantForm, setShowTenantForm] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [monthlyPayment, setMonthlyPayment] = useState("");
   const [startDate, setStartDate] = useState("");
-  const [totalCosts, setTotalCosts] = useState("");
-  const [totalPaid, setTotalPaid] = useState("");
-  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -53,7 +54,7 @@ export default function ExportsPage() {
   useEffect(() => {
     if (!ready) return;
     loadProperties();
-    loadAbrechnungen();
+    loadTenants();
   }, [ready]);
 
   async function loadProperties() {
@@ -66,56 +67,55 @@ export default function ExportsPage() {
     }
   }
 
-  async function loadAbrechnungen() {
+  async function loadTenants() {
     try {
-      const q = query(collection(db, "wohnungsAbrechnungen"), orderBy("createdAt", "desc"));
+      const q = query(collection(db, "tenants"), orderBy("createdAt", "desc"));
       const snap = await getDocs(q);
-      const list: WohnungsAbrechnung[] = snap.docs.map((d) => ({
+      const list: Tenant[] = snap.docs.map((d) => ({
         id: d.id,
         ...(d.data() as any),
       }));
-      setAbrechnungen(list);
+      setTenants(list);
     } catch (error) {
-      console.error("Error loading abrechnungen:", error);
+      console.error("Error loading tenants:", error);
     }
   }
 
-  async function handleSaveAbrechnung() {
-    if (!selectedProperty || !startDate || !totalCosts || !user) {
-      alert("Bitte Objekt, Startdatum und Kosten ausfüllen!");
+  async function handleSaveTenant() {
+    if (!selectedProperty || !firstName.trim() || !lastName.trim() || !monthlyPayment || !startDate || !user) {
+      alert("Bitte alle Felder ausfüllen!");
       return;
     }
 
     try {
       const property = properties.find(p => p.id === selectedProperty);
       const data = {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         propertyId: selectedProperty,
         propertyName: property?.adresse || property?.address || "",
+        propertyAddress: property?.stadtplz || "",
+        monthlyPayment: parseFloat(monthlyPayment),
         startDate,
-        endDate: "",
-        totalCosts: parseFloat(totalCosts),
-        totalPaid: parseFloat(totalPaid) || 0,
-        notes,
         createdAt: serverTimestamp(),
         createdByName: user.email?.split("@")[0] || "Unbekannt",
       };
 
-      await addDoc(collection(db, "wohnungsAbrechnungen"), data);
-      alert("Abrechnung gespeichert!");
-      setShowAbrechForm(false);
+      await addDoc(collection(db, "tenants"), data);
+      setShowTenantForm(false);
+      setFirstName("");
+      setLastName("");
       setSelectedProperty("");
+      setMonthlyPayment("");
       setStartDate("");
-      setTotalCosts("");
-      setTotalPaid("");
-      setNotes("");
-      loadAbrechnungen();
+      loadTenants();
     } catch (error) {
-      console.error("Error saving abrechnung:", error);
+      console.error("Error saving tenant:", error);
       alert("Fehler beim Speichern!");
     }
   }
 
-  function generateAbrechungPDF(abrechnung: WohnungsAbrechnung) {
+  function generateTenantListPDF() {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 15;
@@ -124,11 +124,11 @@ export default function ExportsPage() {
 
     // ===== HEADER =====
     doc.setFont("Helvetica", "bold");
-    doc.setFontSize(16);
+    doc.setFontSize(18);
     doc.setTextColor(31, 41, 55);
-    doc.text("WOHNUNGSABRECHNUNG", margin, y);
+    doc.text("MIETERLISTE", margin, y);
     
-    y += 10;
+    y += 8;
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(107, 114, 128);
@@ -136,87 +136,75 @@ export default function ExportsPage() {
     doc.text(`Erstellt: ${today}`, margin, y);
 
     // ===== SEPARATOR =====
-    y += 8;
+    y += 10;
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, y, pageWidth - margin, y);
 
-    // ===== PROPERTY INFO =====
-    y += 10;
+    y += 8;
+
+    // ===== TENANT TABLE =====
     doc.setFont("Helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(9);
     doc.setTextColor(31, 41, 55);
-    doc.text("Objektinformationen", margin, y);
+
+    const tableHeaders = ["Name", "Objekt", "Adresse", "Miete/Monat", "Beginn"];
+    const colWidths = [40, 35, 40, 25, 30];
+    let currentX = margin;
+
+    // Headers
+    tableHeaders.forEach((header, i) => {
+      doc.setFillColor(243, 244, 246);
+      doc.rect(currentX, y - 4, colWidths[i], 7, "F");
+      doc.text(header, currentX + 2, y + 1, { maxWidth: colWidths[i] - 4 });
+      currentX += colWidths[i];
+    });
 
     y += 8;
     doc.setFont("Helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(8);
     doc.setTextColor(55, 65, 81);
-    
-    doc.text(`Objekt: ${abrechnung.propertyName}`, margin + 2, y);
+
+    // Rows
+    tenants.forEach((tenant, idx) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+
+      currentX = margin;
+      const rowHeight = 8;
+      const nameStr = `${tenant.firstName} ${tenant.lastName}`;
+      const rentStr = `${tenant.monthlyPayment.toFixed(2)} €`;
+      
+      const rowData = [nameStr, tenant.propertyName, tenant.propertyAddress, rentStr, tenant.startDate];
+
+      // Alternate row background
+      if (idx % 2 === 0) {
+        doc.setFillColor(249, 250, 251);
+        doc.rect(margin, y - 4, maxWidth, rowHeight, "F");
+      }
+
+      rowData.forEach((text, i) => {
+        doc.text(text, currentX + 2, y + 1, { maxWidth: colWidths[i] - 4 });
+        currentX += colWidths[i];
+      });
+
+      y += rowHeight;
+    });
+
+    // ===== SUMMARY =====
     y += 5;
-    doc.text(`Abrechnungszeitraum: ${abrechnung.startDate}${abrechnung.endDate ? ` bis ${abrechnung.endDate}` : ''}`, margin + 2, y);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, y, pageWidth - margin, y);
 
-    // ===== FINANCIAL SUMMARY =====
-    y += 12;
+    y += 8;
     doc.setFont("Helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(31, 41, 55);
-    doc.text("Finanzübersicht", margin, y);
-
-    y += 10;
-    const boxHeight = 25;
-    const boxWidth = (maxWidth - 4) / 2;
-
-    // Costs Box
-    doc.setFillColor(243, 244, 246);
-    doc.rect(margin, y, boxWidth, boxHeight, "F");
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(107, 114, 128);
-    doc.text("Gesamtkosten", margin + 3, y + 5);
-    
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(31, 41, 55);
-    doc.text(`${abrechnung.totalCosts.toFixed(2)} €`, margin + 3, y + 16);
-
-    // Paid Box
-    doc.setFillColor(240, 253, 244);
-    doc.rect(margin + boxWidth + 2, y, boxWidth, boxHeight, "F");
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(107, 114, 128);
-    doc.text("Bezahlt", margin + boxWidth + 5, y + 5);
-    
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(31, 41, 55);
-    doc.text(`${abrechnung.totalPaid.toFixed(2)} €`, margin + boxWidth + 5, y + 16);
-
-    y += boxHeight + 8;
-
-    // Difference
-    const difference = abrechnung.totalCosts - abrechnung.totalPaid;
-    doc.setFont("Helvetica", "normal");
     doc.setFontSize(10);
-    doc.setTextColor(55, 65, 81);
-    doc.text(`Differenz: ${difference.toFixed(2)} €`, margin, y);
-
-    // ===== NOTES =====
-    if (abrechnung.notes) {
-      y += 10;
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(31, 41, 55);
-      doc.text("Notizen:", margin, y);
-
-      y += 6;
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(55, 65, 81);
-      const noteLines = doc.splitTextToSize(abrechnung.notes, maxWidth);
-      doc.text(noteLines, margin, y);
-    }
+    doc.setTextColor(31, 41, 55);
+    
+    const totalRent = tenants.reduce((sum, t) => sum + t.monthlyPayment, 0);
+    doc.text(`Gesamtmiete: ${totalRent.toFixed(2)} €`, margin, y);
+    doc.text(`Mieter gesamt: ${tenants.length}`, margin, y + 8);
 
     // ===== FOOTER =====
     doc.setFont("Helvetica", "normal");
@@ -224,8 +212,31 @@ export default function ExportsPage() {
     doc.setTextColor(156, 163, 175);
     doc.text("AH Exzellent Immobilien GmbH • Heidenkampweg 46 • 20097 Hamburg", pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: "center" });
 
-    const fileName = `Abrechnung_${abrechnung.propertyName.replace(/\s+/g, '_')}_${abrechnung.startDate}.pdf`;
-    doc.save(fileName);
+    doc.save(`Mieterliste_${today}.pdf`);
+  }
+
+  function downloadTenantListCSV() {
+    const headers = ["Vorname", "Nachname", "Objekt", "Adresse", "Miete", "Beginn"];
+    const rows = tenants.map((t) => [
+      t.firstName,
+      t.lastName,
+      t.propertyName,
+      t.propertyAddress,
+      t.monthlyPayment.toFixed(2),
+      t.startDate
+    ]);
+
+    const csv = [headers.join(","), ...rows.map(row => row.map(cell => `"${cell}"`).join(","))].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Mieterliste_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   async function exportItems() {
@@ -436,28 +447,28 @@ export default function ExportsPage() {
 
       {/* Export Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Wohnungsabrechnung Export */}
+        {/* Tenants Management */}
         <div className="rounded-[28px] surface p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-              <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+              <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3.634a1 1 0 01-.952-1.405l2.694-10.131A6 6 0 0115.5 1.5h3.368a1 1 0 01.951 1.405l-2.694 10.131A6 6 0 0115 21z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white">Wohnungsabrechnung</h3>
-              <div className="text-xs muted">Hausverwaltung verwalten</div>
+              <h3 className="font-semibold text-white">Mieter</h3>
+              <div className="text-xs muted">Mieter verwalten & exportieren</div>
             </div>
           </div>
 
           <button
-            onClick={() => setShowAbrechForm(!showAbrechForm)}
-            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-cyan-500 text-white hover:bg-cyan-600 transition flex items-center justify-center gap-2"
+            onClick={() => tenants.length > 0 ? setShowTenantOptions(true) : setShowTenantForm(true)}
+            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-purple-500 text-white hover:bg-purple-600 transition flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Neue Abrechnung
+            Mieter verwalten
           </button>
         </div>
         <div className="rounded-[28px] surface p-6">
@@ -622,14 +633,14 @@ export default function ExportsPage() {
         </div>
       </div>
 
-      {/* Abrechnung Form Modal */}
-      {showAbrechForm && (
+      {/* Tenant Form Modal */}
+      {showTenantForm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="rounded-[28px] surface p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold">Neue Abrechnung</h2>
+              <h2 className="text-2xl font-semibold">Neuer Mieter</h2>
               <button
-                onClick={() => setShowAbrechForm(false)}
+                onClick={() => setShowTenantForm(false)}
                 className="text-2xl opacity-60 hover:opacity-100"
               >
                 ✕
@@ -637,6 +648,30 @@ export default function ExportsPage() {
             </div>
 
             <div className="space-y-4">
+              {/* First Name */}
+              <div>
+                <label className="text-xs muted font-medium">Vorname *</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="z.B. Max"
+                  className="input mt-2 rounded-lg w-full"
+                />
+              </div>
+
+              {/* Last Name */}
+              <div>
+                <label className="text-xs muted font-medium">Nachname *</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="z.B. Mustermann"
+                  className="input mt-2 rounded-lg w-full"
+                />
+              </div>
+
               {/* Property Selection */}
               <div>
                 <label className="text-xs muted font-medium">Objekt auswählen *</label>
@@ -654,9 +689,22 @@ export default function ExportsPage() {
                 </select>
               </div>
 
+              {/* Monthly Payment */}
+              <div>
+                <label className="text-xs muted font-medium">Monatliche Miete (EUR) *</label>
+                <input
+                  type="number"
+                  value={monthlyPayment}
+                  onChange={(e) => setMonthlyPayment(e.target.value)}
+                  placeholder="0.00"
+                  step="0.01"
+                  className="input mt-2 rounded-lg w-full"
+                />
+              </div>
+
               {/* Start Date */}
               <div>
-                <label className="text-xs muted font-medium">Abrechnungsdatum von *</label>
+                <label className="text-xs muted font-medium">Mietbeginn *</label>
                 <input
                   type="date"
                   value={startDate}
@@ -665,53 +713,16 @@ export default function ExportsPage() {
                 />
               </div>
 
-              {/* Total Costs */}
-              <div>
-                <label className="text-xs muted font-medium">Gesamtkosten (EUR) *</label>
-                <input
-                  type="number"
-                  value={totalCosts}
-                  onChange={(e) => setTotalCosts(e.target.value)}
-                  placeholder="0.00"
-                  step="0.01"
-                  className="input mt-2 rounded-lg w-full"
-                />
-              </div>
-
-              {/* Total Paid */}
-              <div>
-                <label className="text-xs muted font-medium">Bezahlt (EUR)</label>
-                <input
-                  type="number"
-                  value={totalPaid}
-                  onChange={(e) => setTotalPaid(e.target.value)}
-                  placeholder="0.00"
-                  step="0.01"
-                  className="input mt-2 rounded-lg w-full"
-                />
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="text-xs muted font-medium">Notizen</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Zusätzliche Informationen..."
-                  className="input mt-2 rounded-lg w-full h-20"
-                />
-              </div>
-
               {/* Buttons */}
               <div className="flex gap-3 pt-4 border-t border-white/10">
                 <button
-                  onClick={handleSaveAbrechnung}
-                  className="flex-1 rounded-lg bg-cyan-600 hover:bg-cyan-700 px-4 py-3 text-sm font-semibold text-white transition"
+                  onClick={handleSaveTenant}
+                  className="flex-1 rounded-lg bg-purple-600 hover:bg-purple-700 px-4 py-3 text-sm font-semibold text-white transition"
                 >
                   💾 Speichern
                 </button>
                 <button
-                  onClick={() => setShowAbrechForm(false)}
+                  onClick={() => setShowTenantForm(false)}
                   className="rounded-lg surface-2 px-6 py-3 text-sm muted hover:bg-white/5 transition"
                 >
                   Abbrechen
@@ -722,31 +733,69 @@ export default function ExportsPage() {
         </div>
       )}
 
-      {/* Abrechnungen List */}
-      {abrechnungen.length > 0 && (
-        <div className="rounded-[28px] surface p-6">
-          <h2 className="text-xl font-semibold mb-4">Abrechnungen</h2>
-          <div className="space-y-2">
-            {abrechnungen.map((abr) => (
-              <div key={abr.id} className="flex items-center justify-between p-4 rounded-xl surface-2 hover:bg-white/5 transition">
-                <div className="flex-1">
-                  <div className="font-semibold text-white">{abr.propertyName}</div>
-                  <div className="text-xs muted mt-1">{abr.startDate}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right mr-4">
-                    <div className="text-sm font-semibold">{abr.totalCosts.toFixed(2)} €</div>
-                    <div className="text-xs muted">{abr.totalPaid.toFixed(2)} € bezahlt</div>
-                  </div>
-                  <button
-                    onClick={() => generateAbrechungPDF(abr)}
-                    className="px-3 py-2 rounded-lg bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition text-xs font-semibold"
-                  >
-                    📄 PDF
-                  </button>
-                </div>
-              </div>
-            ))}
+      {/* Tenant Options Modal */}
+      {showTenantOptions && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="rounded-[28px] surface p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold">Mieter verwalten</h2>
+              <button
+                onClick={() => setShowTenantOptions(false)}
+                className="text-2xl opacity-60 hover:opacity-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-sm muted mb-6">Was möchten Sie tun?</p>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setShowTenantOptions(false);
+                  setShowTenantForm(true);
+                }}
+                className="w-full rounded-lg bg-purple-600 hover:bg-purple-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Neuer Mieter
+              </button>
+
+              <button
+                onClick={() => {
+                  generateTenantListPDF();
+                  setShowTenantOptions(false);
+                }}
+                className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                PDF drucken
+              </button>
+
+              <button
+                onClick={() => {
+                  downloadTenantListCSV();
+                  setShowTenantOptions(false);
+                }}
+                className="w-full rounded-lg bg-green-600 hover:bg-green-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                CSV herunterladen
+              </button>
+
+              <button
+                onClick={() => setShowTenantOptions(false)}
+                className="w-full rounded-lg surface-2 px-4 py-3 text-sm font-semibold muted hover:bg-white/5 transition"
+              >
+                Abbrechen
+              </button>
+            </div>
           </div>
         </div>
       )}
