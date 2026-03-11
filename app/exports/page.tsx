@@ -885,22 +885,22 @@ export default function ExportsPage() {
                 <div className="text-sm muted">Keine Mieter gefunden.</div>
               ) : (
                 tenants.map((tenant) => (
-                  <div key={tenant.id} className="rounded-xl border border-white/10 p-4 flex items-center justify-between gap-4">
+                  <div key={tenant.id} className="tenant-manage-row rounded-xl border border-white/10 p-4 flex items-center justify-between gap-4">
                     <div>
-                      <div className="font-semibold text-white">{tenant.firstName} {tenant.lastName}</div>
-                      <div className="text-xs muted mt-1">{tenant.propertyName} • {tenant.monthlyPayment?.toFixed(2)} €</div>
+                      <div className="tenant-manage-name font-semibold text-white">{tenant.firstName} {tenant.lastName}</div>
+                      <div className="tenant-manage-subtext text-xs muted mt-1">{tenant.propertyName} • {tenant.monthlyPayment?.toFixed(2)} €</div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleEditTenant(tenant)}
-                        className="rounded-lg bg-blue-600 hover:bg-blue-700 px-3 py-2 text-xs font-bold text-white transition"
+                        className="tenant-manage-btn tenant-manage-btn-edit rounded-lg bg-blue-600 hover:bg-blue-700 px-3 py-2 text-xs font-bold text-white transition"
                       >
                         Bearbeiten
                       </button>
                       <button
                         onClick={() => handleDeleteTenant(tenant.id)}
-                        className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-2 text-xs font-bold text-white transition"
+                        className="tenant-manage-btn tenant-manage-btn-delete rounded-lg bg-red-600 hover:bg-red-700 px-3 py-2 text-xs font-bold text-white transition"
                       >
                         Löschen
                       </button>
