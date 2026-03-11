@@ -138,6 +138,13 @@ service cloud.firestore {
       allow update, delete: if isMitarbeiter();
     }
 
+    // wohnungsAbrechnungen (Property accounting/billing)
+    match /wohnungsAbrechnungen/{abrechnungId} {
+      allow read: if signedIn();
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
+    }
+
     // ============ SUPPORT & COMMUNICATION ============
     
     // Support Tickets
