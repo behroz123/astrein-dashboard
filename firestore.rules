@@ -12,6 +12,12 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "admin";
     }
 
+    function isMitarbeiter() {
+      return signedIn()
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "mitarbeiter"
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "admin");
+    }
+
     function isOwner(fieldName) {
       return signedIn() && resource.data[fieldName] == request.auth.uid;
     }
@@ -82,53 +88,54 @@ service cloud.firestore {
 
     // ============ REAL ESTATE / IMMOBILIEN ============
     
-    // properties (Wohnungen/Objekte)
+    // properties (Wohnungen/Objekte) - Mitarbeiter können alles verwalten
     match /properties/{propertyId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin();
+      allow create: if isMitarbeiter();
+      allow update: if isMitarbeiter();
+      allow delete: if isMitarbeiter();
     }
 
     // moveouts (Auszüge)
     match /moveouts/{moveoutId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin();
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
     }
 
     // auszuege (Auszüge - alternative collection)
     match /auszuege/{auszugId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin();
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
     }
 
     // moveins (Einzüge)
     match /moveins/{moveinId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin();
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
     }
 
     // electricity contracts
     match /electricityContracts/{contractId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin() || isOwner("createdByUid");
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
     }
 
     // water contracts
     match /waterContracts/{contractId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin() || isOwner("createdByUid");
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
     }
 
     // gas contracts
     match /gasContracts/{contractId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin() || isOwner("createdByUid");
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
     }
 
     // ============ SUPPORT & COMMUNICATION ============
@@ -148,8 +155,8 @@ service cloud.firestore {
     // key protocols (Schlüsselübergabe/Rückgabe)
     match /keyProtocols/{protocolId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update, delete: if isAdmin();
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
     }
 
     // ============ FUHRPARK / FLEET MANAGEMENT ============
