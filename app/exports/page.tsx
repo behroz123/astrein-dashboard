@@ -116,103 +116,115 @@ export default function ExportsPage() {
   }
 
   function generateTenantListPDF() {
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const doc = new jsPDF({ format: 'a4', unit: 'mm' });
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     let y = 15;
     const margin = 20;
-    const maxWidth = pageWidth - 2 * margin;
-
-    // ===== HEADER =====
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(31, 41, 55);
-    doc.text("MIETERLISTE", margin, y);
     
-    y += 8;
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(107, 114, 128);
-    const today = new Date().toLocaleDateString("de-DE");
-    doc.text(`Erstellt: ${today}`, margin, y);
-
-    // ===== SEPARATOR =====
-    y += 10;
+    const primaryColor: [number, number, number] = [25, 103, 210];
+    const secondaryColor: [number, number, number] = [50, 50, 50];
+    const lightGray: [number, number, number] = [240, 240, 240];
+    
+    // Company name header
+    doc.setFontSize(16);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('AH Exzellent Immobilien GmbH', margin, y);
+    
+    // Title
+    doc.setFontSize(20);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MIETERLISTE', margin, y + 13);
+    
+    // Current date
+    const now = new Date();
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Erstellt: ${now.toLocaleDateString('de-DE')}`, pageWidth - margin - 40, y + 8);
+    
+    y += 30;
+    
+    // Separator line
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, y, pageWidth - margin, y);
-
+    
     y += 8;
-
-    // ===== TENANT TABLE =====
-    doc.setFont("Helvetica", "bold");
+    
+    // Table headers
+    const headers = ['Name', 'Objekt', 'Adresse', 'Miete/Monat', 'Beginn'];
+    const colWidths = [40, 30, 35, 28, 28];
+    
+    // Header background
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(margin, y - 5, pageWidth - 2 * margin, 7, 'F');
+    
+    // Header text
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.setTextColor(31, 41, 55);
-
-    const tableHeaders = ["Name", "Objekt", "Adresse", "Miete/Monat", "Beginn"];
-    const colWidths = [40, 35, 40, 25, 30];
-    let currentX = margin;
-
-    // Headers
-    tableHeaders.forEach((header, i) => {
-      doc.setFillColor(243, 244, 246);
-      doc.rect(currentX, y - 4, colWidths[i], 7, "F");
-      doc.text(header, currentX + 2, y + 1, { maxWidth: colWidths[i] - 4 });
-      currentX += colWidths[i];
+    doc.setTextColor(255, 255, 255);
+    
+    let xPos = margin;
+    headers.forEach((header, idx) => {
+      doc.text(header, xPos + 2, y);
+      xPos += colWidths[idx];
     });
-
-    y += 8;
-    doc.setFont("Helvetica", "normal");
+    
+    y += 10;
+    
+    // Table rows
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.setTextColor(55, 65, 81);
-
-    // Rows
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    
     tenants.forEach((tenant, idx) => {
       if (y > 250) {
         doc.addPage();
-        y = 20;
+        y = margin;
       }
-
-      currentX = margin;
-      const rowHeight = 8;
-      const nameStr = `${tenant.firstName} ${tenant.lastName}`;
-      const rentStr = `${tenant.monthlyPayment.toFixed(2)} €`;
       
-      const rowData = [nameStr, tenant.propertyName, tenant.propertyAddress, rentStr, tenant.startDate];
-
       // Alternate row background
       if (idx % 2 === 0) {
-        doc.setFillColor(249, 250, 251);
-        doc.rect(margin, y - 4, maxWidth, rowHeight, "F");
+        doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+        doc.rect(margin, y - 3, pageWidth - 2 * margin, 6, 'F');
       }
-
+      
+      xPos = margin;
+      const nameStr = `${tenant.firstName} ${tenant.lastName}`;
+      const rentStr = `${tenant.monthlyPayment.toFixed(2)} €`;
+      const rowData = [nameStr, tenant.propertyName, tenant.propertyAddress, rentStr, tenant.startDate];
+      
       rowData.forEach((text, i) => {
-        doc.text(text, currentX + 2, y + 1, { maxWidth: colWidths[i] - 4 });
-        currentX += colWidths[i];
+        doc.text(text, xPos + 2, y + 1, { maxWidth: colWidths[i] - 4 });
+        xPos += colWidths[i];
       });
-
-      y += rowHeight;
+      
+      y += 6;
     });
-
-    // ===== SUMMARY =====
+    
+    // Summary section
     y += 5;
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, y, pageWidth - margin, y);
-
+    
     y += 8;
-    doc.setFont("Helvetica", "bold");
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(31, 41, 55);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     
     const totalRent = tenants.reduce((sum, t) => sum + t.monthlyPayment, 0);
     doc.text(`Gesamtmiete: ${totalRent.toFixed(2)} €`, margin, y);
-    doc.text(`Mieter gesamt: ${tenants.length}`, margin, y + 8);
-
-    // ===== FOOTER =====
-    doc.setFont("Helvetica", "normal");
+    doc.text(`Mieter: ${tenants.length}`, margin, y + 7);
+    
+    // Footer
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.setTextColor(156, 163, 175);
-    doc.text("AH Exzellent Immobilien GmbH • Heidenkampweg 46 • 20097 Hamburg", pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: "center" });
-
-    doc.save(`Mieterliste_${today}.pdf`);
+    doc.setTextColor(150, 150, 150);
+    doc.text('AH Exzellent Immobilien GmbH • Heidenkampweg 46 • 20097 Hamburg', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    
+    const fileName = `Mieterliste_${now.toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
   }
 
   function downloadTenantListCSV() {
@@ -463,7 +475,7 @@ export default function ExportsPage() {
 
           <button
             onClick={() => tenants.length > 0 ? setShowTenantOptions(true) : setShowTenantForm(true)}
-            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-purple-500 text-white hover:bg-purple-600 transition flex items-center justify-center gap-2"
+            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -717,13 +729,13 @@ export default function ExportsPage() {
               <div className="flex gap-3 pt-4 border-t border-white/10">
                 <button
                   onClick={handleSaveTenant}
-                  className="flex-1 rounded-lg bg-purple-600 hover:bg-purple-700 px-4 py-3 text-sm font-semibold text-white transition"
+                  className="flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition shadow-lg"
                 >
                   💾 Speichern
                 </button>
                 <button
                   onClick={() => setShowTenantForm(false)}
-                  className="rounded-lg surface-2 px-6 py-3 text-sm muted hover:bg-white/5 transition"
+                  className="rounded-lg surface-2 px-6 py-3 text-sm muted hover:bg-white/5 transition border border-white/20"
                 >
                   Abbrechen
                 </button>
@@ -755,7 +767,7 @@ export default function ExportsPage() {
                   setShowTenantOptions(false);
                   setShowTenantForm(true);
                 }}
-                className="w-full rounded-lg bg-purple-600 hover:bg-purple-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+                className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -768,7 +780,7 @@ export default function ExportsPage() {
                   generateTenantListPDF();
                   setShowTenantOptions(false);
                 }}
-                className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+                className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -781,7 +793,7 @@ export default function ExportsPage() {
                   downloadTenantListCSV();
                   setShowTenantOptions(false);
                 }}
-                className="w-full rounded-lg bg-green-600 hover:bg-green-700 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+                className="w-full rounded-lg bg-slate-700 hover:bg-slate-800 px-4 py-3 text-sm font-semibold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
