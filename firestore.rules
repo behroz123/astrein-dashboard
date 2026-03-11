@@ -145,6 +145,13 @@ service cloud.firestore {
       allow update, delete: if isMitarbeiter();
     }
 
+    // tenants (Mieter / Tenant Management)
+    match /tenants/{tenantId} {
+      allow read: if signedIn();
+      allow create: if isMitarbeiter();
+      allow update, delete: if isMitarbeiter();
+    }
+
     // ============ SUPPORT & COMMUNICATION ============
     
     // Support Tickets
