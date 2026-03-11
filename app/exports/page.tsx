@@ -506,14 +506,14 @@ export default function ExportsPage() {
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white">Mieter</h3>
-              <div className="text-xs muted">Mieter verwalten & exportieren</div>
+              <h3 className="font-semibold text-white exports-card-title">Mieter</h3>
+              <div className="text-xs muted exports-card-desc">Mieter verwalten & exportieren</div>
             </div>
           </div>
 
           <button
             onClick={() => tenants.length > 0 ? setShowTenantOptions(true) : setShowTenantForm(true)}
-            className="w-full rounded-2xl px-4 py-3 text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition flex items-center justify-center gap-2 shadow-md"
+            className="exports-action-btn exports-action-blue w-full rounded-2xl px-4 py-3 text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition flex items-center justify-center gap-2 shadow-md"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -529,15 +529,15 @@ export default function ExportsPage() {
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white">{t("exports.items.title")}</h3>
-              <div className="text-xs muted">{t("exports.items.desc")}</div>
+              <h3 className="font-semibold text-white exports-card-title">{t("exports.items.title")}</h3>
+              <div className="text-xs muted exports-card-desc">{t("exports.items.desc")}</div>
             </div>
           </div>
 
           <button
             onClick={exportItems}
             disabled={exporting !== null}
-            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-blue-500 text-white hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="exports-action-btn exports-action-blue w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-blue-500 text-white hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {exporting === "items" ? (
               <>
@@ -567,15 +567,15 @@ export default function ExportsPage() {
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white">{t("exports.wareneingang.title")}</h3>
-              <div className="text-xs muted">{t("exports.wareneingang.desc")}</div>
+              <h3 className="font-semibold text-white exports-card-title">{t("exports.wareneingang.title")}</h3>
+              <div className="text-xs muted exports-card-desc">{t("exports.wareneingang.desc")}</div>
             </div>
           </div>
 
           <button
             onClick={exportWareneingang}
             disabled={exporting !== null}
-            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-green-500 text-white hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="exports-action-btn exports-action-green w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-green-500 text-white hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {exporting === "wareneingang" ? (
               <>
@@ -605,15 +605,15 @@ export default function ExportsPage() {
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white">{t("exports.warenausgang.title")}</h3>
-              <div className="text-xs muted">{t("exports.warenausgang.desc")}</div>
+              <h3 className="font-semibold text-white exports-card-title">{t("exports.warenausgang.title")}</h3>
+              <div className="text-xs muted exports-card-desc">{t("exports.warenausgang.desc")}</div>
             </div>
           </div>
 
           <button
             onClick={exportWarenausgang}
             disabled={exporting !== null}
-            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="exports-action-btn exports-action-red w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {exporting === "warenausgang" ? (
               <>
@@ -641,15 +641,15 @@ export default function ExportsPage() {
               <span className="text-2xl">🚗</span>
             </div>
             <div>
-              <h3 className="font-semibold text-white">Fuhrpark</h3>
-              <div className="text-xs muted">Alle Fahrzeuge exportieren</div>
+              <h3 className="font-semibold text-white exports-card-title">Fuhrpark</h3>
+              <div className="text-xs muted exports-card-desc">Alle Fahrzeuge exportieren</div>
             </div>
           </div>
 
           <button
             onClick={exportFuhrpark}
             disabled={exporting !== null}
-            className="w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-purple-500 text-white hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="exports-action-btn exports-action-purple w-full rounded-2xl px-4 py-3 text-sm font-semibold bg-purple-500 text-white hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {exporting === "fuhrpark" ? (
               <>

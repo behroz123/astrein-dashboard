@@ -79,6 +79,28 @@ html[data-theme="light"] .tenant-option-purple {
 html[data-theme="light"] .tenant-option-green {
   background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
 }
+html[data-theme="light"] .exports-card-title {
+  color: #0f172a !important;
+}
+html[data-theme="light"] .exports-card-desc {
+  color: #334155 !important;
+}
+html[data-theme="light"] .exports-action-btn {
+  color: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+}
+html[data-theme="light"] .exports-action-blue {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+}
+html[data-theme="light"] .exports-action-green {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+}
+html[data-theme="light"] .exports-action-red {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+}
+html[data-theme="light"] .exports-action-purple {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+}
 html[data-theme="light"] .input {
   background: #f3f4f6 !important;
   color: #23272f !important;
