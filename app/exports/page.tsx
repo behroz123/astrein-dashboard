@@ -808,7 +808,7 @@ export default function ExportsPage() {
                   setShowTenantOptions(false);
                   setShowTenantForm(true);
                 }}
-                className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
+                className="tenant-option-btn tenant-option-blue w-full rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -821,7 +821,7 @@ export default function ExportsPage() {
                   setShowTenantOptions(false);
                   setShowTenantManageModal(true);
                 }}
-                className="w-full rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
+                className="tenant-option-btn tenant-option-amber w-full rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5h2m-1-1v2m-5 6h10m-9 7h8a2 2 0 002-2V7a2 2 0 00-2-2H8a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -834,7 +834,7 @@ export default function ExportsPage() {
                   generateTenantListPDF();
                   setShowTenantOptions(false);
                 }}
-                className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
+                className="tenant-option-btn tenant-option-purple w-full rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -847,7 +847,7 @@ export default function ExportsPage() {
                   downloadTenantListCSV();
                   setShowTenantOptions(false);
                 }}
-                className="w-full rounded-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
+                className="tenant-option-btn tenant-option-green w-full rounded-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
