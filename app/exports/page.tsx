@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, orderBy, Timestamp, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, Timestamp, addDoc, serverTimestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 import { usePrefs } from "../../lib/prefs";
 import jsPDF from "jspdf";
@@ -32,6 +32,8 @@ export default function ExportsPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [showTenantOptions, setShowTenantOptions] = useState(false);
   const [showTenantForm, setShowTenantForm] = useState(false);
+  const [showTenantManageModal, setShowTenantManageModal] = useState(false);
+  const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -97,11 +99,22 @@ export default function ExportsPage() {
         propertyAddress: property?.stadtplz || "",
         monthlyPayment: parseFloat(monthlyPayment),
         startDate,
-        createdAt: serverTimestamp(),
-        createdByName: user.email?.split("@")[0] || "Unbekannt",
       };
 
-      await addDoc(collection(db, "tenants"), data);
+      if (editingTenantId) {
+        await updateDoc(doc(db, "tenants", editingTenantId), {
+          ...data,
+          updatedAt: serverTimestamp(),
+        });
+      } else {
+        await addDoc(collection(db, "tenants"), {
+          ...data,
+          createdAt: serverTimestamp(),
+          createdByName: user.email?.split("@")[0] || "Unbekannt",
+        });
+      }
+
+      setEditingTenantId(null);
       setShowTenantForm(false);
       setFirstName("");
       setLastName("");
@@ -112,6 +125,31 @@ export default function ExportsPage() {
     } catch (error) {
       console.error("Error saving tenant:", error);
       alert("Fehler beim Speichern!");
+    }
+  }
+
+  function handleEditTenant(tenant: Tenant) {
+    setEditingTenantId(tenant.id);
+    setSelectedProperty(tenant.propertyId || "");
+    setFirstName(tenant.firstName || "");
+    setLastName(tenant.lastName || "");
+    setMonthlyPayment(String(tenant.monthlyPayment ?? ""));
+    setStartDate(tenant.startDate || "");
+    setShowTenantManageModal(false);
+    setShowTenantOptions(false);
+    setShowTenantForm(true);
+  }
+
+  async function handleDeleteTenant(tenantId: string) {
+    const confirmed = window.confirm("Diesen Mieter wirklich löschen?");
+    if (!confirmed) return;
+
+    try {
+      await deleteDoc(doc(db, "tenants", tenantId));
+      setTenants((prev) => prev.filter((t) => t.id !== tenantId));
+    } catch (error) {
+      console.error("Error deleting tenant:", error);
+      alert("Fehler beim Löschen!");
     }
   }
 
@@ -650,7 +688,7 @@ export default function ExportsPage() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="rounded-[28px] surface p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold">Neuer Mieter</h2>
+              <h2 className="text-2xl font-semibold">{editingTenantId ? "Mieter bearbeiten" : "Neuer Mieter"}</h2>
               <button
                 onClick={() => setShowTenantForm(false)}
                 className="text-2xl opacity-60 hover:opacity-100"
@@ -731,10 +769,13 @@ export default function ExportsPage() {
                   onClick={handleSaveTenant}
                   className="flex-1 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-4 py-3 text-sm font-bold text-white transition shadow-lg"
                 >
-                  💾 Speichern
+                  {editingTenantId ? "💾 Änderungen speichern" : "💾 Speichern"}
                 </button>
                 <button
-                  onClick={() => setShowTenantForm(false)}
+                  onClick={() => {
+                    setEditingTenantId(null);
+                    setShowTenantForm(false);
+                  }}
                   className="rounded-lg surface-2 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-white/10 transition border border-gray-300"
                 >
                   Abbrechen
@@ -777,6 +818,19 @@ export default function ExportsPage() {
 
               <button
                 onClick={() => {
+                  setShowTenantOptions(false);
+                  setShowTenantManageModal(true);
+                }}
+                className="w-full rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5h2m-1-1v2m-5 6h10m-9 7h8a2 2 0 002-2V7a2 2 0 00-2-2H8a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Mieter bearbeiten / löschen
+              </button>
+
+              <button
+                onClick={() => {
                   generateTenantListPDF();
                   setShowTenantOptions(false);
                 }}
@@ -807,6 +861,53 @@ export default function ExportsPage() {
               >
                 Abbrechen
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tenant Manage Modal */}
+      {showTenantManageModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="rounded-[28px] surface p-6 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold">Mieter bearbeiten oder löschen</h2>
+              <button
+                onClick={() => setShowTenantManageModal(false)}
+                className="text-2xl opacity-60 hover:opacity-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {tenants.length === 0 ? (
+                <div className="text-sm muted">Keine Mieter gefunden.</div>
+              ) : (
+                tenants.map((tenant) => (
+                  <div key={tenant.id} className="rounded-xl border border-white/10 p-4 flex items-center justify-between gap-4">
+                    <div>
+                      <div className="font-semibold text-white">{tenant.firstName} {tenant.lastName}</div>
+                      <div className="text-xs muted mt-1">{tenant.propertyName} • {tenant.monthlyPayment?.toFixed(2)} €</div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEditTenant(tenant)}
+                        className="rounded-lg bg-blue-600 hover:bg-blue-700 px-3 py-2 text-xs font-bold text-white transition"
+                      >
+                        Bearbeiten
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTenant(tenant.id)}
+                        className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-2 text-xs font-bold text-white transition"
+                      >
+                        Löschen
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
