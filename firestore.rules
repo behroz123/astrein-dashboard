@@ -9,18 +9,25 @@ service cloud.firestore {
 
     function isAdmin() {
       return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "admin";
+    }
+
+    function userRole() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter")
+        : "mitarbeiter";
     }
 
     function isMitarbeiter() {
       return signedIn()
         && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "mitarbeiter"
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "Mitarbeiter"
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "employee"
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "Employee"
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "staff"
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("role", "mitarbeiter") == "admin"
+          userRole() == "mitarbeiter"
+          || userRole() == "Mitarbeiter"
+          || userRole() == "employee"
+          || userRole() == "Employee"
+          || userRole() == "staff"
+          || userRole() == "admin"
         );
     }
 
