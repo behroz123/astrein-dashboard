@@ -20,7 +20,30 @@ type Tenant = {
   startDate: string;
   createdAt: any;
   createdByName: string;
+  paidMonths?: string[];
 };
+
+function getCurrentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function formatMonthLabel(month: string): string {
+  const [year, monthNumber] = month.split("-");
+  const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  const index = parseInt(monthNumber, 10) - 1;
+  return `${monthNames[index] || monthNumber} ${year}`;
+}
+
+function getMonthOptions(): string[] {
+  const now = new Date();
+  const options: string[] = [];
+  for (let offset = -12; offset <= 6; offset += 1) {
+    const date = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    options.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+  }
+  return options;
+}
 
 export default function ExportsPage() {
   const router = useRouter();
@@ -33,12 +56,17 @@ export default function ExportsPage() {
   const [showTenantOptions, setShowTenantOptions] = useState(false);
   const [showTenantForm, setShowTenantForm] = useState(false);
   const [showTenantManageModal, setShowTenantManageModal] = useState(false);
+  const [showTenantPaymentsModal, setShowTenantPaymentsModal] = useState(false);
+  const [showPrintMonthModal, setShowPrintMonthModal] = useState(false);
   const [editingTenantId, setEditingTenantId] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [monthlyPayment, setMonthlyPayment] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [paymentMonth, setPaymentMonth] = useState(getCurrentMonth());
+  const [selectedPrintMonth, setSelectedPrintMonth] = useState(getCurrentMonth());
+  const [tenantPaymentMap, setTenantPaymentMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -153,7 +181,55 @@ export default function ExportsPage() {
     }
   }
 
-  function generateTenantListPDF() {
+  useEffect(() => {
+    setTenantPaymentMap(tenants.reduce((acc, tenant) => {
+      acc[tenant.id] = tenant.paidMonths?.includes(paymentMonth) ?? false;
+      return acc;
+    }, {} as Record<string, boolean>));
+  }, [tenants, paymentMonth]);
+
+  function handleToggleTenantPayment(tenantId: string) {
+    setTenantPaymentMap((prev) => ({
+      ...prev,
+      [tenantId]: !prev[tenantId],
+    }));
+  }
+
+  async function handleSaveTenantPayments() {
+    if (!paymentMonth) {
+      alert("Bitte einen Monat auswählen.");
+      return;
+    }
+
+    try {
+      const updatedTenants = await Promise.all(tenants.map(async (tenant) => {
+        const paid = tenantPaymentMap[tenant.id];
+        const currentPaidMonths = tenant.paidMonths ? [...tenant.paidMonths] : [];
+        const hasMonth = currentPaidMonths.includes(paymentMonth);
+        let nextPaidMonths = currentPaidMonths;
+
+        if (paid && !hasMonth) {
+          nextPaidMonths = [...currentPaidMonths, paymentMonth];
+        } else if (!paid && hasMonth) {
+          nextPaidMonths = currentPaidMonths.filter((m) => m !== paymentMonth);
+        }
+
+        if (JSON.stringify(nextPaidMonths) !== JSON.stringify(currentPaidMonths)) {
+          await updateDoc(doc(db, "tenants", tenant.id), { paidMonths: nextPaidMonths });
+        }
+
+        return { ...tenant, paidMonths: nextPaidMonths };
+      }));
+
+      setTenants(updatedTenants);
+      setShowTenantPaymentsModal(false);
+    } catch (error) {
+      console.error("Error saving tenant payment state:", error);
+      alert("Fehler beim Speichern der Zahlungdaten!");
+    }
+  }
+
+  function generateTenantListPDF(month: string) {
     const doc = new jsPDF({ format: 'a4', unit: 'mm' });
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -175,6 +251,8 @@ export default function ExportsPage() {
     doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setFont('helvetica', 'bold');
     doc.text('MIETERLISTE', margin, y + 13);
+    doc.setFontSize(11);
+    doc.text(`Monat: ${formatMonthLabel(month)}`, margin, y + 23);
     
     // Current date
     const now = new Date();
@@ -182,7 +260,7 @@ export default function ExportsPage() {
     doc.setTextColor(150, 150, 150);
     doc.text(`Erstellt: ${now.toLocaleDateString('de-DE')}`, pageWidth - margin - 40, y + 8);
     
-    y += 30;
+    y += 34;
     
     // Separator line
     doc.setDrawColor(200, 200, 200);
@@ -191,8 +269,8 @@ export default function ExportsPage() {
     y += 8;
     
     // Table headers
-    const headers = ['Name', 'Objekt', 'Adresse', 'Miete/Monat', 'Beginn'];
-    const colWidths = [40, 30, 35, 28, 28];
+    const headers = ['Name', 'Objekt', 'Adresse', 'Miete/Monat', 'Beginn', 'Status'];
+    const colWidths = [36, 26, 40, 24, 24, 20];
     
     // Header background
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -231,7 +309,8 @@ export default function ExportsPage() {
       xPos = margin;
       const nameStr = `${tenant.firstName} ${tenant.lastName}`;
       const rentStr = `${tenant.monthlyPayment.toFixed(2)} €`;
-      const rowData = [nameStr, tenant.propertyName, tenant.propertyAddress, rentStr, tenant.startDate];
+      const paidStatus = tenant.paidMonths?.includes(month) ? 'Bezahlt' : 'Offen';
+      const rowData = [nameStr, tenant.propertyName, tenant.propertyAddress, rentStr, tenant.startDate, paidStatus];
       
       rowData.forEach((text, i) => {
         doc.text(text, xPos + 2, y + 1, { maxWidth: colWidths[i] - 4 });
@@ -252,8 +331,10 @@ export default function ExportsPage() {
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     
     const totalRent = tenants.reduce((sum, t) => sum + t.monthlyPayment, 0);
+    const paidCount = tenants.filter((tenant) => tenant.paidMonths?.includes(month)).length;
     doc.text(`Gesamtmiete: ${totalRent.toFixed(2)} €`, margin, y);
     doc.text(`Mieter: ${tenants.length}`, margin, y + 7);
+    doc.text(`Bezahlt: ${paidCount}`, margin, y + 14);
     
     // Footer
     doc.setFont('helvetica', 'normal');
@@ -261,20 +342,27 @@ export default function ExportsPage() {
     doc.setTextColor(150, 150, 150);
     doc.text('AH Exzellent Immobilien GmbH • Heidenkampweg 46 • 20097 Hamburg', pageWidth / 2, pageHeight - 10, { align: 'center' });
     
-    const fileName = `Mieterliste_${now.toISOString().split('T')[0]}.pdf`;
+    const fileName = `Mieterliste_${month}.pdf`;
     doc.save(fileName);
   }
 
-  function downloadTenantListCSV() {
-    const headers = ["Vorname", "Nachname", "Objekt", "Adresse", "Miete", "Beginn"];
-    const rows = tenants.map((t) => [
-      t.firstName,
-      t.lastName,
-      t.propertyName,
-      t.propertyAddress,
-      t.monthlyPayment.toFixed(2),
-      t.startDate
-    ]);
+  function downloadTenantListCSV(month?: string) {
+    const baseHeaders = ["Vorname", "Nachname", "Objekt", "Adresse", "Miete", "Beginn"];
+    const headers = month ? [...baseHeaders, "Monat", "Bezahlt"] : baseHeaders;
+    const rows = tenants.map((t) => {
+      const row = [
+        t.firstName,
+        t.lastName,
+        t.propertyName,
+        t.propertyAddress,
+        t.monthlyPayment.toFixed(2),
+        t.startDate
+      ];
+      if (month) {
+        row.push(formatMonthLabel(month), t.paidMonths?.includes(month) ? "Ja" : "Nein");
+      }
+      return row;
+    });
 
     const csv = [headers.join(","), ...rows.map(row => row.map(cell => `"${cell}"`).join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -282,7 +370,7 @@ export default function ExportsPage() {
     const url = URL.createObjectURL(blob);
     
     link.setAttribute("href", url);
-    link.setAttribute("download", `Mieterliste_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `Mieterliste_${month || new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -800,7 +888,21 @@ export default function ExportsPage() {
               </button>
             </div>
 
-            <p className="text-sm muted mb-6">Was möchten Sie tun?</p>
+            <p className="text-sm muted mb-4">Was möchten Sie tun?</p>
+            <div className="mb-4">
+              <label className="text-xs muted font-medium">Monat für Zahlung / Export</label>
+              <select
+                value={paymentMonth}
+                onChange={(e) => setPaymentMonth(e.target.value)}
+                className="input mt-2 rounded-lg w-full"
+              >
+                {getMonthOptions().map((month) => (
+                  <option key={month} value={month}>
+                    {formatMonthLabel(month)}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="space-y-3">
               <button
@@ -831,8 +933,22 @@ export default function ExportsPage() {
 
               <button
                 onClick={() => {
-                  generateTenantListPDF();
                   setShowTenantOptions(false);
+                  setShowTenantPaymentsModal(true);
+                }}
+                className="tenant-option-btn tenant-option-teal w-full rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M5 12h14" />
+                </svg>
+                Zahlung markieren
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowTenantOptions(false);
+                  setSelectedPrintMonth(paymentMonth);
+                  setShowPrintMonthModal(true);
                 }}
                 className="tenant-option-btn tenant-option-purple w-full rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
               >
@@ -844,7 +960,7 @@ export default function ExportsPage() {
 
               <button
                 onClick={() => {
-                  downloadTenantListCSV();
+                  downloadTenantListCSV(paymentMonth);
                   setShowTenantOptions(false);
                 }}
                 className="tenant-option-btn tenant-option-green w-full rounded-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-3 text-sm font-bold text-white transition flex items-center justify-center gap-2 shadow-lg"
@@ -861,6 +977,133 @@ export default function ExportsPage() {
               >
                 Abbrechen
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tenant Payments Modal */}
+      {showTenantPaymentsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="rounded-[28px] surface p-6 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold">Zahlung markieren</h2>
+                <div className="text-sm muted">Wähle den Monat und markiere die Mieten als bezahlt.</div>
+              </div>
+              <button
+                onClick={() => setShowTenantPaymentsModal(false)}
+                className="text-2xl opacity-60 hover:opacity-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs muted font-medium">Monat</label>
+                <select
+                  value={paymentMonth}
+                  onChange={(e) => setPaymentMonth(e.target.value)}
+                  className="input mt-2 rounded-lg w-full"
+                >
+                  {getMonthOptions().map((month) => (
+                    <option key={month} value={month}>
+                      {formatMonthLabel(month)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {tenants.length === 0 ? (
+                <div className="text-sm muted">Keine Mieter gefunden.</div>
+              ) : (
+                tenants.map((tenant) => (
+                  <div key={tenant.id} className="tenant-manage-row rounded-xl border border-white/10 p-4 flex items-center justify-between gap-4">
+                    <div>
+                      <div className="font-semibold text-white">{tenant.firstName} {tenant.lastName}</div>
+                      <div className="text-xs muted mt-1">{tenant.propertyName} • {tenant.monthlyPayment.toFixed(2)} €</div>
+                      <div className="text-xs muted mt-1">Status: {tenant.paidMonths?.includes(paymentMonth) ? 'Bezahlt' : 'Offen'}</div>
+                    </div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-white">
+                      <input
+                        type="checkbox"
+                        checked={tenantPaymentMap[tenant.id] ?? false}
+                        onChange={() => handleToggleTenantPayment(tenant.id)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      Bezahlt
+                    </label>
+                  </div>
+                ))
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/10">
+                <button
+                  onClick={handleSaveTenantPayments}
+                  className="flex-1 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-4 py-3 text-sm font-bold text-white transition shadow-lg"
+                >
+                  Speichern
+                </button>
+                <button
+                  onClick={() => setShowTenantPaymentsModal(false)}
+                  className="rounded-lg surface-2 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-white/10 transition border border-gray-300"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Print Month Modal */}
+      {showPrintMonthModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="rounded-[28px] surface p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold">PDF-Monat wählen</h2>
+              <button
+                onClick={() => setShowPrintMonthModal(false)}
+                className="text-2xl opacity-60 hover:opacity-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs muted font-medium">Monat für den Druck</label>
+                <select
+                  value={selectedPrintMonth}
+                  onChange={(e) => setSelectedPrintMonth(e.target.value)}
+                  className="input mt-2 rounded-lg w-full"
+                >
+                  {getMonthOptions().map((month) => (
+                    <option key={month} value={month}>
+                      {formatMonthLabel(month)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-white/10">
+                <button
+                  onClick={() => {
+                    generateTenantListPDF(selectedPrintMonth);
+                    setShowPrintMonthModal(false);
+                  }}
+                  className="flex-1 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-4 py-3 text-sm font-bold text-white transition shadow-lg"
+                >
+                  PDF drucken
+                </button>
+                <button
+                  onClick={() => setShowPrintMonthModal(false)}
+                  className="rounded-lg surface-2 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-white/10 transition border border-gray-300"
+                >
+                  Abbrechen
+                </button>
+              </div>
             </div>
           </div>
         </div>
