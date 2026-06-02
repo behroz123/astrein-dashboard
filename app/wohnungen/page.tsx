@@ -136,6 +136,9 @@ export default function WohnungenPage() {
   const [pdfSelectedYear, setPdfSelectedYear] = useState(new Date().getFullYear());
   const [pendingPDFWohnung, setPendingPDFWohnung] = useState<Wohnung | null>(null);
 
+  // Payment calendar save state
+  const [unsavedPaymentChanges, setUnsavedPaymentChanges] = useState(false);
+
   // Mobile view state
   const [showMobileList, setShowMobileList] = useState(true);
 
@@ -843,20 +846,43 @@ export default function WohnungenPage() {
       return room;
     });
     
-    // Aktualisiere beide States
+    // Aktualisiere beide States (lokal)
     setRooms(updatedRooms);
     setSelectedWohnung({ ...selectedWohnung, rooms: updatedRooms });
-    
-    // Speichere in Firebase
+    // Markiere als ungespeichert; der Nutzer kann Änderungen gesammelt speichern
+    setUnsavedPaymentChanges(true);
+  }
+
+  // Speichere alle Änderungen der Zahlungen gesammelt
+  async function savePaymentChanges() {
+    if (!selectedWohnung) return;
+    setSaving(true);
     try {
       const docRef = doc(db, "properties", selectedWohnung.id);
       await updateDoc(docRef, {
-        rooms: updatedRooms,
+        rooms: rooms,
         updatedAt: serverTimestamp(),
       });
+      setUnsavedPaymentChanges(false);
+      alert("Zahlungsänderungen gespeichert");
     } catch (err) {
-      console.error("Fehler beim Speichern:", err);
-      alert("Fehler beim Speichern der Zahlung");
+      console.error("Fehler beim Speichern der Zahlungen:", err);
+      alert("Fehler beim Speichern der Zahlungen");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function cancelPaymentChanges() {
+    if (!selectedWohnung) return;
+    // Rolle die Änderungen zurück auf den letzten gespeicherten Zustand
+    setRooms(selectedWohnung.rooms || []);
+    setUnsavedPaymentChanges(false);
+    if (selectedBedContext) {
+      const bed = (selectedWohnung.rooms || [])
+        .find(r => r.id === selectedBedContext.roomId)?.beds
+        .find(b => b.id === selectedBedContext.bedId);
+      setSelectedBed(bed || null);
     }
   }
 
@@ -2274,6 +2300,28 @@ export default function WohnungenPage() {
             {showPaymentCalendar && (
               <div className="mb-6">
                 <h3 className="text-xl font-bold mb-6 text-center">📅 Zahlungskalender</h3>
+                {unsavedPaymentChanges && (
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <button
+                      onClick={() => savePaymentChanges()}
+                      disabled={saving}
+                      style={{ backgroundColor: '#065f46', color: '#ffffff', opacity: 1 }}
+                      className="rounded-lg hover:bg-emerald-800 text-white px-4 py-2 font-semibold shadow-lg min-w-[180px] whitespace-nowrap inline-flex items-center justify-center gap-2"
+                    >
+                      <span className="text-lg leading-none" style={{ color: '#ffffff', opacity: 1 }}>💾</span>
+                      <span style={{ color: '#ffffff', opacity: 1 }}>Änderungen speichern</span>
+                    </button>
+                    <button
+                      onClick={() => cancelPaymentChanges()}
+                      disabled={saving}
+                      style={{ backgroundColor: '#0f172a', color: '#ffffff', opacity: 1 }}
+                      className="rounded-lg hover:bg-slate-700 text-white px-4 py-2 font-semibold border border-white/10 min-w-[120px] whitespace-nowrap inline-flex items-center justify-center gap-2"
+                    >
+                      <span className="text-lg leading-none" style={{ color: '#ffffff', opacity: 1 }}>↺</span>
+                      <span style={{ color: '#ffffff', opacity: 1 }}>Abbrechen</span>
+                    </button>
+                  </div>
+                )}
                 {selectedBed.moveInDate && selectedBed.rent ? (
                   <div>
                     {/* Gruppiere Payments nach Jahr */}
