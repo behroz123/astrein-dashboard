@@ -12,23 +12,21 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // Force light mode only - no theme switching
   const [theme, setThemeState] = useState<ThemeType>("hell");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Load theme from localStorage
-    const savedTheme = localStorage.getItem("theme") as ThemeType | null;
-    if (savedTheme) {
-      setThemeState(savedTheme);
-    }
+    // Always use light mode ("hell")
+    setThemeState("hell");
+    updateThemeCSSVariables("hell");
     setMounted(true);
   }, []);
 
   const setTheme = (newTheme: ThemeType) => {
-    setThemeState(newTheme);
-    localStorage.setItem("theme", newTheme);
-    // Update CSS variables
-    updateThemeCSSVariables(newTheme);
+    // Ignore theme changes - always use light mode
+    setThemeState("hell");
+    updateThemeCSSVariables("hell");
   };
 
   useEffect(() => {

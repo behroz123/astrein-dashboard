@@ -42,6 +42,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
   const { t } = usePrefs();
 
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<string>("mitarbeiter");
   const [ready, setReady] = useState(false);
 
   // Session Timeout Hook
@@ -49,10 +50,27 @@ function AppShell({ children }: { children: React.ReactNode }) {
     useSessionTimeout(user);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       setReady(true);
       if (!u && pathname !== "/login") router.replace("/login");
+      
+      if (u) {
+        // Fetch user role
+        try {
+          const token = await u.getIdToken();
+          const response = await fetch("/api/get-user-role", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          setUserRole(data.role || "mitarbeiter");
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+          setUserRole("mitarbeiter");
+        }
+      }
     });
     return () => unsub();
   }, [pathname, router]);
@@ -135,6 +153,16 @@ function AppShell({ children }: { children: React.ReactNode }) {
           <NavItem href="/settings" active={pathname.startsWith("/settings")}>
             {t("settings")}
           </NavItem>
+
+          {/* Admin Only */}
+          {userRole === "admin" && (
+            <>
+              <div className="my-2 border-t border-white/10" />
+              <NavItem href="/admin/workers" active={pathname.startsWith("/admin/workers")}>
+                🛡️ Arbeiter verwalten
+              </NavItem>
+            </>
+          )}
         </nav>
 
         <div className="px-3 py-4 border-t border-white/10">
