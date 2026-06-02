@@ -24,71 +24,71 @@ export default function ImmobilienPage() {
   const items = [
     {
       icon: FileText,
-      label: "Mietvertrag",
-      desc: "Hauptmietvertrag erstellen und verwalten",
+      labelKey: "immobilien.item.rental",
+      descKey: "immobilien.item.rental.desc",
       path: "/mietvertrag",
       color: "from-blue-500 to-blue-600",
     },
     {
       icon: Users,
-      label: "Untermietvertrag",
-      desc: "Untermietvertrag erstellen und verwalten",
+      labelKey: "immobilien.item.sublease",
+      descKey: "immobilien.item.sublease.desc",
       path: "/untermietvertrag",
       color: "from-purple-500 to-purple-600",
     },
     {
       icon: Key,
-      label: "Schlüsselübergabe",
-      desc: "Übergabeprotokoll für Schlüssel",
+      labelKey: "immobilien.item.keyhandover",
+      descKey: "immobilien.item.keyhandover.desc",
       path: "/schluesseluebergabe",
       color: "from-pink-500 to-pink-600",
     },
     {
       icon: Home,
-      label: "Wohnung checken",
-      desc: "Zustand dokumentieren und prüfen",
+      labelKey: "immobilien.item.apartmentcheck",
+      descKey: "immobilien.item.apartmentcheck.desc",
       path: "/wohnung-checken",
       color: "from-green-500 to-green-600",
     },
     {
       icon: Zap,
-      label: "Stromvertrag",
-      desc: "Stromverträge verwalten",
+      labelKey: "immobilien.item.electricity",
+      descKey: "immobilien.item.electricity.desc",
       path: "/strom-vertrag",
       color: "from-yellow-500 to-yellow-600",
     },
     {
       icon: Droplet,
-      label: "Wasservertrag",
-      desc: "Wasserverträge verwalten",
+      labelKey: "immobilien.item.water",
+      descKey: "immobilien.item.water.desc",
       path: "/wasser-vertrag",
       color: "from-cyan-500 to-cyan-600",
     },
     {
       icon: Flame,
-      label: "Gasvertrag",
-      desc: "Gasverträge verwalten",
+      labelKey: "immobilien.item.gas",
+      descKey: "immobilien.item.gas.desc",
       path: "/gas-vertrag",
       color: "from-orange-500 to-orange-600",
     },
     {
       icon: FolderOpen,
-      label: "Einzüge",
-      desc: "Neue Mieter verwalten",
+      labelKey: "immobilien.item.moveins",
+      descKey: "immobilien.item.moveins.desc",
       path: "/einzuege",
       color: "from-emerald-500 to-emerald-600",
     },
     {
       icon: CheckSquare,
-      label: "Auszüge",
-      desc: "Auszüge dokumentieren",
+      labelKey: "immobilien.item.moveouts",
+      descKey: "immobilien.item.moveouts.desc",
       path: "/auszuege",
       color: "from-red-500 to-red-600",
     },
     {
       icon: FileCheck,
-      label: "Wohnungen",
-      desc: "Wohnungsübersicht",
+      labelKey: "immobilien.item.apartments",
+      descKey: "immobilien.item.apartments.desc",
       path: "/wohnungen",
       color: "from-teal-500 to-teal-600",
     },
@@ -110,9 +110,9 @@ export default function ImmobilienPage() {
             <div className="text-xs muted">
               {t("appName")} {t("companyLine")}
             </div>
-            <h1 className="mt-2 text-2xl font-semibold text-white">Immobilienverwaltung</h1>
+            <h1 className="mt-2 text-2xl font-semibold text-white">{t("immobilien")}</h1>
             <div className="mt-1 text-sm muted">
-              Zentrale Verwaltung für Ihre Immobilien, Verträge und Mieter
+              {t("immobilien.description")}
             </div>
           </div>
 
@@ -120,7 +120,7 @@ export default function ImmobilienPage() {
             href="/"
             className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 hover:bg-white/5 transition self-start lg:self-auto"
           >
-            ← Dashboard
+            ← {t("nav.dashboard")}
           </Link>
         </div>
       </div>
@@ -149,13 +149,13 @@ export default function ImmobilienPage() {
 
               {/* Content */}
               <div className="space-y-2 mb-4">
-                <h3 className="text-lg font-bold text-white">{item.label}</h3>
-                <p className="text-sm opacity-60 leading-relaxed">{item.desc}</p>
+                <h3 className="text-lg font-bold text-white">{t(item.labelKey)}</h3>
+                <p className="text-sm opacity-60 leading-relaxed">{t(item.descKey)}</p>
               </div>
 
               {/* Action */}
               <div className="flex items-center gap-2 text-sm font-semibold opacity-60 group-hover:opacity-100 transition">
-                <span>Öffnen</span>
+                <span>{t("common.open")}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
