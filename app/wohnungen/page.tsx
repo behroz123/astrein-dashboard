@@ -39,6 +39,15 @@ type OpenPaymentSelection = {
   year: number;
   tenantName: string;
 };
+type PropertyEmailItem = {
+  id: string;
+  threadId: string;
+  from: string;
+  subject: string;
+  snippet: string;
+  date: string;
+  ts: number;
+};
 
 type Bed = {
   id: string;
@@ -64,6 +73,8 @@ type Wohnung = {
   id: string;
   address?: string; // From Schlüsselübergabe
   adresse?: string; // From Wohnungen
+  gmailLabel?: string;
+  gmailQuery?: string;
   stadtplz?: string;
   zimmerzahl?: string;
   quadratmeter?: string;
@@ -109,6 +120,8 @@ export default function WohnungenPage() {
   const [mietbeginn, setMietbeginn] = useState("");
   const [mietende, setMietende] = useState("");
   const [notizen, setNotizen] = useState("");
+  const [gmailLabel, setGmailLabel] = useState("");
+  const [gmailQuery, setGmailQuery] = useState("");
   const [rooms, setRooms] = useState<Room[]>([]);
 
   // Room/Bed management
@@ -129,6 +142,10 @@ export default function WohnungenPage() {
   const [showOpenPaymentsDetails, setShowOpenPaymentsDetails] = useState(false);
   const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
   const [pendingOpenPayment, setPendingOpenPayment] = useState<OpenPaymentSelection | null>(null);
+  const [propertyEmails, setPropertyEmails] = useState<PropertyEmailItem[]>([]);
+  const [emailsLoading, setEmailsLoading] = useState(false);
+  const [emailsError, setEmailsError] = useState<string | null>(null);
+  const [emailsReloadTick, setEmailsReloadTick] = useState(0);
   
   // PDF Export month selection
   const [showPDFMonthModal, setShowPDFMonthModal] = useState(false);
@@ -261,10 +278,10 @@ export default function WohnungenPage() {
           ...(d.data() as any),
         }));
         setWohnungen(list);
-        
+
         // Aktualisiere selectedWohnung wenn es existiert
         if (selectedWohnung) {
-          const updated = list.find(w => w.id === selectedWohnung.id);
+          const updated = list.find((w) => w.id === selectedWohnung.id);
           if (updated) {
             setSelectedWohnung(updated);
             // Aktualisiere auch rooms state im Edit-Modus
@@ -273,7 +290,7 @@ export default function WohnungenPage() {
             }
           }
         }
-        
+
         setLoading(false);
       },
       () => {
@@ -283,7 +300,52 @@ export default function WohnungenPage() {
     );
 
     return () => unsub();
-  }, [ready]);
+  }, [ready, selectedWohnung, isEditing]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPropertyEmails() {
+      if (!selectedWohnung?.id || !user) {
+        setPropertyEmails([]);
+        setEmailsError(null);
+        return;
+      }
+
+      setEmailsLoading(true);
+      setEmailsError(null);
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch(`/api/property-emails?propertyId=${encodeURIComponent(selectedWohnung.id)}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const json = await res.json();
+        if (!res.ok) {
+          throw new Error(json?.error || "E-Mails konnten nicht geladen werden");
+        }
+
+        if (!cancelled) {
+          setPropertyEmails(Array.isArray(json?.emails) ? json.emails : []);
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setPropertyEmails([]);
+          setEmailsError(e?.message || "E-Mails konnten nicht geladen werden");
+        }
+      } finally {
+        if (!cancelled) setEmailsLoading(false);
+      }
+    }
+
+    loadPropertyEmails();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedWohnung?.id, user, emailsReloadTick]);
 
   function resetForm() {
     setAdresse("");
@@ -297,6 +359,8 @@ export default function WohnungenPage() {
     setMietbeginn("");
     setMietende("");
     setNotizen("");
+    setGmailLabel("");
+    setGmailQuery("");
     setSelectedWohnung(null);
     setIsEditing(false);
     setError(null);
@@ -322,6 +386,8 @@ export default function WohnungenPage() {
     setMietbeginn(wohnung.mietbeginn || "");
     setMietende(wohnung.mietende || "");
     setNotizen(wohnung.notizen || "");
+    setGmailLabel(wohnung.gmailLabel || "");
+    setGmailQuery(wohnung.gmailQuery || "");
     setRooms(wohnung.rooms || []);
     setIsEditing(true);
     setError(null);
@@ -380,6 +446,8 @@ export default function WohnungenPage() {
         mietbeginn: mietbeginn.trim(),
         mietende: mietende.trim(),
         notizen: notizen.trim(),
+        gmailLabel: gmailLabel.trim(),
+        gmailQuery: gmailQuery.trim(),
         rooms: roomsWithUpdatedPayments,
         updatedAt: serverTimestamp(),
       };
@@ -1504,6 +1572,27 @@ export default function WohnungenPage() {
                     <option value="renovierung">Renovierung</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="text-xs opacity-60 font-medium">Gmail Label (optional)</label>
+                  <input
+                    type="text"
+                    value={gmailLabel}
+                    onChange={(e) => setGmailLabel(e.target.value)}
+                    className="input mt-2 rounded-lg"
+                    placeholder="z.B. wohnungen/kapellenstrasse-32"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs opacity-60 font-medium">Gmail Query (optional)</label>
+                  <input
+                    type="text"
+                    value={gmailQuery}
+                    onChange={(e) => setGmailQuery(e.target.value)}
+                    className="input mt-2 rounded-lg"
+                    placeholder='z.B. label:wohnungen-k32 OR subject:"Kapellenstraße 32"'
+                  />
+                </div>
               </div>
             </div>
 
@@ -2164,6 +2253,67 @@ export default function WohnungenPage() {
                 </div>
               );
             })()}
+
+            {/* Property E-Mails (Gmail) */}
+            <div
+              className="wohnungen-block rounded-2xl border p-6 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.65)]"
+              style={{ background: "linear-gradient(180deg, rgba(13,27,49,0.96), rgba(10,20,38,0.96))", borderColor: "#325b93" }}
+            >
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h3 className="text-sm font-semibold text-blue-200 uppercase tracking-wide">E-Mails (Gmail)</h3>
+                <button
+                  type="button"
+                  onClick={() => setEmailsReloadTick((v) => v + 1)}
+                  className="action-btn wohnungen-unified-btn text-xs font-semibold px-3 py-1.5 rounded-lg"
+                  style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)" }}
+                >
+                  Aktualisieren
+                </button>
+              </div>
+
+              {emailsLoading && (
+                <div className="text-sm" style={{ color: "#bfdbfe" }}>
+                  E-Mails werden geladen...
+                </div>
+              )}
+
+              {emailsError && (
+                <div className="rounded-lg border p-3 text-sm" style={{ borderColor: "rgba(251,113,133,0.5)", color: "#fecdd3", background: "rgba(127,29,29,0.28)" }}>
+                  {emailsError}
+                </div>
+              )}
+
+              {!emailsLoading && !emailsError && propertyEmails.length === 0 && (
+                <div className="text-sm" style={{ color: "#93c5fd" }}>
+                  Keine E-Mails für diese Wohnung gefunden.
+                </div>
+              )}
+
+              {!emailsLoading && !emailsError && propertyEmails.length > 0 && (
+                <div className="space-y-3">
+                  {propertyEmails.map((mail) => (
+                    <div
+                      key={mail.id}
+                      className="rounded-xl border p-3"
+                      style={{ background: "rgba(18,34,59,0.9)", borderColor: "#3a679f" }}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold truncate" style={{ color: "#eef4ff" }}>{mail.subject}</div>
+                          <div className="text-xs truncate mt-1" style={{ color: "#93c5fd" }}>{mail.from || "Unbekannt"}</div>
+                        </div>
+                        <div className="text-xs text-right whitespace-nowrap" style={{ color: "#bfdbfe" }}>
+                          {mail.ts ? new Date(mail.ts).toLocaleString("de-DE") : (mail.date || "")}
+                        </div>
+                      </div>
+                      {mail.snippet && (
+                        <div className="text-sm mt-2" style={{ color: "#cfe2ff" }}>{mail.snippet}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Wohnungsinfo */}
             <div
