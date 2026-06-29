@@ -1,397 +1,1417 @@
-/* wohnungen.css - Simple & Clean Design */
+/* Wohnungen page: clean violet premium theme */
 
-/* Container */
+:root {
+  --w-violet-50: #faf5ff;
+  --w-violet-100: #f3e8ff;
+  --w-violet-200: #e9d5ff;
+  --w-violet-500: #8b5cf6;
+  --w-violet-600: #7c3aed;
+  --w-slate-900: #0f172a;
+  --w-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 .wohnungen-page {
   min-height: 100vh;
-  padding: 2rem;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%);
+  color: var(--w-slate-900);
 }
 
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+.wohnungen-page .hero-compact {
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 50%, #f3e8ff 100%);
+  border-color: rgba(124, 58, 237, 0.15) !important;
+  box-shadow: 0 18px 45px -26px rgba(76, 29, 149, 0.4);
 }
 
-.stat-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.stat-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-/* Filters */
-.filters-bar {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.filter-input {
-  background: var(--color-surface-hover);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  color: var(--color-text);
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  flex: 1;
-  min-width: 200px;
-}
-
-.filter-input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.filter-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Properties List */
-.properties-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.property-item {
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.property-item:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.property-item.selected {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.property-item-name {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 0.5rem;
-}
-
-.property-item-address {
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-}
-
-/* Status Badge */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.status-badge.available {
-  background: var(--color-success);
-  color: white;
-}
-
-.status-badge.rented {
-  background: var(--color-info);
-  color: white;
-}
-
-.status-badge.renovation {
-  background: var(--color-warning);
-  color: white;
-}
-
-/* Room Cards */
-.wohnungen-rooms-block {
-  margin-bottom: 1.5rem;
-}
-
-.wohnungen-room-card {
-  margin-bottom: 1rem;
-  transition: all 0.2s ease;
-}
-
-.wohnungen-room-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* Bed Cards */
-.wohnungen-bed-card {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.wohnungen-bed-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.wohnungen-bed-card.is-free {
-  border-left-width: 4px;
-}
-
-.wohnungen-bed-card.is-occupied {
-  border-left-width: 4px;
-}
-
-.wohnungen-bed-card.is-free:hover {
-  filter: saturate(1.03);
-}
-
-.wohnungen-bed-card.is-occupied:hover {
-  filter: saturate(1.03);
-}
-
-/* Blocks */
-.wohnungen-block {
-  margin-bottom: 1.5rem;
-}
-
-.wohnungen-info-tile {
-  transition: all 0.2s ease;
-}
-
-.wohnungen-info-tile:hover {
-  transform: translateY(-1px);
-}
-
-/* Metric Cards */
-.wohnungen-metric-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.wohnungen-metric-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Alert Block */
-.wohnungen-alert-block {
-  background: var(--color-surface);
-  border: 2px solid var(--color-error);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.wohnungen-alert-item {
-  background: var(--color-surface-hover);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  transition: all 0.2s ease;
-}
-
-.wohnungen-alert-item:hover {
-  border-color: var(--color-error);
-}
-
-/* Buttons */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-}
-
-.btn-success {
-  background: var(--color-success);
-  color: white;
-}
-
-.btn-danger {
-  background: var(--color-error);
-  color: white;
-}
-
-.btn-warning {
-  background: var(--color-warning);
-  color: white;
-}
-
-.btn-secondary {
-  background: var(--color-surface-hover);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-
-/* Modal */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+.wohnungen-page .hero-icon {
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  border-radius: 18px;
+  font-size: 2.1rem;
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.3);
 }
 
-.modal-content {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+.wohnungen-page .hero-title {
+  letter-spacing: -0.02em;
+}
+
+.wohnungen-page .hero-sub {
+  color: #64748b !important;
+}
+
+.wohnungen-page .wohnungen-stat-card,
+.wohnungen-page .wohnungen-rent-card,
+.wohnungen-page .wohnungen-list-panel,
+.wohnungen-page .wohnungen-detail-panel,
+.wohnungen-page .wohnungen-block,
+.wohnungen-page .wohnungen-room-card,
+.wohnungen-page .wohnungen-info-tile,
+.wohnungen-page .wohnungen-alert-block,
+.wohnungen-page .wohnungen-alert-item {
+  box-shadow: 0 12px 30px -24px rgba(15, 23, 42, 0.35);
+}
+
+.wohnungen-page .wohnungen-list-item {
+  transition: all 0.2s ease;
+}
+
+.wohnungen-page .wohnungen-list-item:hover {
+  transform: translateY(-1px);
+}
+
+.wohnungen-page .wohnungen-bed-card {
+  transition: all 0.2s ease;
+}
+
+.wohnungen-page .wohnungen-bed-card:hover {
+  transform: translateY(-1px);
+}
+
+.wohnungen-page .wohnungen-detail-title {
+  line-height: 1.05;
+  color: #111827;
+}
+
+.wohnungen-page .wohnungen-bed-meta {
+  color: #374151;
+}
+
+.wohnungen-page .input {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #111827;
+}
+
+.wohnungen-page .input:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.22);
+}
+
+.wohnungen-page .action-btn {
+  transition: all 0.2s ease;
+}
+
+.wohnungen-page .action-btn:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1024px) {
+  .wohnungen-page .hero-icon {
+    width: 68px;
+    height: 68px;
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .wohnungen-page {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  .wohnungen-page .hero-title {
+    font-size: 2rem !important;
+  }
+}/* ============================================================================
+   Wohnungen — Premium Gradient Design System
+   ============================================================================
+   A beautiful, modern design with smooth gradients, elegant typography,
+   and refined interactions. Natural, professional aesthetics.
+   ============================================================================ */
+
+:root {
+  /* Premium Gradient Palette */
+  --primary: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  
+  /* Gradient Colors */
+  --accent-warm: #f59e0b;
+  --accent-cool: #06b6d4;
+  --accent-rose: #ec4899;
+  
+  /* Neutrals - Soft & Warm */
+  --bg-main: #fafaf9;
+  --bg-secondary: #f5f5f4;
+  --bg-tertiary: #efefea;
+  --bg-light: #ffffff;
+  --border: #e7e5e4;
+  --text-primary: #1c1917;
+  --text-secondary: #78716c;
+  --text-tertiary: #a8a29e;
+  
+  /* Status Colors - Soft Variants */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  
+  /* Effects */
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ============================================================================
+   PAGE CONTAINER
+   ============================================================================ */
+
+.wohnungen-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--bg-main) 0%, #f3f0ff 100%);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', 'Roboto', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================================
+   HERO SECTION — Gradient with Soft Shadow
+   ============================================================================ */
+
+.wohnungen-page .hero-compact {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3rem;
+  align-items: center;
+  padding: 3rem 3.5rem;
+  margin-bottom: 3rem;
+  
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border: none;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 25px rgba(99, 102, 241, 0.15), var(--shadow-lg);
+}
+
+.wohnungen-page .hero-compact::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.wohnungen-page .hero-compact > * {
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+}
+
+.wohnungen-page .hero-icon {
+  font-size: 4rem;
+  opacity: 0.95;
+}
+
+.wohnungen-page .hero-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.wohnungen-page .hero-sub {
+  font-size: 0.95rem;
+  margin: 0.5rem 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.wohnungen-page .hero-stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.wohnungen-page .stat-badge {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  min-width: 100px;
+}
+
+.wohnungen-page .stat-badge .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  display: block;
+}
+
+.wohnungen-page .stat-badge .stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0.25rem 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+/* ============================================================================
+   STATS GRID — Premium Cards with Gradients
+   ============================================================================ */
+
+.wohnungen-page .wohnungen-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.wohnungen-page .wohnungen-stat-card {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2rem;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.modal-footer {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--color-border);
-}
-
-/* Payment Calendar */
-.payment-calendar {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.payment-month {
-  background: var(--color-surface-hover);
-  border: 2px solid var(--color-border);
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all var(--transition);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.85rem;
+}
+
+.wohnungen-page .wohnungen-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+.wohnungen-page .wohnungen-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent-cool) 100%);
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-2::before {
+  background: linear-gradient(90deg, var(--accent-warm) 0%, var(--accent-rose) 100%);
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-3::before {
+  background: linear-gradient(90deg, var(--success) 0%, var(--accent-cool) 100%);
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-4::before {
+  background: linear-gradient(90deg, var(--primary-light) 0%, var(--accent-warm) 100%);
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-5::before {
+  background: linear-gradient(90deg, var(--accent-rose) 0%, var(--accent-warm) 100%);
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-6::before {
+  background: linear-gradient(90deg, var(--accent-cool) 0%, var(--primary) 100%);
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-7::before {
+  background: linear-gradient(90deg, var(--success) 0%, var(--primary) 100%);
+}
+
+.wohnungen-page .wohnungen-stat-card .stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.85;
+}
+
+.wohnungen-page .wohnungen-stat-card .stat-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   font-weight: 600;
 }
 
-.payment-month:hover {
+.wohnungen-page .wohnungen-stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+.wohnungen-page .wohnungen-stat-card .stat-change {
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.wohnungen-page .wohnungen-stat-card .stat-change.positive {
+  color: var(--success);
+}
+
+.wohnungen-page .wohnungen-stat-card .stat-change.negative {
+  color: var(--error);
+}
+
+/* ============================================================================
+   FILTER BAR — Clean & Minimal
+   ============================================================================ */
+
+.wohnungen-page .wohnungen-filter-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.wohnungen-page .wohnungen-filter-bar input[type="text"],
+.wohnungen-page .wohnungen-filter-bar select {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: var(--bg-light);
+  color: var(--text-primary);
+  transition: all var(--transition);
+}
+
+.wohnungen-page .wohnungen-filter-bar input[type="text"]:focus,
+.wohnungen-page .wohnungen-filter-bar select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.wohnungen-page .wohnungen-filter-bar button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.wohnungen-page .wohnungen-filter-bar button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
-.payment-month.paid {
-  background: var(--color-success);
-  border-color: var(--color-success);
+/* ============================================================================
+   LIST PANEL
+   ============================================================================ */
+
+.wohnungen-page .wohnungen-list-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.wohnungen-page .wohnungen-list-item {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.wohnungen-page .wohnungen-list-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--primary) 0%, var(--accent-cool) 100%);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--transition);
+}
+
+.wohnungen-page .wohnungen-list-item:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+.wohnungen-page .wohnungen-list-item:hover::before {
+  transform: scaleY(1);
+}
+
+.wohnungen-page .wohnungen-list-item > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.wohnungen-page .wohnungen-list-item h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.wohnungen-page .wohnungen-list-item p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0 0;
+  line-height: 1.5;
+}
+
+.wohnungen-page .wohnungen-list-item .badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
   color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-.payment-month.overdue {
-  background: var(--color-error);
-  border-color: var(--color-error);
+/* ============================================================================
+   DETAIL PANEL
+   ============================================================================ */
+
+.wohnungen-page .wohnungen-detail-panel {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: var(--shadow);
+}
+
+.wohnungen-page .wohnungen-detail-panel h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.wohnungen-page .wohnungen-detail-panel .detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.wohnungen-page .wohnungen-detail-panel .detail-row.full {
+  grid-template-columns: 1fr;
+}
+
+.wohnungen-page .wohnungen-detail-panel label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wohnungen-page .wohnungen-detail-panel input,
+.wohnungen-page .wohnungen-detail-panel textarea,
+.wohnungen-page .wohnungen-detail-panel select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.wohnungen-page .wohnungen-detail-panel input:focus,
+.wohnungen-page .wohnungen-detail-panel textarea:focus,
+.wohnungen-page .wohnungen-detail-panel select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  background: var(--bg-light);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ============================================================================
+   BUTTONS & ACTIONS
+   ============================================================================ */
+
+.wohnungen-page button {
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
   color: white;
+  box-shadow: var(--shadow);
 }
 
-.payment-month.pending {
-  background: var(--color-warning);
-  border-color: var(--color-warning);
-  color: white;
+.wohnungen-page button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Responsive */
+.wohnungen-page button.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.wohnungen-page button.btn-secondary:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--primary-light);
+}
+
+.wohnungen-page button.btn-danger {
+  background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+}
+
+.wohnungen-page button.btn-success {
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+}
+
+.wohnungen-page button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ============================================================================
+   RENT SUMMARY CARDS
+   ============================================================================ */
+
+.wohnungen-page .wohnungen-rent-card {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  transition: all var(--transition);
+}
+
+.wohnungen-page .wohnungen-rent-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.wohnungen-page .wohnungen-rent-card h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wohnungen-page .wohnungen-rent-card .amount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+.wohnungen-page .wohnungen-rent-card.rc-total {
+  border-top: 4px solid var(--primary);
+}
+
+.wohnungen-page .wohnungen-rent-card.rc-paid {
+  border-top: 4px solid var(--success);
+}
+
+.wohnungen-page .wohnungen-rent-card.rc-diff {
+  border-top: 4px solid var(--accent-warm);
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
 @media (max-width: 768px) {
   .wohnungen-page {
     padding: 1rem;
   }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .properties-list {
+
+  .wohnungen-page .hero-compact {
     grid-template-columns: 1fr;
+    padding: 2rem;
+    gap: 1.5rem;
   }
-  
-  .filters-bar {
+
+  .wohnungen-page .hero-stats {
+    justify-content: flex-start;
+  }
+
+  .wohnungen-page .wohnungen-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .wohnungen-page .wohnungen-detail-panel .detail-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .wohnungen-page .wohnungen-filter-bar {
     flex-direction: column;
+    align-items: stretch;
   }
-  
-  .filter-input {
+
+  .wohnungen-page .wohnungen-filter-bar input,
+  .wohnungen-page .wohnungen-filter-bar select,
+  .wohnungen-page .wohnungen-filter-bar button {
     width: 100%;
+  }
+
+  .wohnungen-page .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .wohnungen-page .wohnungen-detail-panel {
+    padding: 1.5rem;
+  }
+
+  .wohnungen-page .stat-badge {
+    min-width: auto;
+  }
+
+  .wohnungen-page .stat-badge .stat-value {
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .stats-grid {
+  .wohnungen-page {
+    padding: 0.75rem;
+  }
+
+  .wohnungen-page .hero-compact {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  .wohnungen-page .wohnungen-stats-grid {
     grid-template-columns: 1fr;
   }
-  
-  .payment-calendar {
-    grid-template-columns: repeat(2, 1fr);
+
+  .wohnungen-page .stat-badge {
+    width: 100%;
+  }
+
+  .wohnungen-page .wohnungen-stat-card {
+    padding: 1.5rem;
+  }
+
+  .wohnungen-page .wohnungen-detail-panel {
+    padding: 1rem;
+  }
+
+  .wohnungen-page .hero-title {
+    font-size: 1.25rem;
+  }
+
+  .wohnungen-page .wohnungen-stat-card .stat-value {
+    font-size: 1.5rem;
   }
 }
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+
+@media print {
+  .wohnungen-page {
+    background: #ffffff;
+  }
+
+  .wohnungen-page button,
+  .wohnungen-page .wohnungen-filter-bar {
+    display: none;
+  }
+
+  .wohnungen-page * {
+    box-shadow: none !important;
+  }
+
+  .wohnungen-page .hero-compact {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #ffffff;
+  }
+}
+
+/* ============================================================================
+   Wohnungen — Neo Brutalist Override (Final)
+   Completely different from previous designs.
+   ============================================================================ */
+
+.wohnungen-page {
+  background:
+    radial-gradient(circle at 5% 10%, #fff3b0 0 220px, transparent 220px),
+    radial-gradient(circle at 95% 0%, #d6fcff 0 220px, transparent 220px),
+    linear-gradient(180deg, #fffef8 0%, #fff9e8 100%) !important;
+  color: #111111 !important;
+}
+
+.wohnungen-page[style] {
+  background:
+    radial-gradient(circle at 5% 10%, #fff3b0 0 220px, transparent 220px),
+    radial-gradient(circle at 95% 0%, #d6fcff 0 220px, transparent 220px),
+    linear-gradient(180deg, #fffef8 0%, #fff9e8 100%) !important;
+}
+
+.wohnungen-page .hero-compact {
+  background: #111111 !important;
+  border: 3px solid #111 !important;
+  border-radius: 0 !important;
+  box-shadow: 7px 7px 0 #111 !important;
+}
+
+.wohnungen-page .hero-title {
+  color: #ffffff !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.wohnungen-page .hero-sub {
+  color: #f1f1f1 !important;
+}
+
+.wohnungen-page .hero-icon {
+  width: 84px;
+  height: 84px;
+  border-radius: 0 !important;
+  border: 3px solid #111 !important;
+  box-shadow: 5px 5px 0 #111 !important;
+  background: linear-gradient(135deg, #ff71ce, #ff3d9e) !important;
+}
+
+.wohnungen-page .wohnungen-filter-bar,
+.wohnungen-page .wohnungen-list-panel,
+.wohnungen-page .wohnungen-detail-panel,
+.wohnungen-page .wohnungen-block,
+.wohnungen-page .wohnungen-room-card,
+.wohnungen-page .wohnungen-info-tile,
+.wohnungen-page .wohnungen-alert-block,
+.wohnungen-page .wohnungen-alert-item,
+.wohnungen-page .wohnungen-stat-card,
+.wohnungen-page .wohnungen-rent-card,
+.wohnungen-page .wohnungen-list-item,
+.wohnungen-page .wohnungen-bed-card,
+.wohnungen-page .lg\:col-span-2 > div,
+.wohnungen-page .lg\:col-span-1 > div {
+  background: #ffffff !important;
+  border: 3px solid #111 !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 #111 !important;
+  color: #111 !important;
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-1 { background: linear-gradient(180deg, #fff 0%, #fff8d5 100%) !important; }
+.wohnungen-page .wohnungen-stat-card.ws-2 { background: linear-gradient(180deg, #fff 0%, #e6ffef 100%) !important; }
+.wohnungen-page .wohnungen-stat-card.ws-3 { background: linear-gradient(180deg, #fff 0%, #e8f2ff 100%) !important; }
+.wohnungen-page .wohnungen-stat-card.ws-4 { background: linear-gradient(180deg, #fff 0%, #fff1e4 100%) !important; }
+.wohnungen-page .wohnungen-stat-card.ws-5 { background: linear-gradient(180deg, #fff 0%, #efe9ff 100%) !important; }
+.wohnungen-page .wohnungen-stat-card.ws-6 { background: linear-gradient(180deg, #fff 0%, #ffe9fb 100%) !important; }
+.wohnungen-page .wohnungen-stat-card.ws-7 { background: linear-gradient(180deg, #fff 0%, #e9fffa 100%) !important; }
+
+.wohnungen-page .input,
+.wohnungen-page input,
+.wohnungen-page select,
+.wohnungen-page textarea {
+  border: 2px solid #111 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #111 !important;
+  box-shadow: none !important;
+}
+
+.wohnungen-page .input:focus,
+.wohnungen-page input:focus,
+.wohnungen-page select:focus,
+.wohnungen-page textarea:focus {
+  border: 2px solid #111 !important;
+  box-shadow: 4px 4px 0 #111 !important;
+  transform: translate(-1px, -1px);
+  outline: none !important;
+}
+
+.wohnungen-page button,
+.wohnungen-page .action-btn {
+  border: 2px solid #111 !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 #111 !important;
+  font-weight: 800 !important;
+}
+
+.wohnungen-page button:hover,
+.wohnungen-page .action-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 #111 !important;
+}
+
+.wohnungen-page .action-btn.primary,
+.wohnungen-page button.bg-violet-600,
+.wohnungen-page button[class*="from-blue-600"],
+.wohnungen-page button[class*="from-green-600"] {
+  background: linear-gradient(135deg, #63f5ff, #6ea8ff) !important;
+  color: #111 !important;
+}
+
+.wohnungen-page .wohnungen-list-item.border-violet-400,
+.wohnungen-page .wohnungen-list-item[class*="border-violet-400"] {
+  background: linear-gradient(135deg, #fff6d9 0%, #fff 100%) !important;
+  box-shadow: 8px 8px 0 #111 !important;
+}
+
+.wohnungen-page [data-search-match="true"] {
+  border-color: #111 !important;
+  box-shadow: 0 0 0 4px #ffe45e, 4px 4px 0 #111 !important;
+}
+
+@media (max-width: 900px) {
+  .wohnungen-page .hero-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 1.6rem;
+  }
+
+  .wohnungen-page .hero-title {
+    font-size: 2rem !important;
+  }
+}
+
+/* ============================================================================
+   FINAL OVERRIDE — Midnight Glass (completely different)
+   ============================================================================ */
+
+.wohnungen-page,
+.wohnungen-page[style] {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(41, 121, 255, 0.2) 0 240px, transparent 240px),
+    radial-gradient(circle at 88% 2%, rgba(0, 229, 255, 0.16) 0 260px, transparent 260px),
+    linear-gradient(180deg, #050812 0%, #0a1222 100%) !important;
+  color: #e5ecff !important;
+}
+
+.wohnungen-page * {
+  font-family: Inter, "Segoe UI", Roboto, sans-serif;
+}
+
+.wohnungen-page .hero-compact {
+  background: linear-gradient(135deg, #0d1b34 0%, #13284b 100%) !important;
+  border: 1px solid #2f63c0 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.8), inset 0 0 60px rgba(64, 143, 255, 0.08) !important;
+}
+
+.wohnungen-page .hero-title {
+  color: #f4f7ff !important;
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+}
+
+.wohnungen-page .hero-sub {
+  color: #b3c7ef !important;
+}
+
+.wohnungen-page .hero-icon {
+  border-radius: 14px !important;
+  border: 1px solid #53c7ff !important;
+  background: linear-gradient(135deg, #1a325b, #1f477e) !important;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45), 0 0 22px rgba(84, 199, 255, 0.22) !important;
+}
+
+.wohnungen-page .wohnungen-filter-bar,
+.wohnungen-page .wohnungen-list-panel,
+.wohnungen-page .wohnungen-detail-panel,
+.wohnungen-page .wohnungen-block,
+.wohnungen-page .wohnungen-room-card,
+.wohnungen-page .wohnungen-info-tile,
+.wohnungen-page .wohnungen-alert-block,
+.wohnungen-page .wohnungen-alert-item,
+.wohnungen-page .wohnungen-stat-card,
+.wohnungen-page .wohnungen-rent-card,
+.wohnungen-page .wohnungen-list-item,
+.wohnungen-page .wohnungen-bed-card,
+.wohnungen-page .lg\:col-span-2 > div,
+.wohnungen-page .lg\:col-span-1 > div {
+  background: linear-gradient(180deg, rgba(15, 27, 49, 0.9) 0%, rgba(12, 22, 40, 0.92) 100%) !important;
+  border: 1px solid #2a4777 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 16px 28px -22px rgba(0, 0, 0, 0.9) !important;
+  color: #e7efff !important;
+}
+
+.wohnungen-page .wohnungen-stat-card.ws-1,
+.wohnungen-page .wohnungen-stat-card.ws-2,
+.wohnungen-page .wohnungen-stat-card.ws-3,
+.wohnungen-page .wohnungen-stat-card.ws-4,
+.wohnungen-page .wohnungen-stat-card.ws-5,
+.wohnungen-page .wohnungen-stat-card.ws-6,
+.wohnungen-page .wohnungen-stat-card.ws-7 {
+  background: linear-gradient(160deg, rgba(17, 34, 60, 0.96), rgba(12, 24, 44, 0.96)) !important;
+}
+
+.wohnungen-page [class*="text-gray"],
+.wohnungen-page [class*="text-slate"],
+.wohnungen-page [class*="text-zinc"] {
+  color: #b9c8e8 !important;
+}
+
+.wohnungen-page .text-emerald-900,
+.wohnungen-page .text-emerald-800,
+.wohnungen-page .text-emerald-700,
+.wohnungen-page .text-green-400,
+.wohnungen-page .text-green-700 {
+  color: #57f7a7 !important;
+}
+
+.wohnungen-page .text-red-600,
+.wohnungen-page .text-rose-700,
+.wohnungen-page .text-red-400 {
+  color: #ff7f8f !important;
+}
+
+.wohnungen-page .input,
+.wohnungen-page input,
+.wohnungen-page select,
+.wohnungen-page textarea {
+  background: #0a1529 !important;
+  border: 1px solid #33558d !important;
+  color: #eef4ff !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+.wohnungen-page .input:focus,
+.wohnungen-page input:focus,
+.wohnungen-page select:focus,
+.wohnungen-page textarea:focus {
+  outline: none !important;
+  border-color: #57c6ff !important;
+  box-shadow: 0 0 0 3px rgba(87, 198, 255, 0.22) !important;
+}
+
+.wohnungen-page button,
+.wohnungen-page .action-btn {
+  border-radius: 10px !important;
+  border: 1px solid #5bbfff !important;
+  box-shadow: none !important;
+  color: #021628 !important;
+  background: linear-gradient(135deg, #8ad8ff, #5bbfff) !important;
+  font-weight: 700 !important;
+}
+
+.wohnungen-page button:hover,
+.wohnungen-page .action-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.wohnungen-page .wohnungen-list-item.border-violet-400,
+.wohnungen-page .wohnungen-list-item[class*="border-violet-400"] {
+  border-color: #66c8ff !important;
+  box-shadow: 0 0 0 2px rgba(102, 200, 255, 0.35), 0 16px 24px -20px rgba(0, 0, 0, 0.9) !important;
+}
+
+.wohnungen-page [data-search-match="true"] {
+  box-shadow: 0 0 0 2px rgba(255, 222, 89, 0.85), 0 10px 20px -16px rgba(0, 0, 0, 0.9) !important;
+}
+
+@media (max-width: 900px) {
+  .wohnungen-page .hero-title {
+    font-size: 2rem !important;
+  }
+
+  .wohnungen-page .hero-icon {
+    width: 62px;
+    height: 62px;
+    font-size: 1.5rem;
+  }
+}
+
+/* ============================================================================
+   COLOR COHESION FIX — make detail area match site dark palette
+   ============================================================================ */
+
+.wohnungen-page .wohnungen-detail-panel {
+  background: linear-gradient(180deg, rgba(12, 24, 45, 0.97), rgba(10, 20, 38, 0.97)) !important;
+  border: 1px solid #2c4f84 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="bg-white"],
+.wohnungen-page .wohnungen-detail-panel [class*="bg-gray-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="bg-slate-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="from-gray-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="to-white"],
+.wohnungen-page .wohnungen-detail-panel [class*="from-blue-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="from-emerald-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="from-purple-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="from-amber-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="to-green-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="to-rose-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="to-indigo-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="to-cyan-50"] {
+  background: linear-gradient(180deg, rgba(16, 31, 56, 0.96), rgba(12, 24, 44, 0.96)) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="border-gray"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-slate"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-blue-200"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-emerald-200"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-purple-200"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-indigo-200"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-amber-200"] {
+  border-color: #335c95 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="text-gray-900"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-slate-900"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-blue-900"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-indigo-900"] {
+  color: #e9f2ff !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="text-gray-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-gray-600"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-slate-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-blue-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-indigo-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-purple-700"] {
+  color: #a9c3eb !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="text-emerald-900"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-emerald-800"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-emerald-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-green-700"] {
+  color: #5ef0ab !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="text-red-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-rose-700"] {
+  color: #ff9aaa !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .wohnungen-room-card,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-bed-card,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-info-tile,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-block {
+  border-color: #345a90 !important;
+  box-shadow: 0 14px 24px -20px rgba(0, 0, 0, 0.95) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .wohnungen-bed-card {
+  background: linear-gradient(180deg, rgba(21, 43, 72, 0.96), rgba(15, 31, 53, 0.96)) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .wohnungen-bed-card [class*="bg-emerald-100"],
+.wohnungen-page .wohnungen-detail-panel .wohnungen-bed-card [class*="bg-blue-100"],
+.wohnungen-page .wohnungen-detail-panel .wohnungen-bed-card [class*="bg-gray-100"] {
+  background: rgba(123, 186, 255, 0.12) !important;
+  border-color: rgba(123, 186, 255, 0.35) !important;
+  color: #b9d5ff !important;
+}
+
+/* ----------------------------------------------------------------------------
+   HARD FIX: exact utility-class selectors seen in screenshot
+   ---------------------------------------------------------------------------- */
+
+.wohnungen-page .wohnungen-detail-panel.rounded-2xl.bg-white.border.border-gray-200 {
+  background: linear-gradient(180deg, rgba(12, 24, 45, 0.98), rgba(9, 18, 34, 0.98)) !important;
+  border-color: #2f527f !important;
+}
+
+.wohnungen-page .wohnungen-block.rounded-2xl.bg-white.border.border-slate-200,
+.wohnungen-page .wohnungen-block.rounded-xl.bg-white.border.border-gray-200,
+.wohnungen-page .wohnungen-block.mieter-block.rounded-xl.bg-white.border.border-purple-200,
+.wohnungen-page .wohnungen-block.notes-block.rounded-xl.bg-white.border.border-amber-200,
+.wohnungen-page .wohnungen-rooms-block.rounded-2xl.bg-white.border.border-slate-200 {
+  background: linear-gradient(180deg, rgba(16, 31, 56, 0.96), rgba(12, 24, 44, 0.96)) !important;
+  border-color: #345d95 !important;
+  box-shadow: 0 14px 26px -20px rgba(0, 0, 0, 0.95) !important;
+}
+
+.wohnungen-page .wohnungen-info-tile.rounded-xl.p-4.border.border-slate-200.bg-gradient-to-br.from-slate-50.to-white,
+.wohnungen-page .wohnungen-info-tile.tile-success.rounded-xl.p-4.border.border-emerald-200.bg-gradient-to-br.from-emerald-50.to-white,
+.wohnungen-page .wohnungen-info-tile.tile-info.rounded-xl.p-4.border.border-blue-200.bg-gradient-to-br.from-blue-50.to-white,
+.wohnungen-page .wohnungen-info-tile.mieter-tile.col-span-2.bg-purple-50.rounded-lg.p-3\.5.border.border-purple-200,
+.wohnungen-page .wohnungen-info-tile.mieter-tile.bg-purple-50.rounded-lg.p-3\.5.border.border-purple-200,
+.wohnungen-page .wohnungen-room-card.rounded-xl.bg-gradient-to-br.from-white.to-slate-50.border.border-slate-200.p-4 {
+  background: linear-gradient(180deg, rgba(19, 35, 62, 0.95), rgba(14, 27, 49, 0.95)) !important;
+  border-color: #3b68a7 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .text-slate-900,
+.wohnungen-page .wohnungen-detail-panel .text-gray-900,
+.wohnungen-page .wohnungen-detail-panel .text-blue-900,
+.wohnungen-page .wohnungen-detail-panel .text-purple-900,
+.wohnungen-page .wohnungen-detail-panel .text-amber-900,
+.wohnungen-page .wohnungen-detail-panel .text-slate-800,
+.wohnungen-page .wohnungen-detail-panel .text-gray-800,
+.wohnungen-page .wohnungen-detail-panel .text-blue-800,
+.wohnungen-page .wohnungen-detail-panel .text-purple-800,
+.wohnungen-page .wohnungen-detail-panel .text-amber-800 {
+  color: #eaf2ff !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .text-slate-700,
+.wohnungen-page .wohnungen-detail-panel .text-gray-700,
+.wohnungen-page .wohnungen-detail-panel .text-blue-700,
+.wohnungen-page .wohnungen-detail-panel .text-purple-700,
+.wohnungen-page .wohnungen-detail-panel .text-amber-700,
+.wohnungen-page .wohnungen-detail-panel .text-slate-600,
+.wohnungen-page .wohnungen-detail-panel .text-gray-600,
+.wohnungen-page .wohnungen-detail-panel .text-blue-600,
+.wohnungen-page .wohnungen-detail-panel .text-purple-600,
+.wohnungen-page .wohnungen-detail-panel .text-amber-600,
+.wohnungen-page .wohnungen-detail-panel .text-slate-500,
+.wohnungen-page .wohnungen-detail-panel .text-gray-500 {
+  color: #a7c3ea !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .text-emerald-900,
+.wohnungen-page .wohnungen-detail-panel .text-emerald-800,
+.wohnungen-page .wohnungen-detail-panel .text-emerald-700,
+.wohnungen-page .wohnungen-detail-panel .text-green-700 {
+  color: #5cf0ab !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .text-red-900,
+.wohnungen-page .wohnungen-detail-panel .text-red-800,
+.wohnungen-page .wohnungen-detail-panel .text-red-700,
+.wohnungen-page .wohnungen-detail-panel .text-rose-900,
+.wohnungen-page .wohnungen-detail-panel .text-rose-800,
+.wohnungen-page .wohnungen-detail-panel .text-rose-700 {
+  color: #ff98a8 !important;
+}
+
+/* ----------------------------------------------------------------------------
+   Detail-area harmonization (sections shown in screenshot)
+   ---------------------------------------------------------------------------- */
+
+.wohnungen-page .wohnungen-detail-panel {
+  background: linear-gradient(180deg, rgba(13, 25, 46, 0.95) 0%, rgba(9, 18, 34, 0.96) 100%) !important;
+  border: 1px solid #2f4f82 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .wohnungen-block,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-info-tile,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-room-card,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-bed-card {
+  background: linear-gradient(180deg, rgba(18, 33, 58, 0.95) 0%, rgba(14, 26, 46, 0.95) 100%) !important;
+  border: 1px solid #31598f !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="bg-white"],
+.wohnungen-page .wohnungen-detail-panel [class*="from-gray-50"],
+.wohnungen-page .wohnungen-detail-panel [class*="to-white"],
+.wohnungen-page .wohnungen-detail-panel [class*="from-slate-50"] {
+  background: linear-gradient(180deg, rgba(18, 33, 58, 0.95) 0%, rgba(14, 26, 46, 0.95) 100%) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="border-gray"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-slate"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-blue-200"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-emerald-200"],
+.wohnungen-page .wohnungen-detail-panel [class*="border-purple-200"] {
+  border-color: #365f98 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="text-blue-900"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-blue-800"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-gray-900"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-slate-900"] {
+  color: #ecf3ff !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="text-blue-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-indigo-700"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-purple-700"] {
+  color: #9ec7ff !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel [class*="text-xs"],
+.wohnungen-page .wohnungen-detail-panel [class*="text-sm"] {
+  text-shadow: none;
+}
+
+.wohnungen-page .wohnungen-detail-panel button {
+  background: linear-gradient(135deg, #79d9ff, #58bfff) !important;
+  border-color: #7bd9ff !important;
+  color: #061a2e !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .pdf-action-btn,
+.wohnungen-page .wohnungen-detail-panel .pdf-action-btn:hover,
+.wohnungen-page .wohnungen-detail-panel .pdf-action-btn:focus,
+.wohnungen-page .wohnungen-detail-panel .pdf-action-btn:active,
+.wohnungen-page .wohnungen-detail-panel .pdf-action-btn:disabled {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8) !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  color: #082032 !important;
+  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.28) !important;
+  opacity: 1 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .bg-emerald-50,
+.wohnungen-page .wohnungen-detail-panel .from-emerald-50,
+.wohnungen-page .wohnungen-detail-panel .to-green-50 {
+  background: linear-gradient(180deg, rgba(16, 63, 52, 0.72), rgba(12, 47, 40, 0.72)) !important;
+  border-color: #2dc48d !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .bg-red-50,
+.wohnungen-page .wohnungen-detail-panel .from-red-50,
+.wohnungen-page .wohnungen-detail-panel .to-rose-50 {
+  background: linear-gradient(180deg, rgba(83, 24, 34, 0.8), rgba(63, 17, 25, 0.8)) !important;
+  border-color: #e26b81 !important;
+}
+
+/* Final button unification: same background/text as Bearbeiten/PDF/Löschen */
+.wohnungen-page .action-btn,
+.wohnungen-page .action-btn.primary,
+.wohnungen-page .action-btn.ghost,
+.wohnungen-page .wohnungen-detail-panel .action-btn,
+.wohnungen-page button[class*="from-blue-600"],
+.wohnungen-page button[class*="from-green-600"],
+.wohnungen-page button[class*="from-red-600"],
+.wohnungen-page button.bg-violet-600,
+.wohnungen-page button.bg-purple-600,
+.wohnungen-page button.bg-red-600 {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8) !important;
+  color: #082032 !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.28) !important;
+}
+
+.wohnungen-page .action-btn:hover,
+.wohnungen-page .action-btn.primary:hover,
+.wohnungen-page .action-btn.ghost:hover,
+.wohnungen-page .wohnungen-detail-panel .action-btn:hover,
+.wohnungen-page button[class*="from-blue-600"]:hover,
+.wohnungen-page button[class*="from-green-600"]:hover,
+.wohnungen-page button[class*="from-red-600"]:hover,
+.wohnungen-page button.bg-violet-600:hover,
+.wohnungen-page button.bg-purple-600:hover,
+.wohnungen-page button.bg-red-600:hover {
+  background: linear-gradient(135deg, #93ddff, #4dc4fb) !important;
+  color: #061a2e !important;
+  border-color: rgba(224, 242, 254, 0.98) !important;
+}
+
+/* Specific controls requested: Bett frei / Offene Mieten / Liste anzeigen / Bearbeiten */
+.wohnungen-page .wohnungen-detail-panel .wohnungen-unified-btn,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-unified-btn:hover,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-unified-btn:focus,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-unified-btn:active {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8) !important;
+  color: #082032 !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.28) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .offene-mieten-btn,
+.wohnungen-page .wohnungen-detail-panel .offene-mieten-btn:hover,
+.wohnungen-page .wohnungen-detail-panel .offene-mieten-btn:focus,
+.wohnungen-page .wohnungen-detail-panel .offene-mieten-btn:active {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8) !important;
+  color: #082032 !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .offene-mieten-btn svg,
+.wohnungen-page .wohnungen-detail-panel .offene-mieten-btn div,
+.wohnungen-page .wohnungen-detail-panel .offene-mieten-btn span {
+  color: #082032 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-free,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-free:hover,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-free:focus,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-free:active {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8) !important;
+  color: #082032 !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.28) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-free .status-pill-text,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-free .status-pill-hint {
+  color: #082032 !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-full,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-full:hover,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-full:focus,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-full:active {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8) !important;
+  color: #082032 !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.28) !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-full:disabled {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8) !important;
+  color: #082032 !important;
+  border: 1px solid rgba(186, 230, 253, 0.95) !important;
+  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.28) !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-full .status-pill-text,
+.wohnungen-page .wohnungen-detail-panel .status-pill-btn-full .status-pill-hint {
+  color: #082032 !important;
+}
+
+/* Tenant names - always white */
+.wohnungen-page .wohnungen-bed-meta > div:first-child,
+.wohnungen-page .wohnungen-detail-panel .wohnungen-bed-meta .font-semibold {
+  color: #ffffff !important;
+}
+
+/* Edit form: labels and dimmed text readable on dark bg */
+.wohnungen-page label,
+.wohnungen-page label.text-xs {
+  color: #93c5fd !important;
+  opacity: 1 !important;
+}
+
+.wohnungen-page [class*="opacity-60"],
+.wohnungen-page [class*="opacity-50"] {
+  color: #93c5fd;
+  opacity: 0.85 !important;
+}
+
+

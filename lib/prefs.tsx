@@ -24,8 +24,8 @@ const PrefsCtx = createContext<Prefs | null>(null);
 
 const DICT: Record<Lang, Record<string, string>> = {
   de: {
-    appName: "Astrein Exzellent",
-    companyLine: "Gebäudemanagement International GmbH",
+    appName: "AH Exzellent Immobilien GmbH",
+    companyLine: "AH Exzellent Immobilien GmbH",
 
     loginTitle: "Anmelden",
     email: "E-Mail",
@@ -494,8 +494,8 @@ count: "Anzahl",
   },
 
   en: {
-    appName: "Astrein Exzellent",
-    companyLine: "Facility Management International GmbH",
+    appName: "AH Exzellent Immobilien GmbH",
+    companyLine: "AH Exzellent Immobilien GmbH",
 
     loginTitle: "Sign in",
     email: "Email",
@@ -945,8 +945,8 @@ count: "Count",
   },
 
   tr: {
-    appName: "Astrein Exzellent",
-    companyLine: "Tesis Yönetimi International GmbH",
+    appName: "AH Exzellent Immobilien GmbH",
+    companyLine: "AH Exzellent Immobilien GmbH",
 
     topLager: "En Çok Depo",
 whereMost: "En çok nerede?",
@@ -1399,8 +1399,8 @@ count: "Sayı",
   },
 
   ro: {
-    appName: "Astrein Exzellent",
-    companyLine: "Facility Management International GmbH",
+    appName: "AH Exzellent Immobilien GmbH",
+    companyLine: "AH Exzellent Immobilien GmbH",
 
     loginTitle: "Autentificare",
     email: "E-mail",
@@ -1847,8 +1847,8 @@ count: "Număr",
   },
 
   ru: {
-    appName: "Astrein Exzellent",
-    companyLine: "Facility Management International GmbH",
+    appName: "AH Exzellent Immobilien GmbH",
+    companyLine: "AH Exzellent Immobilien GmbH",
 
     loginTitle: "Вход",
     email: "Почта",
@@ -2304,6 +2304,13 @@ function normalizeAccent(v: string | undefined) {
   return `${r} ${g} ${b}`;
 }
 
+function normalizeTheme(v: string | undefined): Theme {
+  const s = String(v ?? "").toLowerCase().trim();
+  if (s === "light") return "light";
+  // any previous custom theme is mapped to dark mode
+  return "midnight";
+}
+
 // ✅ Important: apply background directly on body (always works)
 function applyThemeToBody(theme: Theme, accentTriplet: string) {
   const accent = normalizeAccent(accentTriplet);
@@ -2420,8 +2427,13 @@ function applyThemeToBody(theme: Theme, accentTriplet: string) {
     (body.style as any).webkitFontSmoothing = "antialiased";
     (body.style as any).MozOsxFontSmoothing = "grayscale";
 
+    const isWohnungenPage =
+      typeof window !== "undefined" && window.location.pathname.startsWith("/wohnungen");
+
     // Inject overrides to neutralize dark-tailwind classes used across the app
-    const css = `
+    // IMPORTANT: skip on /wohnungen because this page has its own dedicated theme.
+    if (!isWohnungenPage) {
+      const css = `
       [data-theme="light"] { background: #ffffff !important; }
       [data-theme="light"] [class*="text-white"] { color: #0b1220 !important; }
       [data-theme="light"] [class*="bg-black"] { background: #ffffff !important; color: #0b1220 !important; }
@@ -2448,8 +2460,9 @@ function applyThemeToBody(theme: Theme, accentTriplet: string) {
       [data-theme="light"] .surface { background: #ffffff !important; color: #0b1220 !important; border: 1px solid rgba(0,0,0,0.06) !important; box-shadow: 0 6px 20px rgba(11,18,32,0.04) !important; }
       [data-theme="light"] .surface-2 { background: linear-gradient(180deg,#ffffff,#f7fafc) !important; color: #0b1220 !important; border: 1px solid rgba(0,0,0,0.03) !important; box-shadow: 0 4px 18px rgba(11,18,32,0.03) !important; }
 
-      /* Tailwind opacity helpers that produce light overlays in dark mode */
-      [data-theme="light"] [class*="bg-white"] { background: rgba(11,18,32,0.04) !important; color: #0b1220 !important; }
+      /* Tailwind opacity helpers that produce light overlays in dark mode
+        IMPORTANT: do NOT override plain bg-white, only opacity variants */
+      [data-theme="light"] [class*="bg-white/"] { background: rgba(11,18,32,0.04) !important; color: #0b1220 !important; }
       [data-theme="light"] [class*="text-white"] { color: #0b1220 !important; }
       [data-theme="light"] [class*="text-white/"] { color: #0b1220 !important; }
 
@@ -2466,10 +2479,11 @@ function applyThemeToBody(theme: Theme, accentTriplet: string) {
 
     `;
 
-    const style = document.createElement("style");
-    style.id = "astrein-light-overrides";
-    style.appendChild(document.createTextNode(css));
-    document.head.appendChild(style);
+      const style = document.createElement("style");
+      style.id = "astrein-light-overrides";
+      style.appendChild(document.createTextNode(css));
+      document.head.appendChild(style);
+    }
 
     try { console.debug("applyThemeToBody branch=light", { bg: body.style.backgroundImage, bgColor: body.style.backgroundColor, hasOverride: !!document.getElementById('astrein-light-overrides') }); } catch {}
 
@@ -2487,8 +2501,12 @@ function applyThemeToBody(theme: Theme, accentTriplet: string) {
 
 export function PrefsProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>("de");
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>("light");
   const [accent, setAccent] = useState<string>("99 102 241");
+
+  const setTheme = (v: Theme) => {
+    setThemeState(normalizeTheme(v));
+  };
 
   // load once
   useEffect(() => {
@@ -2497,10 +2515,10 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
       try {
         const p = JSON.parse(raw);
         const nextLang: Lang = p.lang || "de";
-        const nextTheme: Theme = p.theme || p.design || "light";
+        const nextTheme: Theme = normalizeTheme(p.theme || p.design || "light");
         const nextAccent = normalizeAccent(p.accent || "99 102 241");
         setLang(nextLang);
-        setTheme(nextTheme);
+        setThemeState(nextTheme);
         setAccent(nextAccent);
         applyThemeToBody(nextTheme, nextAccent);
         return;

@@ -3,32 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePrefs } from "../../lib/prefs";
-import { useTheme } from "../../lib/themeContext";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 import { useRouter } from "next/navigation";
-
-function hexToRgbTriplet(hex: string) {
-  const h = hex.replace("#", "").trim();
-  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
-  const n = parseInt(full, 16);
-  const r = (n >> 16) & 255;
-  const g = (n >> 8) & 255;
-  const b = n & 255;
-  return `${r} ${g} ${b}`;
-}
-
-function rgbTripletToHex(triplet?: string) {
-  const safe = String(triplet ?? "99 102 241").trim();
-  const parts = safe.split(/\s+/).filter(Boolean);
-  const r = Math.max(0, Math.min(255, Number(parts[0] ?? 99)));
-  const g = Math.max(0, Math.min(255, Number(parts[1] ?? 102)));
-  const b = Math.max(0, Math.min(255, Number(parts[2] ?? 241)));
-  const to = (n: number) =>
-    Number.isFinite(n) ? n.toString(16).padStart(2, "0") : "00";
-  return `#${to(r)}${to(g)}${to(b)}`;
-}
 
 type MenuPos = { top: number; left: number; width: number };
 
@@ -154,13 +132,10 @@ function LangMenuPortal({
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { lang, setLang, theme, setTheme, accent, setAccent, t } = usePrefs();
+  const { lang, setLang, theme, setTheme, t } = usePrefs();
 
   const [langOpen, setLangOpen] = useState(false);
   const langBtnRef = useRef<HTMLButtonElement | null>(null);
-
-  const [colorHex, setColorHex] = useState(() => rgbTripletToHex(accent));
-  useEffect(() => setColorHex(rgbTripletToHex(accent)), [accent]);
 
   // User Profile
   const [userName, setUserName] = useState("");
@@ -218,33 +193,8 @@ export default function SettingsPage() {
     [t]
   );
 
-  // ✅ theme cards translated via t()
-  const themes = useMemo(
-    () => [
-      { id: "light", title: t("theme.light.title"), desc: t("theme.light.desc") },
-      { id: "glass", title: t("theme.glass.title"), desc: t("theme.glass.desc") },
-      { id: "midnight", title: t("theme.midnight.title"), desc: t("theme.midnight.desc") },
-      { id: "graphite", title: t("theme.graphite.title"), desc: t("theme.graphite.desc") },
-      { id: "aurora", title: t("theme.aurora.title"), desc: t("theme.aurora.desc") },
-      { id: "neon", title: t("theme.neon.title"), desc: t("theme.neon.desc") },
-    ],
-    [t]
-  );
-
-  // ✅ accent preset labels translated via t()
-  const accentPresets = useMemo(
-    () => [
-      { name: t("accentPreset.indigo"), rgb: "99 102 241" },
-      { name: t("accentPreset.cyan"), rgb: "34 211 238" },
-      { name: t("accentPreset.emerald"), rgb: "34 197 94" },
-      { name: t("accentPreset.orange"), rgb: "249 115 22" },
-      { name: t("accentPreset.pink"), rgb: "236 72 153" },
-      { name: t("accentPreset.violet"), rgb: "139 92 246" },
-    ],
-    [t]
-  );
-
   const currentLangLabel = languages.find((x) => x.id === lang)?.label ?? t("lang.de");
+  const isDark = theme !== "light";
 
   if (loading) {
     return (
@@ -272,7 +222,7 @@ export default function SettingsPage() {
                      background: userRole === "admin" ? "rgba(139, 92, 246, 0.15)" : "rgba(34, 197, 94, 0.15)",
                      color: userRole === "admin" ? "rgb(139, 92, 246)" : "rgb(34, 197, 94)"
                    }}>
-                {userRole === "admin" ? "Administrator" : "Mitarbeiter"}
+                {userRole === "admin" ? t("role.admin") : t("role.mitarbeiter")}
               </div>
             </div>
           </div>
@@ -317,80 +267,36 @@ export default function SettingsPage() {
       {/* Theme */}
       <div className="rounded-[28px] surface p-6">
         <div className="text-sm font-semibold text-white/90">{t("theme")}</div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {themes.map((x) => (
-            <button
-              key={x.id}
-              onClick={() => setTheme(x.id as any)}
-              className={`rounded-2xl border px-4 py-4 text-left transition ${
-                theme === x.id
-                  ? "border-white/25 bg-white/5 text-white accent-ring"
-                  : "border-white/10 bg-black/20 text-white/80 hover:bg-white/5"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold">{x.title}</div>
-                {theme === x.id && (
-                  <div className="text-xs accent-text font-semibold">{t("active")}</div>
-                )}
-              </div>
-              <div className="mt-1 text-xs muted">{x.desc}</div>
-              <div className="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full" style={{ width: "70%", background: "rgb(var(--accent))" }} />
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <button
+            onClick={() => setTheme("light" as any)}
+            className={`rounded-2xl border px-4 py-4 text-left transition ${
+              !isDark
+                ? "border-white/25 bg-white/5 text-white accent-ring"
+                : "border-white/10 bg-black/20 text-white/80 hover:bg-white/5"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-semibold">{t("theme.light.title")}</div>
+              {!isDark && <div className="text-xs accent-text font-semibold">{t("active")}</div>}
+            </div>
+            <div className="mt-1 text-xs muted">{t("theme.light.desc")}</div>
+          </button>
 
-      {/* Design Themes */}
-      <div className="rounded-[28px] surface p-6">
-        <div className="mb-6">
-          <div className="text-sm font-semibold text-white/90">Design Themes</div>
-          <div className="mt-1 text-xs muted">Light Mode ist immer aktiv</div>
-        </div>
-        <div className="text-sm text-white/70 bg-white/5 rounded-lg p-4">
-          Das Design ist auf Light Mode festgelegt und kann nicht geändert werden.
-        </div>
-      </div>
-
-      {/* Accent */}
-      <div className="rounded-[28px] surface p-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="text-sm font-semibold text-white/90">{t("color")}</div>
-            <div className="mt-1 text-xs muted">rgb({accent})</div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              value={colorHex}
-              onChange={(e) => {
-                const hex = e.target.value;
-                setColorHex(hex);
-                setAccent(hexToRgbTriplet(hex));
-              }}
-              className="h-11 w-16 rounded-xl border border-white/10 bg-black/25"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {accentPresets.map((p) => (
-            <button
-              key={p.name}
-              onClick={() => setAccent(p.rgb)}
-              className={`rounded-2xl border px-3 py-3 text-left transition ${
-                accent === p.rgb
-                  ? "border-white/25 bg-white/5 accent-ring"
-                  : "border-white/10 bg-black/20 hover:bg-white/5"
-              }`}
-            >
-              <div className="text-xs text-white/85 font-semibold">{p.name}</div>
-              <div className="mt-2 h-2 rounded-full" style={{ background: `rgb(${p.rgb})` }} />
-            </button>
-          ))}
+          <button
+            onClick={() => setTheme("midnight" as any)}
+            className={`rounded-2xl border px-4 py-4 text-left transition ${
+              isDark
+                ? "border-white/25 bg-white/5 text-white accent-ring"
+                : "border-white/10 bg-black/20 text-white/80 hover:bg-white/5"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-semibold">{t("theme.midnight.title")}</div>
+              {isDark && <div className="text-xs accent-text font-semibold">{t("active")}</div>}
+            </div>
+            <div className="mt-1 text-xs muted">{t("theme.midnight.desc")}</div>
+          </button>
         </div>
       </div>
 

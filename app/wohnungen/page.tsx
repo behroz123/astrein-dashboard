@@ -142,6 +142,74 @@ export default function WohnungenPage() {
   // Mobile view state
   const [showMobileList, setShowMobileList] = useState(true);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const prevThemeAttr = root.getAttribute("data-theme");
+    root.setAttribute("data-theme", "midnight");
+
+    const lightOverride = document.getElementById("astrein-light-overrides");
+    if (lightOverride) lightOverride.remove();
+
+    const existing = document.getElementById("wohnungen-force-dark-overrides");
+    if (existing) existing.remove();
+
+    const style = document.createElement("style");
+    style.id = "wohnungen-force-dark-overrides";
+    style.textContent = `
+      .wohnungen-page .bg-white,
+      .wohnungen-page [class*="bg-white"],
+      .wohnungen-page [class*="from-slate-50"],
+      .wohnungen-page [class*="from-gray-50"],
+      .wohnungen-page [class*="to-white"],
+      .wohnungen-page [class*="from-blue-50"],
+      .wohnungen-page [class*="from-emerald-50"],
+      .wohnungen-page [class*="from-purple-50"],
+      .wohnungen-page [class*="from-amber-50"] {
+        background: linear-gradient(180deg, rgba(16, 31, 56, 0.96), rgba(12, 24, 44, 0.96)) !important;
+      }
+
+      .wohnungen-page [class*="border-gray"],
+      .wohnungen-page [class*="border-slate"],
+      .wohnungen-page [class*="border-blue-200"],
+      .wohnungen-page [class*="border-emerald-200"],
+      .wohnungen-page [class*="border-purple-200"],
+      .wohnungen-page [class*="border-amber-200"] {
+        border-color: #345d95 !important;
+      }
+
+      .wohnungen-page [class*="text-slate-900"],
+      .wohnungen-page [class*="text-gray-900"],
+      .wohnungen-page [class*="text-blue-900"],
+      .wohnungen-page [class*="text-purple-900"] {
+        color: #eaf2ff !important;
+      }
+
+      .wohnungen-page [class*="text-slate-700"],
+      .wohnungen-page [class*="text-gray-700"],
+      .wohnungen-page [class*="text-blue-700"],
+      .wohnungen-page [class*="text-purple-700"],
+      .wohnungen-page [class*="text-slate-600"],
+      .wohnungen-page [class*="text-gray-600"],
+      .wohnungen-page [class*="text-slate-500"],
+      .wohnungen-page [class*="text-gray-500"] {
+        color: #a7c3ea !important;
+      }
+    `;
+
+    document.head.appendChild(style);
+
+    return () => {
+      if (prevThemeAttr) {
+        root.setAttribute("data-theme", prevThemeAttr);
+      } else {
+        root.removeAttribute("data-theme");
+      }
+
+      const s = document.getElementById("wohnungen-force-dark-overrides");
+      if (s) s.remove();
+    };
+  }, []);
+
   function getUserDisplayName(fullEmail: string): string {
     if (!fullEmail) return "Unbekannt";
     const parts = fullEmail.split("@")[0].split(".");
@@ -402,6 +470,20 @@ export default function WohnungenPage() {
       return matchesSearch && matchesStatus;
     });
 
+  const parseMoney = (value?: string): number => {
+    if (!value) return 0;
+    const normalized = String(value).replace(/\s/g, "").replace(",", ".");
+    const amount = Number.parseFloat(normalized);
+    return Number.isFinite(amount) ? amount : 0;
+  };
+
+  const formatMoney = (amount: number): string => {
+    return new Intl.NumberFormat("de-DE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
+
   const stats = {
     total: wohnungen.length,
     verfügbar: wohnungen.filter(w => w.status === "verfügbar").length,
@@ -418,10 +500,10 @@ export default function WohnungenPage() {
 
   // Berechne Einnahmen vs. Gesamtmiete
   function calculateRentDifference(wohnung: Wohnung): number {
-    const totalRent = parseInt(wohnung.miete || "0") || 0;
+    const totalRent = parseMoney(wohnung.miete);
     const tenantsRent = (wohnung.rooms || []).reduce((sum, room) => {
       return sum + room.beds.reduce((bedSum, bed) => {
-        return bedSum + (parseInt(bed.rent || "0") || 0);
+        return bedSum + parseMoney(bed.rent);
       }, 0);
     }, 0);
     return tenantsRent - totalRent;
@@ -434,7 +516,7 @@ export default function WohnungenPage() {
     
     wohnungen.forEach(wohnung => {
       // Gesamtmiete von der Wohnung
-      const wohnungMiete = parseInt(wohnung.miete || "0") || 0;
+      const wohnungMiete = parseMoney(wohnung.miete);
       totalRentAmount += wohnungMiete;
       
       // Bezahlte Mieten von allen Betten
@@ -933,7 +1015,7 @@ export default function WohnungenPage() {
         person: selectedBed.tenant,
         movedOutDate: tempMoveOutDate,
         fromWhere: `${selectedWohnung.adresse || selectedWohnung.address} - ${updatedRooms.find(r => r.id === selectedBedContext.roomId)?.name || "Unbekannt"} - Bett ${selectedBedContext.bedId}`,
-        notes: `Monatliche Miete: ${selectedBed.rent}€ | Gesamtmiete: ${totalRent.toFixed(2)}€ | Einzugsdatum: ${selectedBed.moveInDate}`,
+        notes: `Monatliche Miete: ${formatMoney(parseMoney(selectedBed.rent))}€ | Gesamtmiete: ${formatMoney(totalRent)}€ | Einzugsdatum: ${selectedBed.moveInDate}`,
         createdAt: serverTimestamp(),
         createdByUid: user.uid,
         createdByName: userDisplayName,
@@ -985,7 +1067,10 @@ export default function WohnungenPage() {
   const canManageProperties = userRole === "admin" || userRole === "mitarbeiter";
 
   return (
-    <div className="pb-12 wohnungen-page">
+    <div
+      className="pb-12 wohnungen-page"
+      style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%)" }}
+    >
       {/* Professional Header with Clean Design */}
       <div className="mb-12">
         <button
@@ -996,38 +1081,45 @@ export default function WohnungenPage() {
           ← {t("common.back")}
         </button>
         
-        {/* Clean Header with Side Accent */}
-        <div className="relative rounded-2xl overflow-hidden bg-white border-2 border-violet-200 shadow-xl">
-          {/* Left Accent Bar */}
-          <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-violet-500 via-purple-500 to-fuchsia-500"></div>
-          
-          <div className="flex items-center gap-6 p-8 pl-10">
-            {/* Icon */}
-            <div className="flex-shrink-0 text-7xl">🏢</div>
-            
-            {/* Text Content */}
-            <div className="flex-1">
-              <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-2 text-gray-900">
-                {t("wohnungen.title")}
-              </h1>
-              <p className="text-lg text-gray-600">
-                Professionelle Verwaltung aller Wohnungen und Mieterverhältnisse
-              </p>
-            </div>
-            
-            {/* Stats Quick View */}
-            <div className="hidden xl:flex gap-4">
-              <div className="text-center px-4 py-3 rounded-xl bg-violet-50 border border-violet-200">
-                <div className="text-2xl font-bold text-violet-600">{stats.total}</div>
-                <div className="text-xs text-violet-600 font-medium">Wohnungen</div>
+        {/* Hero Header - Refined */}
+        <div
+          dir="ltr"
+          className="relative rounded-2xl overflow-hidden hero-compact"
+          style={{
+            direction: "ltr",
+            background: "linear-gradient(145deg, rgba(11,27,52,0.98), rgba(15,39,74,0.95))",
+            border: "1px solid rgba(99, 179, 255, 0.42)",
+            boxShadow: "0 24px 48px -28px rgba(0,0,0,0.75), inset 0 0 100px rgba(56,189,248,0.07)"
+          }}
+        >
+          <div className="p-7 md:p-8" style={{ direction: "ltr" }}>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-3" style={{ background: "rgba(59,130,246,0.16)", color: "#cbe6ff", border: "1px solid rgba(125,211,252,0.32)" }}>
+                  <span>🏢</span>
+                  <span>AH Exzellent Immobilien GmbH</span>
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2 hero-title" style={{ color: "#eef4ff", textAlign: "left" }}>
+                  {t("wohnungen.title")}
+                </h1>
+                <p className="text-base md:text-lg hero-sub" style={{ color: "#c6daf8", textAlign: "left" }}>
+                  Professionelle Verwaltung aller Wohnungen und Mieterverhältnisse
+                </p>
               </div>
-              <div className="text-center px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                <div className="text-2xl font-bold text-emerald-600">{stats.verfügbar}</div>
-                <div className="text-xs text-emerald-600 font-medium">Verfügbar</div>
-              </div>
-              <div className="text-center px-4 py-3 rounded-xl bg-blue-50 border border-blue-200">
-                <div className="text-2xl font-bold text-blue-600">{stats.totalBeds}</div>
-                <div className="text-xs text-blue-600 font-medium">Betten</div>
+
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full lg:w-auto lg:min-w-[430px]">
+                <div className="rounded-xl px-4 py-3 text-center" style={{ background: "rgba(16,31,56,0.92)", border: "1px solid rgba(167,139,250,0.45)" }}>
+                  <div className="text-3xl font-extrabold" style={{ color: "#c4b5fd" }}>{stats.total}</div>
+                  <div className="text-xs font-semibold" style={{ color: "#ddd6fe" }}>Wohnungen</div>
+                </div>
+                <div className="rounded-xl px-4 py-3 text-center" style={{ background: "rgba(16,31,56,0.92)", border: "1px solid rgba(74,222,128,0.45)" }}>
+                  <div className="text-3xl font-extrabold" style={{ color: "#86efac" }}>{stats.verfügbar}</div>
+                  <div className="text-xs font-semibold" style={{ color: "#bbf7d0" }}>Verfügbar</div>
+                </div>
+                <div className="rounded-xl px-4 py-3 text-center" style={{ background: "rgba(16,31,56,0.92)", border: "1px solid rgba(96,165,250,0.45)" }}>
+                  <div className="text-3xl font-extrabold" style={{ color: "#93c5fd" }}>{stats.totalBeds}</div>
+                  <div className="text-xs font-semibold" style={{ color: "#bfdbfe" }}>Betten</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1035,44 +1127,44 @@ export default function WohnungenPage() {
       </div>
 
       {/* Statistics - Clean Minimal */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-10">
-        <div className="group relative rounded-xl bg-white border-2 border-violet-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-violet-300">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-10 wohnungen-stats-grid">
+        <div className="group relative rounded-xl bg-white border-2 border-violet-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-violet-300 wohnungen-stat-card ws-1">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-purple-500 rounded-t-xl"></div>
           <div className="text-2xl mb-2">🏢</div>
           <div className="text-3xl font-black text-gray-900 mb-1">{stats.total}</div>
           <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.total")}</div>
         </div>
-        <div className="group relative rounded-xl bg-white border-2 border-emerald-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+        <div className="group relative rounded-xl bg-white border-2 border-emerald-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-emerald-300 wohnungen-stat-card ws-2">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-green-500 rounded-t-xl"></div>
           <div className="text-2xl mb-2">✨</div>
           <div className="text-3xl font-black text-gray-900 mb-1">{stats.verfügbar}</div>
           <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.verfuegbar")}</div>
         </div>
-        <div className="group relative rounded-xl bg-white border-2 border-blue-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-blue-300">
+        <div className="group relative rounded-xl bg-white border-2 border-blue-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-blue-300 wohnungen-stat-card ws-3">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-t-xl"></div>
           <div className="text-2xl mb-2">🔑</div>
           <div className="text-3xl font-black text-gray-900 mb-1">{stats.vermietet}</div>
           <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.vermietet")}</div>
         </div>
-        <div className="group relative rounded-xl bg-white border-2 border-amber-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-amber-300">
+        <div className="group relative rounded-xl bg-white border-2 border-amber-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-amber-300 wohnungen-stat-card ws-4">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-t-xl"></div>
           <div className="text-2xl mb-2">🔧</div>
           <div className="text-3xl font-black text-gray-900 mb-1">{stats.renovierung}</div>
           <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.renovierung")}</div>
         </div>
-        <div className="group relative rounded-xl bg-white border-2 border-indigo-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-indigo-300">
+        <div className="group relative rounded-xl bg-white border-2 border-indigo-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-indigo-300 wohnungen-stat-card ws-5">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-t-xl"></div>
           <div className="text-2xl mb-2">🚪</div>
           <div className="text-3xl font-black text-gray-900 mb-1">{stats.totalRooms}</div>
           <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.zimmer")}</div>
         </div>
-        <div className="group relative rounded-xl bg-white border-2 border-purple-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-purple-300">
+        <div className="group relative rounded-xl bg-white border-2 border-purple-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-purple-300 wohnungen-stat-card ws-6">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-t-xl"></div>
           <div className="text-2xl mb-2">🛏️</div>
           <div className="text-3xl font-black text-gray-900 mb-1">{stats.totalBeds}</div>
           <div className="text-xs font-bold text-gray-500 uppercase">{t("wohnungen.stats.betten")}</div>
         </div>
-        <div className="group relative rounded-xl bg-white border-2 border-pink-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-pink-300">
+        <div className="group relative rounded-xl bg-white border-2 border-pink-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-pink-300 wohnungen-stat-card ws-7">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-rose-500 rounded-t-xl"></div>
           <div className="text-2xl mb-2">👥</div>
           <div className="text-3xl font-black text-gray-900 mb-1">{stats.occupiedBeds}/{stats.totalBeds}</div>
@@ -1091,27 +1183,27 @@ export default function WohnungenPage() {
               {/* Main Overview Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div
-                  className="group relative rounded-xl bg-white border-2 border-indigo-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-indigo-300"
+                  className="group relative rounded-xl bg-white border-2 border-indigo-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-indigo-300 wohnungen-rent-card rc-total"
                 >
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-t-xl"></div>
                   <div className="text-2xl mb-2">🏠</div>
                   <div className="text-xs font-bold mb-2 uppercase tracking-wider text-indigo-700">
                     Gesamtmiete
                   </div>
-                  <div className="text-3xl font-black mb-1 text-gray-900">{rentOverview.totalRent}€</div>
+                  <div className="text-3xl font-black mb-1 text-gray-900">{formatMoney(rentOverview.totalRent)}€</div>
                   <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Alle Wohnungen
                   </div>
                 </div>
                 <div
-                  className="group relative rounded-xl bg-white border-2 border-emerald-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-emerald-300"
+                  className="group relative rounded-xl bg-white border-2 border-emerald-200 p-5 transition-all duration-200 hover:shadow-lg hover:border-emerald-300 wohnungen-rent-card rc-paid"
                 >
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-green-500 rounded-t-xl"></div>
                   <div className="text-2xl mb-2">💶</div>
                   <div className="text-xs font-bold mb-2 uppercase tracking-wider text-emerald-700">
                     Einnahmen
                   </div>
-                  <div className="text-3xl font-black mb-1 text-gray-900">{rentOverview.totalPaid}€</div>
+                  <div className="text-3xl font-black mb-1 text-gray-900">{formatMoney(rentOverview.totalPaid)}€</div>
                   <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Bezahlte Mieten
                   </div>
@@ -1121,7 +1213,7 @@ export default function WohnungenPage() {
                     rentOverview.difference >= 0 
                       ? 'border-lime-200 hover:border-lime-300'
                       : 'border-rose-200 hover:border-rose-300'
-                  }`}
+                  } wohnungen-rent-card rc-diff`}
                 >
                   <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-xl ${
                     rentOverview.difference >= 0
@@ -1137,7 +1229,8 @@ export default function WohnungenPage() {
                   <div className={`text-3xl font-black mb-1 ${
                     rentOverview.difference >= 0 ? 'text-lime-700' : 'text-rose-700'
                   }`}>
-                    {rentOverview.difference >= 0 ? '+' : ''}{rentOverview.difference}€
+                    {rentOverview.difference >= 0 ? "+" : ""}
+                    {formatMoney(rentOverview.difference)}€
                   </div>
                   <div className={`text-xs font-semibold uppercase tracking-wide ${
                     rentOverview.difference >= 0 ? 'text-gray-500' : 'text-gray-500'
@@ -1153,7 +1246,7 @@ export default function WohnungenPage() {
 
       <div className="space-y-8">
       {/* Filter Bar - Professional Style */}
-      <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm">
+      <div className="rounded-2xl bg-white border border-gray-200 p-5 shadow-sm wohnungen-filter-bar">
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -1177,7 +1270,7 @@ export default function WohnungenPage() {
           {canManageProperties && (
             <button
               onClick={handleNew}
-              className="rounded-lg bg-violet-600 hover:bg-violet-700 px-6 py-2.5 text-sm font-semibold text-white transition shadow-sm whitespace-nowrap"
+              className="action-btn primary rounded-lg bg-violet-600 hover:bg-violet-700 px-6 py-2.5 text-sm font-semibold text-white transition shadow-sm whitespace-nowrap"
             >
               + {t("wohnungen.newWohnung")}
             </button>
@@ -1192,7 +1285,7 @@ export default function WohnungenPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Wohnungen Liste - Professionell */}
       <div className={`lg:col-span-1 ${!showMobileList && (selectedWohnung || isEditing) ? 'hidden lg:block' : ''}`}>
-        <div className="rounded-2xl bg-white border border-gray-200 p-5 sticky top-4 shadow-sm">
+        <div className="rounded-2xl bg-white border border-gray-200 p-5 sticky top-4 shadow-sm wohnungen-list-panel">
           <h2 className="text-lg font-semibold mb-4">{t("wohnungen.title")}</h2>
 
           <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -1211,7 +1304,7 @@ export default function WohnungenPage() {
                     setIsEditing(false);
                     setShowMobileList(false);
                   }}
-                  className={`w-full text-left rounded-2xl p-5 transition-all duration-200 border-2 ${
+                  className={`w-full text-left rounded-2xl p-5 transition-all duration-200 border-2 wohnungen-list-item ${
                     selectedWohnung?.id === wohnung.id 
                       ? "bg-violet-50 border-violet-300 shadow-md" 
                       : "bg-white border-gray-200 hover:border-violet-200 hover:shadow-sm"
@@ -1222,7 +1315,7 @@ export default function WohnungenPage() {
                       <div className="font-bold text-base truncate text-gray-900">{wohnung.adresse || wohnung.address || "—"}</div>
                       <div className="text-sm text-gray-500 truncate mt-1 font-medium">{wohnung.stadtplz || "—"}</div>
                     </div>
-                    <div className="px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 flex items-center gap-2 bg-gray-50 border border-gray-200 text-gray-700">
+                    <div className="px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 flex items-center gap-2 bg-slate-800 border border-blue-700/60 text-blue-100 status-pill" style={{ background: "rgba(18,34,59,0.96)", borderColor: "#4b77b5", color: "#dbeafe" }}>
                       {wohnung.status === "verfügbar" && <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50"></div>}
                       {wohnung.status === "vermietet" && <div className="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-lg shadow-blue-400/50"></div>}
                       {wohnung.status === "renovierung" && <div className="w-2.5 h-2.5 rounded-full bg-orange-400 shadow-lg shadow-orange-400/50"></div>}
@@ -1261,37 +1354,38 @@ export default function WohnungenPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-xs mb-3">
-                    <span className="px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 font-semibold">{wohnung.zimmerzahl || "?"} Zimmer</span>
-                    <span className="px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 text-purple-700 font-semibold">{wohnung.quadratmeter || "?"} m²</span>
+                    <span className="px-3 py-1.5 rounded-lg bg-blue-950/55 border border-blue-700/60 text-blue-200 font-semibold">{wohnung.zimmerzahl || "?"} Zimmer</span>
+                    <span className="px-3 py-1.5 rounded-lg bg-violet-950/45 border border-violet-700/60 text-violet-200 font-semibold">{wohnung.quadratmeter || "?"} m²</span>
                     {wohnung.miete && (
-                      <span className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold">
-                        {wohnung.miete}€
+                      <span className="px-3 py-1.5 rounded-lg bg-emerald-950/35 border border-emerald-600/60 text-emerald-300 font-bold">
+                        {formatMoney(parseMoney(wohnung.miete))}€
                       </span>
                     )}
                   </div>
                   
                   {/* Rent Calculation */}
                   {wohnung.status === "vermietet" && wohnung.miete && (
-                    <div className="flex items-center gap-2 mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                    <div className="flex items-center gap-2 mt-3 p-3 rounded-xl bg-emerald-950/25 border border-emerald-700/50">
                       {(() => {
                         const diff = calculateRentDifference(wohnung);
                         const tenantsRent = (wohnung.rooms || []).reduce((sum, room) => {
                           return sum + room.beds.reduce((bedSum, bed) => {
-                            return bedSum + (parseInt(bed.rent || "0") || 0);
+                            return bedSum + parseMoney(bed.rent);
                           }, 0);
                         }, 0);
                         
                         return (
                           <>
-                            <span className="text-xs text-emerald-700 font-semibold">Einnahmen:</span>
-                            <span className="text-sm font-extrabold text-emerald-800">{tenantsRent}€</span>
+                            <span className="text-xs text-emerald-300 font-semibold">Einnahmen:</span>
+                            <span className="text-sm font-extrabold text-emerald-300">{formatMoney(tenantsRent)}€</span>
                             {diff !== 0 && (
                               <>
-                                <span className="text-xs text-emerald-500">•</span>
+                                <span className="text-xs text-emerald-400">•</span>
                                 <span className={`text-xs font-bold px-2.5 py-1 rounded-lg shadow-md ${
-                                  diff > 0 ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
+                                  diff > 0 ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-700/60' : 'bg-rose-950/40 text-rose-300 border border-rose-700/60'
                                 }`}>
-                                  {diff > 0 ? '+' : ''}{diff}€
+                                  {diff > 0 ? "+" : ""}
+                                  {formatMoney(diff)}€
                                 </span>
                               </>
                             )}
@@ -1311,9 +1405,9 @@ export default function WohnungenPage() {
       <div className={`lg:col-span-2 ${showMobileList && !isEditing && !selectedWohnung ? 'hidden lg:block' : ''}`}>
         {isEditing ? (
           // Edit Form - Modern Design
-          <div className="rounded-2xl bg-white border border-gray-200 p-6 space-y-8 shadow-sm">
+          <div className="rounded-2xl p-6 space-y-8 shadow-sm" style={{ background: "linear-gradient(180deg, rgba(13,25,46,0.98), rgba(10,19,36,0.98))", border: "1px solid #2f5490" }}>
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-2xl font-bold" style={{ color: "#eef4ff" }}>
                 {selectedWohnung ? "Wohnung bearbeiten" : "Neue Wohnung erstellen"}
               </h2>
               <button
@@ -1321,7 +1415,8 @@ export default function WohnungenPage() {
                   resetForm();
                   setShowMobileList(true);
                 }}
-                className="opacity-60 hover:opacity-100 text-2xl"
+                className="hover:opacity-100 text-2xl"
+                style={{ color: "#93c5fd", opacity: 0.7 }}
               >
                 ✕
               </button>
@@ -1335,7 +1430,7 @@ export default function WohnungenPage() {
 
             {/* Grunddaten */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Grunddaten</h3>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: "#c9dbf8" }}>Grunddaten</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="text-xs opacity-60 font-medium">Adresse *</label>
@@ -1413,9 +1508,9 @@ export default function WohnungenPage() {
             </div>
 
             {/* Zimmer & Betten Verwaltung */}
-              <div className="rounded-xl bg-violet-50 border border-violet-200 p-5">
+              <div className="rounded-xl p-5" style={{ background: "rgba(18,34,59,0.92)", border: "1px solid #3a679f" }}>
               <div className="flex items-center justify-between gap-3 mb-4">
-                <h3 className="text-base font-semibold">Zimmer & Betten</h3>
+                <h3 className="text-base font-semibold" style={{ color: "#c9dbf8" }}>Zimmer & Betten</h3>
                 <button
                   type="button"
                   onClick={() => {
@@ -1424,16 +1519,16 @@ export default function WohnungenPage() {
                     setRoomName("");
                     setRoomBeds([{ id: Date.now().toString(), number: 1, occupied: false }]);
                   }}
-                  className="rounded-lg bg-purple-600 hover:bg-purple-700 px-3 py-2 text-sm font-semibold text-white transition"
+                  className="action-btn primary rounded-lg bg-purple-600 hover:bg-purple-700 px-3 py-2 text-sm font-semibold text-white transition"
                 >
                   + Zimmer
                 </button>
               </div>
 
               {showRoomManager && (
-                <div className="rounded-lg bg-white border border-violet-200 p-4 mb-4 shadow-sm">
+                <div className="rounded-lg p-4 mb-4 shadow-sm" style={{ background: "rgba(12,24,44,0.98)", border: "1px solid #3a6090" }}>
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-semibold">{editingRoom ? "Zimmer bearbeiten" : "Neues Zimmer"}</h4>
+                    <h4 className="font-semibold" style={{ color: "#e0f0ff" }}>{editingRoom ? "Zimmer bearbeiten" : "Neues Zimmer"}</h4>
                     <button
                       type="button"
                       onClick={() => {
@@ -1442,7 +1537,8 @@ export default function WohnungenPage() {
                         setRoomName("");
                         setRoomBeds([]);
                       }}
-                      className="opacity-60 hover:opacity-100"
+                      className="hover:opacity-100"
+                      style={{ color: "#93c5fd", opacity: 0.8 }}
                     >
                       ✕
                     </button>
@@ -1461,7 +1557,7 @@ export default function WohnungenPage() {
                     </div>
 
                     {/* Room Properties */}
-                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 space-y-3">
+                    <div className="rounded-lg p-3 space-y-3" style={{ background: "rgba(18,34,59,0.85)", border: "1px solid #355d8c" }}>
                       <div>
                         <label className="text-xs opacity-60 font-medium">Kapazität (Personen)</label>
                         <input
@@ -1481,7 +1577,7 @@ export default function WohnungenPage() {
                           onChange={(e) => setRoomSuitableForCouple(e.target.checked)}
                           className="w-4 h-4 rounded"
                         />
-                        <span className="text-sm font-medium">Geeignet für Paare</span>
+                        <span className="text-sm font-medium" style={{ color: "#bfdbfe" }}>Geeignet für Paare</span>
                       </label>
                     </div>
 
@@ -1491,7 +1587,8 @@ export default function WohnungenPage() {
                         <button
                           type="button"
                           onClick={addBedToRoom}
-                          className="text-xs text-blue-700 hover:text-blue-800 px-2 py-1 rounded bg-blue-100"
+                          className="wohnungen-unified-btn text-xs px-2 py-1 rounded"
+                          style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)" }}
                         >
                           + Bett
                         </button>
@@ -1499,13 +1596,14 @@ export default function WohnungenPage() {
 
                       <div className="space-y-3">
                         {roomBeds.map((bed, idx) => (
-                          <div key={bed.id} className="rounded-lg bg-blue-50 border border-blue-200 p-4">
+                          <div key={bed.id} className="rounded-lg p-4" style={{ background: "rgba(18,34,59,0.92)", border: "1px solid #3a6ba8" }}>
                             <div className="flex items-center justify-between mb-4">
-                              <span className="text-sm font-bold">Bett {idx + 1}</span>
+                              <span className="text-sm font-bold" style={{ color: "#e0f0ff" }}>Bett {idx + 1}</span>
                               <button
                                 type="button"
                                 onClick={() => deleteBed(bed.id)}
-                                className="text-red-700 hover:text-red-800 text-xs px-2 py-1 rounded bg-red-100"
+                                className="wohnungen-unified-btn text-xs px-2 py-1 rounded"
+                                style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)" }}
                               >
                                 🗑️ Löschen
                               </button>
@@ -1589,17 +1687,17 @@ export default function WohnungenPage() {
                   </div>
                 ) : (
                   rooms.map((room) => (
-                    <div key={room.id} className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
+                    <div key={room.id} className="rounded-lg p-3 shadow-sm" style={{ background: "rgba(18,34,59,0.88)", border: "1px solid #355d8c" }}>
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <DoorOpen className="w-4 h-4 opacity-60" />
-                          <span className="font-medium">{room.name}</span>
-                          <span className="text-xs opacity-50">({room.beds.length} Betten)</span>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+                          <DoorOpen className="w-4 h-4" style={{ color: "#7dd3fc", opacity: 0.8 }} />
+                          <span className="font-medium" style={{ color: "#e0f0ff" }}>{room.name}</span>
+                          <span className="text-xs" style={{ color: "#7dd3fc", opacity: 0.7 }}>({room.beds.length} Betten)</span>
+                          <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: "rgba(59,130,246,0.2)", color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)" }}>
                             {room.capacity || 1} Pers.
                           </span>
                           {room.suitableForCouple && (
-                            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-medium">
+                            <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: "rgba(139,92,246,0.2)", color: "#c4b5fd", border: "1px solid rgba(139,92,246,0.35)" }}>
                               👥 Paar
                             </span>
                           )}
@@ -1608,14 +1706,16 @@ export default function WohnungenPage() {
                           <button
                             type="button"
                             onClick={() => editRoom(room)}
-                            className="text-blue-700 hover:text-blue-800 text-xs"
+                            className="wohnungen-unified-btn text-xs px-2 py-1 rounded"
+                            style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)" }}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => deleteRoom(room.id)}
-                            className="text-red-700 hover:text-red-800 text-xs"
+                            className="wohnungen-unified-btn text-xs px-2 py-1 rounded"
+                            style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)" }}
                           >
                             Del
                           </button>
@@ -1631,16 +1731,23 @@ export default function WohnungenPage() {
                               setSelectedBedContext({ roomId: room.id, bedId: bed.id });
                               setShowBedDetail(true);
                             }}
-                            className={`rounded-lg p-2 text-left transition hover:scale-105 ${
-                              bed.occupied ? "bg-blue-500/10 border border-blue-500/20" : "bg-green-500/10 border border-green-500/20"
-                            }`}
+                            className="rounded-lg p-2 text-left transition hover:scale-105"
+                            style={{
+                              background: bed.occupied
+                                ? "linear-gradient(135deg, #7dd3fc, #38bdf8)"
+                                : "linear-gradient(135deg, #6ee7b7, #34d399)",
+                              border: bed.occupied
+                                ? "1px solid rgba(186,230,253,0.95)"
+                                : "1px solid rgba(110,231,183,0.95)",
+                              color: "#082032"
+                            }}
                           >
                             <div className="flex items-center gap-1 mb-1">
-                              <Bed className={`w-3 h-3 ${bed.occupied ? "text-blue-400" : "text-green-400"}`} />
-                              <span className="font-medium">B{idx + 1}</span>
+                              <Bed className="w-3 h-3" style={{ color: "#082032" }} />
+                              <span className="font-bold" style={{ color: "#082032" }}>B{idx + 1}</span>
                             </div>
-                            {bed.tenant && <div className="text-xs opacity-70">{bed.tenant}</div>}
-                            {bed.rent && <div className="text-xs text-green-400 font-medium">{bed.rent}€</div>}
+                            {bed.tenant && <div className="text-xs font-semibold" style={{ color: "#082032" }}>{bed.tenant}</div>}
+                            {bed.rent && <div className="text-xs font-bold" style={{ color: "#082032" }}>{formatMoney(parseMoney(bed.rent))}€</div>}
                           </button>
                         ))}
                       </div>
@@ -1652,8 +1759,8 @@ export default function WohnungenPage() {
 
             {/* Mieterdaten */}
             {status === "vermietet" && (
-              <div className="rounded-xl bg-white border border-gray-200 p-4">
-                <h3 className="text-base font-semibold mb-4">Mieterdaten</h3>
+              <div className="rounded-xl p-4" style={{ background: "rgba(18,34,59,0.92)", border: "1px solid #3a679f" }}>
+                <h3 className="text-base font-semibold mb-4" style={{ color: "#c9dbf8" }}>Mieterdaten</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="text-xs opacity-60 font-medium">Aktueller Mieter</label>
@@ -1689,7 +1796,7 @@ export default function WohnungenPage() {
 
             {/* Notizen */}
             <div>
-              <h3 className="text-base font-semibold mb-4">Notizen</h3>
+              <h3 className="text-base font-semibold mb-4" style={{ color: "#c9dbf8" }}>Notizen</h3>
               <textarea
                 value={notizen}
                 onChange={(e) => setNotizen(e.target.value)}
@@ -1699,18 +1806,18 @@ export default function WohnungenPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4" style={{ borderTop: "1px solid #2f5490" }}>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 px-4 py-3 text-sm font-semibold text-white transition disabled:opacity-50"
+                className="flex-1 action-btn primary rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 px-4 py-3 text-sm font-semibold text-white transition disabled:opacity-50"
               >
                 {saving ? "Speichert..." : "💾 Speichern"}
               </button>
               {selectedWohnung && (
                 <button
                   onClick={() => handleDelete(selectedWohnung)}
-                  className="rounded-lg bg-red-600 hover:bg-red-700 px-4 py-3 text-sm font-semibold text-white transition"
+                  className="rounded-lg action-btn rounded-lg bg-red-600 hover:bg-red-700 px-4 py-3 text-sm font-semibold text-white transition"
                 >
                   🗑️ Löschen
                 </button>
@@ -1719,7 +1826,7 @@ export default function WohnungenPage() {
           </div>
         ) : selectedWohnung ? (
           // Detail View - Professional
-          <div className="wohnungen-detail-panel rounded-2xl bg-white border border-gray-200 p-6 space-y-6 shadow-sm">
+          <div className="wohnungen-detail-panel rounded-2xl bg-slate-950/80 border border-blue-900/60 p-6 space-y-6 shadow-[0_18px_40px_-26px_rgba(0,0,0,0.9)]">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <button
@@ -1729,15 +1836,12 @@ export default function WohnungenPage() {
                   ← Zurück
                 </button>
                 <h2
-                  className="wohnungen-detail-title text-4xl font-bold"
-                  style={{ color: "var(--color-text)" }}
+                  className="wohnungen-detail-title text-4xl font-bold text-blue-100"
+                  style={{ color: "#eef4ff", textShadow: "0 2px 12px rgba(0,0,0,0.35)" }}
                 >
                   {selectedWohnung.adresse || selectedWohnung.address || "—"}
                 </h2>
-                <p
-                  className="text-base mt-2 font-medium"
-                  style={{ color: "var(--color-text-secondary)" }}
-                >
+                <p className="text-base mt-2 font-medium text-blue-300/90" style={{ color: "#c9dbf8" }}>
                   {selectedWohnung.stadtplz || "—"}
                 </p>
               </div>
@@ -1745,14 +1849,26 @@ export default function WohnungenPage() {
                 {canManageProperties && (
                   <button
                     onClick={() => handleEdit(selectedWohnung)}
-                    className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
+                    className="action-btn primary wohnungen-unified-btn rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
+                    style={{
+                      background: "linear-gradient(135deg, #59c8ff, #3b82f6)",
+                      color: "#082032",
+                      border: "1px solid rgba(147, 197, 253, 0.9)",
+                      boxShadow: "0 12px 24px rgba(24, 119, 242, 0.28)"
+                    }}
                   >
                     ✎ Bearbeiten
                   </button>
                 )}
                 <button
                   onClick={() => handleDownloadPDF(selectedWohnung)}
-                  className="rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg flex items-center justify-center gap-2"
+                  className="action-btn pdf-action-btn rounded-lg bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg flex items-center justify-center gap-2"
+                  style={{
+                    background: "linear-gradient(135deg, #7dd3fc, #38bdf8)",
+                    color: "#082032",
+                    border: "1px solid rgba(186, 230, 253, 0.95)",
+                    boxShadow: "0 12px 24px rgba(14, 116, 144, 0.28)"
+                  }}
                 >
                   <Download size={16} />
                   PDF
@@ -1760,7 +1876,13 @@ export default function WohnungenPage() {
                 {canManageProperties && (
                   <button
                     onClick={() => handleDelete(selectedWohnung)}
-                    className="rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
+                    className="action-btn rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 px-4 py-2.5 text-sm font-semibold text-white transition shadow-lg"
+                    style={{
+                      background: "linear-gradient(135deg, #69c8ff, #58b9f4)",
+                      color: "#0b2235",
+                      border: "1px solid rgba(191, 219, 254, 0.92)",
+                      boxShadow: "0 12px 24px rgba(34, 139, 230, 0.25)"
+                    }}
                   >
                     🗑️ Löschen
                   </button>
@@ -1780,65 +1902,70 @@ export default function WohnungenPage() {
               
               let statusText = "";
               let statusIcon = "";
-              let bgGradient = "";
-              let borderColor = "";
-              let shadowColor = "";
-              let textColor = "";
+              let badgeBackground = "";
+              let badgeBorder = "";
+              let badgeText = "";
+              let badgeShadow = "";
               let isClickable = false;
+              let isFreeStatus = false;
+              let isFullyOccupiedStatus = false;
               
               if (selectedWohnung.status === "verfügbar") {
                 if (totalBeds === 0) {
                   statusText = "Verfügbar";
                   statusIcon = "🏠";
-                  bgGradient = "from-violet-100 to-purple-100";
-                  borderColor = "border-violet-200";
-                  shadowColor = "shadow-violet-100";
-                  textColor = "text-violet-700";
+                  badgeBackground = "linear-gradient(135deg, rgba(41, 76, 120, 0.96), rgba(28, 55, 92, 0.96))";
+                  badgeBorder = "rgba(110, 168, 255, 0.72)";
+                  badgeText = "#dcedff";
+                  badgeShadow = "0 12px 24px rgba(17, 44, 79, 0.36)";
                 } else if (freeBeds === 0) {
                   statusText = "Vollständig belegt";
                   statusIcon = "🔒";
-                  bgGradient = "from-slate-100 to-slate-200";
-                  borderColor = "border-slate-300";
-                  shadowColor = "shadow-slate-100";
-                  textColor = "text-slate-700";
+                  badgeBackground = "linear-gradient(135deg, #7dd3fc, #38bdf8)";
+                  badgeBorder = "rgba(186, 230, 253, 0.95)";
+                  badgeText = "#082032";
+                  badgeShadow = "0 12px 24px rgba(14, 116, 144, 0.28)";
+                  isFullyOccupiedStatus = true;
                 } else if (freeRooms > 0 && freeRooms === totalRooms) {
                   statusText = `${freeRooms} Zimmer frei`;
                   statusIcon = "🚪";
-                  bgGradient = "from-indigo-100 to-blue-100";
-                  borderColor = "border-indigo-200";
-                  shadowColor = "shadow-indigo-100";
-                  textColor = "text-indigo-700";
+                  badgeBackground = "linear-gradient(135deg, rgba(39, 92, 156, 0.96), rgba(27, 65, 121, 0.96))";
+                  badgeBorder = "rgba(125, 211, 252, 0.76)";
+                  badgeText = "#082032";
+                  badgeShadow = "0 12px 24px rgba(8, 47, 73, 0.34)";
                   isClickable = true;
+                  isFreeStatus = true;
                 } else if (freeBeds > 0) {
                   statusText = `${freeBeds} Bett${freeBeds > 1 ? 'en' : ''} frei`;
                   statusIcon = "🛏️";
-                  bgGradient = "from-purple-100 to-pink-100";
-                  borderColor = "border-purple-200";
-                  shadowColor = "shadow-purple-100";
-                  textColor = "text-purple-700";
+                  badgeBackground = "linear-gradient(135deg, rgba(74, 181, 255, 0.96), rgba(51, 133, 226, 0.96))";
+                  badgeBorder = "rgba(191, 219, 254, 0.92)";
+                  badgeText = "#082032";
+                  badgeShadow = "0 14px 28px rgba(24, 119, 242, 0.34)";
                   isClickable = true;
+                  isFreeStatus = true;
                 } else {
                   statusText = "Verfügbar";
                   statusIcon = "✓";
-                  bgGradient = "from-violet-100 to-purple-100";
-                  borderColor = "border-violet-200";
-                  shadowColor = "shadow-violet-100";
-                  textColor = "text-violet-700";
+                  badgeBackground = "linear-gradient(135deg, rgba(41, 76, 120, 0.96), rgba(28, 55, 92, 0.96))";
+                  badgeBorder = "rgba(110, 168, 255, 0.72)";
+                  badgeText = "#dcedff";
+                  badgeShadow = "0 12px 24px rgba(17, 44, 79, 0.36)";
                 }
               } else if (selectedWohnung.status === "vermietet") {
                 statusText = "Vermietet";
                 statusIcon = "🔑";
-                bgGradient = "from-indigo-100 to-violet-100";
-                borderColor = "border-indigo-200";
-                shadowColor = "shadow-indigo-100";
-                textColor = "text-indigo-700";
+                badgeBackground = "linear-gradient(135deg, rgba(84, 72, 160, 0.96), rgba(62, 48, 131, 0.96))";
+                badgeBorder = "rgba(165, 180, 252, 0.78)";
+                badgeText = "#eef2ff";
+                badgeShadow = "0 12px 24px rgba(49, 46, 129, 0.34)";
               } else {
                 statusText = "In Renovierung";
                 statusIcon = "🔧";
-                bgGradient = "from-blue-100 to-indigo-100";
-                borderColor = "border-blue-200";
-                shadowColor = "shadow-blue-100";
-                textColor = "text-blue-700";
+                badgeBackground = "linear-gradient(135deg, rgba(147, 51, 234, 0.95), rgba(99, 102, 241, 0.95))";
+                badgeBorder = "rgba(196, 181, 253, 0.82)";
+                badgeText = "#f5f3ff";
+                badgeShadow = "0 12px 24px rgba(91, 33, 182, 0.34)";
               }
               
               const handleClick = () => {
@@ -1877,16 +2004,22 @@ export default function WohnungenPage() {
                 <button
                   onClick={handleClick}
                   disabled={!isClickable}
-                  className={`inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br ${bgGradient} border ${borderColor} shadow-sm ${shadowColor} transition-all duration-200 ${
+                  className={`inline-flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-200 ${isFreeStatus ? 'status-pill-btn-free' : ''} ${isFullyOccupiedStatus ? 'status-pill-btn-full' : ''} ${
                     isClickable ? 'hover:scale-105 hover:shadow-xl cursor-pointer hover:border-opacity-100' : 'cursor-default'
                   }`}
+                  style={{
+                    background: badgeBackground,
+                    border: `1px solid ${badgeBorder}`,
+                    boxShadow: badgeShadow,
+                    color: badgeText
+                  }}
                 >
                   <span className="text-2xl">{statusIcon}</span>
-                  <span className={`font-bold text-base ${textColor} tracking-wide`}>
+                  <span className="status-pill-text font-bold text-base tracking-wide" style={{ color: badgeText }}>
                     {statusText}
                   </span>
                   {isClickable && (
-                    <span className="text-xs opacity-60 ml-1">👆</span>
+                    <span className="status-pill-hint text-xs ml-1" style={{ color: badgeText, opacity: 0.82 }}>👆</span>
                   )}
                 </button>
               );
@@ -1894,41 +2027,46 @@ export default function WohnungenPage() {
 
             {/* Rent Overview */}
             {selectedWohnung.miete && (
-              <div className="wohnungen-block rounded-xl bg-white border border-gray-200 p-6 shadow-sm">
-                <h3 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wide">Mietübersicht</h3>
+              <div className="wohnungen-block rounded-xl bg-slate-900/70 border border-blue-900/60 p-6 shadow-sm">
+                <h3 className="text-sm font-semibold text-blue-200 mb-4 uppercase tracking-wide">Mietübersicht</h3>
                 {(() => {
-                  const totalRent = parseInt(selectedWohnung.miete || "0") || 0;
+                  const totalRent = parseMoney(selectedWohnung.miete);
                   const tenantsRent = (selectedWohnung.rooms || []).reduce((sum, room) => {
                     return sum + room.beds.reduce((bedSum, bed) => {
-                      return bedSum + (parseInt(bed.rent || "0") || 0);
+                      return bedSum + parseMoney(bed.rent);
                     }, 0);
                   }, 0);
                   const diff = tenantsRent - totalRent;
                   
                   return (
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="rounded-xl p-4 transition-all bg-gradient-to-br from-blue-200/95 via-blue-100/95 to-cyan-200/95 border-2 border-blue-400/60 shadow-xl">
-                        <div className="text-xs font-semibold uppercase tracking-wider text-blue-800">Gesamtmiete</div>
-                        <div className="text-3xl font-bold mt-2 text-blue-900">{totalRent}€</div>
+                      <div className="rounded-xl p-4 transition-all bg-slate-900/85 border border-blue-500/50 shadow-xl" style={{ background: "linear-gradient(180deg, rgba(17, 34, 59, 0.96), rgba(12, 25, 44, 0.96))", borderColor: "rgba(125, 211, 252, 0.7)", boxShadow: "0 14px 28px rgba(4, 28, 58, 0.34)" }}>
+                        <div className="text-xs font-semibold uppercase tracking-wider text-blue-300" style={{ color: "#9fd4ff" }}>Gesamtmiete</div>
+                        <div className="text-3xl font-bold mt-2 text-blue-100" style={{ color: "#e8f3ff" }}>{formatMoney(totalRent)}€</div>
                       </div>
-                      <div className="rounded-xl p-4 transition-all bg-gradient-to-br from-emerald-200/95 via-green-100/95 to-teal-200/95 border-2 border-emerald-400/60 shadow-xl">
-                        <div className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Einnahmen</div>
-                        <div className="text-3xl font-bold mt-2 text-emerald-900">{tenantsRent}€</div>
+                      <div className="rounded-xl p-4 transition-all bg-slate-900/85 border border-emerald-500/50 shadow-xl" style={{ background: "linear-gradient(180deg, rgba(17, 34, 59, 0.96), rgba(12, 25, 44, 0.96))", borderColor: "rgba(74, 222, 128, 0.62)", boxShadow: "0 14px 28px rgba(4, 28, 58, 0.34)" }}>
+                        <div className="text-xs font-semibold uppercase tracking-wider text-emerald-300" style={{ color: "#7ef0c0" }}>Einnahmen</div>
+                        <div className="text-3xl font-bold mt-2 text-emerald-300" style={{ color: "#7ef0c0" }}>{formatMoney(tenantsRent)}€</div>
                       </div>
                       <div className={`rounded-xl p-4 transition-all border-2 shadow-xl ${
                         diff > 0 
-                          ? 'bg-gradient-to-br from-green-200/95 via-green-100/95 to-lime-200/95 border-green-400/60'
-                          : 'bg-gradient-to-br from-red-200/95 via-red-100/95 to-rose-200/95 border-red-400/60'
-                      }`}>
+                          ? 'bg-slate-900/85 border-emerald-500/60'
+                          : 'bg-slate-900/85 border-rose-500/60'
+                      }`} style={{
+                        background: "linear-gradient(180deg, rgba(17, 34, 59, 0.96), rgba(12, 25, 44, 0.96))",
+                        borderColor: diff > 0 ? "rgba(74, 222, 128, 0.62)" : "rgba(251, 113, 133, 0.72)",
+                        boxShadow: "0 14px 28px rgba(4, 28, 58, 0.34)"
+                      }}>
                         <div className={`text-xs font-semibold uppercase tracking-wider ${
-                          diff > 0 ? 'text-green-800' : 'text-red-800'
-                        }`}>
+                          diff > 0 ? 'text-emerald-300' : 'text-rose-300'
+                        }`} style={{ color: diff > 0 ? "#7ef0c0" : "#ff9ab0" }}>
                           Differenz
                         </div>
                         <div className={`text-3xl font-bold mt-2 ${
-                          diff > 0 ? 'text-green-900' : 'text-red-900'
-                        }`}>
-                          {diff > 0 ? '+' : ''}{diff}€
+                          diff > 0 ? 'text-emerald-300' : 'text-rose-300'
+                        }`} style={{ color: diff > 0 ? "#7ef0c0" : "#ff9ab0" }}>
+                          {diff > 0 ? "+" : ""}
+                          {formatMoney(diff)}€
                         </div>
                       </div>
                     </div>
@@ -1954,16 +2092,21 @@ export default function WohnungenPage() {
                   <button
                     type="button"
                     onClick={() => setShowOpenPaymentsDetails((prev) => !prev)}
-                    className="w-full text-left flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 bg-red-600 hover:bg-red-700 border border-red-500 transition"
-                    style={{ color: "#ffffff" }}
+                    className="w-full text-left flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 bg-red-600 hover:bg-red-700 border border-red-500 transition wohnungen-unified-btn offene-mieten-btn"
+                    style={{
+                      color: "#082032",
+                      background: "linear-gradient(135deg, rgba(103, 36, 36, 0.96), rgba(127, 29, 29, 0.96))",
+                      borderColor: "rgba(252, 165, 165, 0.55)",
+                      boxShadow: "0 10px 24px rgba(127, 29, 29, 0.3)"
+                    }}
                   >
-                    <div className="text-lg font-semibold flex items-center gap-2" style={{ color: "#ffffff" }}>
+                    <div className="text-lg font-semibold flex items-center gap-2" style={{ color: "#082032" }}>
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                       Offene Mieten ({openPaymentsForProperty.length})
                     </div>
-                    <div className="text-sm font-semibold" style={{ color: "#ffffff" }}>
+                    <div className="text-sm font-semibold" style={{ color: "#082032" }}>
                       {showOpenPaymentsDetails ? "Liste ausblenden ▲" : "Liste anzeigen ▼"}
                     </div>
                   </button>
@@ -1977,7 +2120,7 @@ export default function WohnungenPage() {
                             : 'bg-orange-600/15 border-orange-400/40'
                         }`}>
                           <div className="flex-1">
-                            <div className="font-semibold text-sm text-slate-100 flex items-center gap-2">
+                            <div className="font-semibold text-sm text-slate-100 flex items-center gap-2" style={{ color: "#ffffff" }}>
                               {payment.tenantName}
                               {payment.isOverdue && (
                                 <span className="text-xs bg-red-600 text-red-100 px-2.5 py-1 rounded font-bold">
@@ -1995,7 +2138,7 @@ export default function WohnungenPage() {
                           </div>
                           <div className="text-right ml-4 flex-shrink-0">
                             <div className={`font-bold text-lg ${payment.isOverdue ? 'text-red-300' : 'text-orange-300'}`}>
-                              {payment.openAmount}€
+                              {formatMoney(payment.openAmount)}€
                             </div>
                             <button
                               type="button"
@@ -2023,47 +2166,50 @@ export default function WohnungenPage() {
             })()}
 
             {/* Wohnungsinfo */}
-            <div className="wohnungen-block rounded-2xl bg-white border border-slate-200 p-6 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.35)]">
+            <div
+              className="wohnungen-block rounded-2xl bg-slate-900/70 border border-blue-900/60 p-6 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.65)]"
+              style={{ background: "linear-gradient(180deg, rgba(13,27,49,0.96), rgba(10,20,38,0.96))", borderColor: "#325b93" }}
+            >
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wide">Wohnungsinformationen</h3>
-                <span className="text-xs text-slate-500 font-medium">Übersicht</span>
+                <h3 className="text-sm font-semibold text-blue-200 uppercase tracking-wide">Wohnungsinformationen</h3>
+                <span className="text-xs text-blue-300/80 font-medium">Übersicht</span>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="wohnungen-info-tile rounded-xl p-4 border border-slate-200 bg-gradient-to-br from-slate-50 to-white shadow-sm">
-                  <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Zimmerzahl</div>
-                  <div className="font-extrabold text-slate-900 mt-2 text-2xl">{selectedWohnung.zimmerzahl || "—"}</div>
+                <div className="wohnungen-info-tile rounded-xl p-4 border border-blue-900/60 bg-slate-900/70 shadow-sm" style={{ background: "rgba(18,34,59,0.92)", borderColor: "#3a679f" }}>
+                  <div className="text-xs text-blue-300 font-semibold uppercase tracking-wider">Zimmerzahl</div>
+                  <div className="font-extrabold text-blue-100 mt-2 text-2xl">{selectedWohnung.zimmerzahl || "—"}</div>
                 </div>
-                <div className="wohnungen-info-tile rounded-xl p-4 border border-slate-200 bg-gradient-to-br from-slate-50 to-white shadow-sm">
-                  <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Quadratmeter</div>
-                  <div className="font-extrabold text-slate-900 mt-2 text-2xl">{selectedWohnung.quadratmeter ? `${selectedWohnung.quadratmeter} m²` : "—"}</div>
+                <div className="wohnungen-info-tile rounded-xl p-4 border border-blue-900/60 bg-slate-900/70 shadow-sm" style={{ background: "rgba(18,34,59,0.92)", borderColor: "#3a679f" }}>
+                  <div className="text-xs text-blue-300 font-semibold uppercase tracking-wider">Quadratmeter</div>
+                  <div className="font-extrabold text-blue-100 mt-2 text-2xl">{selectedWohnung.quadratmeter ? `${selectedWohnung.quadratmeter} m²` : "—"}</div>
                 </div>
-                <div className="wohnungen-info-tile tile-success rounded-xl p-4 border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white shadow-sm">
-                  <div className="text-xs text-emerald-700 font-semibold uppercase tracking-wider">Miete</div>
-                  <div className="font-extrabold text-emerald-900 mt-2 text-2xl">{selectedWohnung.miete ? `${selectedWohnung.miete} €` : "—"}</div>
+                <div className="wohnungen-info-tile tile-success rounded-xl p-4 border border-emerald-500/45 bg-emerald-950/40 shadow-sm" style={{ background: "rgba(8,62,50,0.58)", borderColor: "#2bb887" }}>
+                  <div className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Miete</div>
+                  <div className="font-extrabold text-emerald-300 mt-2 text-2xl">{selectedWohnung.miete ? `${formatMoney(parseMoney(selectedWohnung.miete))} €` : "—"}</div>
                 </div>
-                <div className="wohnungen-info-tile tile-info rounded-xl p-4 border border-blue-200 bg-gradient-to-br from-blue-50 to-white shadow-sm">
-                  <div className="text-xs text-blue-700 font-semibold uppercase tracking-wider">Kaution</div>
-                  <div className="font-extrabold text-blue-900 mt-2 text-2xl">{selectedWohnung.kaution ? `${selectedWohnung.kaution} €` : "—"}</div>
+                <div className="wohnungen-info-tile tile-info rounded-xl p-4 border border-cyan-500/45 bg-cyan-950/30 shadow-sm" style={{ background: "rgba(9,53,76,0.52)", borderColor: "#43b8e7" }}>
+                  <div className="text-xs text-cyan-300 font-semibold uppercase tracking-wider">Kaution</div>
+                  <div className="font-extrabold text-cyan-300 mt-2 text-2xl">{selectedWohnung.kaution ? `${formatMoney(parseMoney(selectedWohnung.kaution))} €` : "—"}</div>
                 </div>
               </div>
             </div>
 
             {/* Mieterinfo */}
             {selectedWohnung.status === "vermietet" && (
-              <div className="wohnungen-block mieter-block rounded-xl bg-white border border-purple-200 p-6 shadow-sm">
-                <h3 className="text-sm font-semibold text-purple-700 mb-4 uppercase tracking-wide">Mieterinformationen</h3>
+              <div className="wohnungen-block mieter-block rounded-xl bg-slate-900/70 border border-violet-700/40 p-6 shadow-sm" style={{ background: "linear-gradient(180deg, rgba(22,29,64,0.94), rgba(17,24,51,0.94))", borderColor: "#5a5db1" }}>
+                <h3 className="text-sm font-semibold text-violet-300 mb-4 uppercase tracking-wide">Mieterinformationen</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="wohnungen-info-tile mieter-tile col-span-2 bg-purple-50 rounded-lg p-3.5 border border-purple-200">
-                    <div className="text-xs text-purple-700 font-semibold uppercase tracking-wider">Aktueller Mieter</div>
-                    <div className="font-bold text-purple-900 mt-2">{selectedWohnung.aktuellerMieter || "—"}</div>
+                  <div className="wohnungen-info-tile mieter-tile col-span-2 bg-violet-950/35 rounded-lg p-3.5 border border-violet-700/50" style={{ background: "rgba(53,38,95,0.5)", borderColor: "#6d63c8" }}>
+                    <div className="text-xs text-violet-300 font-semibold uppercase tracking-wider">Aktueller Mieter</div>
+                    <div className="font-bold text-violet-200 mt-2">{selectedWohnung.aktuellerMieter || "—"}</div>
                   </div>
-                  <div className="wohnungen-info-tile mieter-tile bg-purple-50 rounded-lg p-3.5 border border-purple-200">
-                    <div className="text-xs text-purple-700 font-semibold uppercase tracking-wider">Mietbeginn</div>
-                    <div className="font-bold text-purple-900 mt-2">{selectedWohnung.mietbeginn || "—"}</div>
+                  <div className="wohnungen-info-tile mieter-tile bg-violet-950/35 rounded-lg p-3.5 border border-violet-700/50" style={{ background: "rgba(53,38,95,0.5)", borderColor: "#6d63c8" }}>
+                    <div className="text-xs text-violet-300 font-semibold uppercase tracking-wider">Mietbeginn</div>
+                    <div className="font-bold text-violet-200 mt-2">{selectedWohnung.mietbeginn || "—"}</div>
                   </div>
-                  <div className="wohnungen-info-tile mieter-tile bg-purple-50 rounded-lg p-3.5 border border-purple-200">
-                    <div className="text-xs text-purple-700 font-semibold uppercase tracking-wider">Mietende</div>
-                    <div className="font-bold text-purple-900 mt-2">{selectedWohnung.mietende || "—"}</div>
+                  <div className="wohnungen-info-tile mieter-tile bg-violet-950/35 rounded-lg p-3.5 border border-violet-700/50" style={{ background: "rgba(53,38,95,0.5)", borderColor: "#6d63c8" }}>
+                    <div className="text-xs text-violet-300 font-semibold uppercase tracking-wider">Mietende</div>
+                    <div className="font-bold text-violet-200 mt-2">{selectedWohnung.mietende || "—"}</div>
                   </div>
                 </div>
               </div>
@@ -2071,31 +2217,31 @@ export default function WohnungenPage() {
 
             {/* Notizen */}
             {selectedWohnung.notizen && (
-              <div className="wohnungen-block notes-block rounded-xl bg-white border border-amber-200 p-6 shadow-sm">
-                <h3 className="text-sm font-semibold text-amber-700 mb-3 uppercase tracking-wide">📝 Notizen</h3>
-                <div className="text-sm text-amber-900 whitespace-pre-wrap leading-relaxed">{selectedWohnung.notizen}</div>
+              <div className="wohnungen-block notes-block rounded-xl bg-slate-900/70 border border-amber-600/40 p-6 shadow-sm" style={{ background: "linear-gradient(180deg, rgba(54,40,16,0.46), rgba(39,31,15,0.46))", borderColor: "#c08b2f" }}>
+                <h3 className="text-sm font-semibold text-amber-300 mb-3 uppercase tracking-wide">📝 Notizen</h3>
+                <div className="text-sm text-amber-100 whitespace-pre-wrap leading-relaxed">{selectedWohnung.notizen}</div>
               </div>
             )}
 
             {/* Zimmer & Betten */}
             {selectedWohnung.rooms && selectedWohnung.rooms.length > 0 && (
-              <div className="wohnungen-rooms-block rounded-2xl bg-white border border-slate-200 p-6 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.35)]">
+              <div className="wohnungen-rooms-block rounded-2xl bg-slate-900/70 border border-blue-900/60 p-6 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.75)]" style={{ background: "linear-gradient(180deg, rgba(14,28,52,0.96), rgba(10,21,39,0.96))", borderColor: "#325b93" }}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wide">🛏️ Zimmer & Betten</h3>
-                  <span className="text-xs text-slate-500 font-semibold">{selectedWohnung.rooms.length} Zimmer</span>
+                  <h3 className="text-sm font-semibold text-blue-200 uppercase tracking-wide">🛏️ Zimmer & Betten</h3>
+                  <span className="text-xs text-blue-300/80 font-semibold">{selectedWohnung.rooms.length} Zimmer</span>
                 </div>
                 <div className="space-y-4">
                   {selectedWohnung.rooms.map((room) => (
-                    <div key={room.id} className="wohnungen-room-card rounded-xl bg-gradient-to-br from-white to-slate-50 border border-slate-200 p-4 hover:border-slate-300 transition-all shadow-sm">
+                    <div key={room.id} className="wohnungen-room-card rounded-xl bg-slate-900/80 border border-blue-900/60 p-4 hover:border-blue-700 transition-all shadow-sm" style={{ background: "rgba(18,34,59,0.9)", borderColor: "#3a679f" }}>
                       <div className="flex items-center gap-2 mb-4 flex-wrap">
-                        <DoorOpen className="w-5 h-5 text-slate-700" />
-                        <span className="font-bold text-slate-900 text-base">{room.name}</span>
-                        <span className="text-xs text-slate-700 bg-white px-2.5 py-1.5 rounded-lg font-semibold border border-slate-200">({room.beds.length} Betten)</span>
-                        <span className="text-xs text-slate-700 bg-white px-2.5 py-1.5 rounded-lg font-bold border border-slate-200">
+                        <DoorOpen className="w-5 h-5 text-blue-300" />
+                        <span className="font-bold text-blue-100 text-base">{room.name}</span>
+                        <span className="text-xs text-cyan-200 bg-slate-800 px-2.5 py-1.5 rounded-lg font-semibold border border-cyan-700/50">({room.beds.length} Betten)</span>
+                        <span className="text-xs text-blue-200 bg-slate-800 px-2.5 py-1.5 rounded-lg font-bold border border-blue-700/60">
                           👥 {room.capacity || 1} Pers.
                         </span>
                         {room.suitableForCouple && (
-                          <span className="text-xs text-purple-700 bg-purple-50 px-2.5 py-1.5 rounded-lg font-bold border border-purple-200">
+                          <span className="text-xs text-violet-200 bg-violet-900/40 px-2.5 py-1.5 rounded-lg font-bold border border-violet-700/60">
                             💑 Paar
                           </span>
                         )}
@@ -2103,7 +2249,7 @@ export default function WohnungenPage() {
                           <button
                             type="button"
                             onClick={() => editRoomFromDetail(room)}
-                            className="ml-auto text-xs font-semibold px-2.5 py-1 rounded-md bg-violet-100 text-violet-700 border border-violet-200 hover:bg-violet-200 transition"
+                            className="ml-auto action-btn wohnungen-unified-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-cyan-500/90 text-slate-900 border border-cyan-300 hover:bg-cyan-400 transition"
                           >
                             ✎ Zimmer bearbeiten
                           </button>
@@ -2146,28 +2292,28 @@ export default function WohnungenPage() {
                             }}
                             className={`wohnungen-bed-card rounded-xl p-3 text-left transition hover:scale-[1.015] border shadow-sm cursor-pointer ${
                               bed.occupied
-                                ? "is-occupied bg-gradient-to-br from-sky-50 to-indigo-50 border-sky-200 hover:border-sky-300"
-                                : "is-free bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200 hover:border-emerald-300"
+                                ? "is-occupied bg-slate-800/80 border-blue-700/60 hover:border-blue-500"
+                                : "is-free bg-emerald-900/30 border-emerald-600/60 hover:border-emerald-500"
                             } ${
                               isSearchMatch ? "ring-4 ring-fuchsia-400 border-fuchsia-500 shadow-xl shadow-fuchsia-200" : ""
                             }`}
                             style={
                               bed.occupied
                                 ? {
-                                    background: "linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%)",
-                                    borderColor: "#60a5fa",
-                                    boxShadow: "0 8px 20px rgba(96, 165, 250, 0.28)",
+                                    background: "linear-gradient(135deg, rgba(30,58,138,0.35) 0%, rgba(30,41,59,0.8) 100%)",
+                                    borderColor: "rgba(96, 165, 250, 0.6)",
+                                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)",
                                   }
                                 : {
-                                    background: "linear-gradient(135deg, #dcfce7 0%, #bef264 100%)",
-                                    borderColor: "#4ade80",
-                                    boxShadow: "0 8px 20px rgba(74, 222, 128, 0.28)",
+                                    background: "linear-gradient(135deg, rgba(6,95,70,0.35) 0%, rgba(15,23,42,0.8) 100%)",
+                                    borderColor: "rgba(74, 222, 128, 0.65)",
+                                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)",
                                   }
                             }
                           >
                             <div className="flex items-center gap-1.5 mb-2">
-                              <Bed className={`w-3.5 h-3.5 ${bed.occupied ? "text-sky-700" : "text-emerald-700"}`} />
-                              <span className={`font-bold px-2 py-0.5 rounded-md text-xs border ${bed.occupied ? 'bg-sky-100 text-sky-800 border-sky-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'}`}>{bed.occupied ? 'Belegt' : 'Frei'}</span>
+                              <Bed className={`w-3.5 h-3.5 ${bed.occupied ? "text-blue-300" : "text-emerald-300"}`} />
+                              <span className={`font-bold px-2 py-0.5 rounded-md text-xs border ${bed.occupied ? 'bg-blue-900/60 text-blue-200 border-blue-700/70' : 'bg-emerald-900/50 text-emerald-200 border-emerald-700/70'}`}>{bed.occupied ? 'Belegt' : 'Frei'}</span>
                               {canManageProperties && (
                                 <button
                                   type="button"
@@ -2175,19 +2321,19 @@ export default function WohnungenPage() {
                                     e.stopPropagation();
                                     editBedFromDetail(room);
                                   }}
-                                  className="ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200 transition"
+                                  className="ml-auto action-btn ghost wohnungen-unified-btn text-[11px] font-semibold px-2 py-0.5 rounded-md bg-cyan-500/90 text-slate-900 border border-cyan-300 hover:bg-cyan-400 transition"
                                 >
                                   ✎ Bett bearbeiten
                                 </button>
                               )}
                             </div>
                             {bed.tenant && (
-                              <div className="space-y-1 mt-2 border-t border-gray-200 pt-2 wohnungen-bed-meta">
-                                <div className="font-semibold text-slate-800">
+                              <div className="space-y-1 mt-2 border-t border-blue-900/60 pt-2 wohnungen-bed-meta">
+                                <div className="font-semibold text-blue-100" style={{ color: "#ffffff" }}>
                                   {isSearchMatch && matchStart >= 0 ? (
                                     <>
                                       {tenantName.slice(0, matchStart)}
-                                      <span className="bg-fuchsia-200 text-fuchsia-900 px-1 rounded font-bold">
+                                      <span className="bg-fuchsia-500/80 text-white px-1 rounded font-bold">
                                         {tenantName.slice(matchStart, matchEnd)}
                                       </span>
                                       {tenantName.slice(matchEnd)}
@@ -2196,9 +2342,9 @@ export default function WohnungenPage() {
                                     tenantName
                                   )}
                                 </div>
-                                {bed.rent && <div className="text-emerald-700 font-bold">{bed.rent}€</div>}
+                                {bed.rent && <div className="text-emerald-300 font-bold" style={{ color: "#ffffff" }}>{formatMoney(parseMoney(bed.rent))}€</div>}
                                 {bed.moveOutDate && (
-                                  <div className="text-orange-300 text-[10px] mt-1 font-medium">
+                                  <div className="text-amber-300 text-[10px] mt-1 font-medium">
                                     📤 Auszug: {bed.moveOutDate}
                                   </div>
                                 )}
@@ -2216,18 +2362,18 @@ export default function WohnungenPage() {
           </div>
         ) : (
           // Empty State
-          <div className="rounded-2xl bg-white border border-gray-200 p-12 text-center flex flex-col items-center justify-center min-h-[500px] shadow-sm">
+          <div className="rounded-2xl bg-slate-900/75 border border-blue-900/60 p-12 text-center flex flex-col items-center justify-center min-h-[500px] shadow-sm">
             <button
               onClick={() => setShowMobileList(true)}
-              className="lg:hidden text-sm text-blue-400 hover:text-blue-300 mb-6"
+              className="lg:hidden text-sm text-blue-300 hover:text-blue-200 mb-6"
             >
               ← Zurück
             </button>
             <div className="text-7xl mb-6">🏢</div>
-            <h3 className="text-2xl font-bold mb-2">
+            <h3 className="text-2xl font-bold mb-2 text-blue-100">
               Wohnung auswählen
             </h3>
-            <p className="text-sm opacity-70 mb-8 max-w-sm">
+            <p className="text-sm text-blue-200/80 mb-8 max-w-sm">
               Wählen Sie eine Wohnung aus der Liste oder erstellen Sie eine neue
             </p>
             <button
@@ -2244,19 +2390,20 @@ export default function WohnungenPage() {
 
       {/* Tenant Payment Detail Modal */}
       {showBedDetail && selectedBed && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="rounded-2xl surface border border-white/10 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{ background: "linear-gradient(180deg, rgba(13,25,46,0.99), rgba(10,19,36,0.99))", border: "1px solid #2f5490", boxShadow: "0 30px 60px rgba(0,0,0,0.7)" }}>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold">{selectedBed.tenant || "Mieter"}</h2>
-                <p className="text-sm opacity-60 mt-1">Miete: {selectedBed.rent}€/Monat</p>
+                <h2 className="text-2xl font-bold" style={{ color: "#ffffff" }}>{selectedBed.tenant || "Mieter"}</h2>
+                <p className="text-sm mt-1" style={{ color: "#93c5fd" }}>Miete: {formatMoney(parseMoney(selectedBed.rent))}€/Monat</p>
               </div>
               <button
                 onClick={() => {
                   setShowBedDetail(false);
                   setSelectedBed(null);
                 }}
-                className="text-2xl opacity-60 hover:opacity-100"
+                className="w-10 h-10 flex items-center justify-center rounded-xl text-xl font-bold transition hover:scale-110"
+                style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)" }}
               >
                 ✕
               </button>
@@ -2265,15 +2412,15 @@ export default function WohnungenPage() {
             {/* Dates Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               {selectedBed.moveInDate && (
-                <div className="rounded-lg surface-2 border border-white/10 p-4">
-                  <div className="text-xs opacity-60 font-medium">📅 Einzugsdatum</div>
-                  <div className="text-lg font-semibold mt-2">{selectedBed.moveInDate}</div>
+                <div className="rounded-lg p-4" style={{ background: "rgba(18,34,59,0.92)", border: "1px solid #3a679f" }}>
+                  <div className="text-xs font-medium" style={{ color: "#93c5fd" }}>📅 Einzugsdatum</div>
+                  <div className="text-lg font-semibold mt-2" style={{ color: "#ffffff" }}>{selectedBed.moveInDate}</div>
                 </div>
               )}
               {selectedBed.moveOutDate && (
-                <div className="rounded-lg surface-2 border border-orange-500/20 p-4">
-                  <div className="text-xs text-orange-400 font-medium">📤 Auszugsdatum</div>
-                  <div className="text-lg font-semibold mt-2">{selectedBed.moveOutDate}</div>
+                <div className="rounded-lg p-4" style={{ background: "rgba(18,34,59,0.92)", border: "1px solid rgba(251,146,60,0.5)" }}>
+                  <div className="text-xs font-medium" style={{ color: "#fb923c" }}>📤 Auszugsdatum</div>
+                  <div className="text-lg font-semibold mt-2" style={{ color: "#ffffff" }}>{selectedBed.moveOutDate}</div>
                 </div>
               )}
             </div>
@@ -2282,7 +2429,8 @@ export default function WohnungenPage() {
             {selectedBed.tenant && !selectedBed.moveOutDate && (
               <button
                 onClick={() => setShowMoveOutModal(true)}
-                className="w-full rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 px-4 py-3 text-sm font-semibold text-white transition mb-6 flex items-center justify-center gap-2 shadow-lg"
+                className="w-full rounded-lg px-4 py-3 text-sm font-semibold transition mb-6 flex items-center justify-center gap-2"
+                style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)", boxShadow: "0 8px 20px rgba(14,116,144,0.25)" }}
               >
                 📤 Auszug eintragen
               </button>
@@ -2291,7 +2439,8 @@ export default function WohnungenPage() {
             {/* Button to show calendar */}
             <button
               onClick={() => setShowPaymentCalendar(!showPaymentCalendar)}
-              className="w-full rounded-lg bg-gradient-to-r from-purple-600/50 to-pink-600/50 hover:from-purple-600/70 hover:to-pink-600/70 px-4 py-3 text-sm font-semibold transition mb-6 flex items-center justify-center gap-2 border-2 border-purple-400/50"
+              className="w-full rounded-lg px-4 py-3 text-sm font-semibold transition mb-6 flex items-center justify-center gap-2"
+              style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", color: "#082032", border: "1px solid rgba(186,230,253,0.95)", boxShadow: "0 8px 20px rgba(14,116,144,0.25)" }}
             >
               📅 {showPaymentCalendar ? 'Kalender ausblenden' : 'Zahlungskalender öffnen'}
             </button>
@@ -2299,7 +2448,7 @@ export default function WohnungenPage() {
             {/* Payment History */}
             {showPaymentCalendar && (
               <div className="mb-6">
-                <h3 className="text-xl font-bold mb-6 text-center">📅 Zahlungskalender</h3>
+                <h3 className="text-xl font-bold mb-6 text-center" style={{ color: "#e6f0ff" }}>📅 Zahlungskalender</h3>
                 {unsavedPaymentChanges && (
                   <div className="flex items-center justify-center gap-3 mb-4">
                     <button
@@ -2335,7 +2484,7 @@ export default function WohnungenPage() {
                       
                       return Object.entries(paymentsByYear).map(([year, yearPayments]) => (
                         <div key={year} className="mb-8">
-                          <h4 className="text-lg font-bold mb-4 text-center opacity-80">{year}</h4>
+                          <h4 className="text-lg font-bold mb-4 text-center" style={{ color: "#93c5fd", opacity: 0.95 }}>{year}</h4>
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                             {yearPayments.map((payment) => {
                               const monthName = new Date(payment.year, payment.month - 1).toLocaleDateString('de-DE', { month: 'long' });
@@ -2344,37 +2493,54 @@ export default function WohnungenPage() {
                               const paymentDate = new Date(payment.year, payment.month - 1);
                               const isPast = paymentDate < new Date(today.getFullYear(), today.getMonth());
                               const isCurrent = paymentDate.getMonth() === today.getMonth() && paymentDate.getFullYear() === today.getFullYear();
+                              const isOverdue = !payment.paid && isPast;
                               
                               return (
                                 <button
                                   key={`${payment.year}-${payment.month}`}
                                   onClick={() => togglePayment(payment.month, payment.year)}
-                                  className={`rounded-xl p-4 flex flex-col items-center justify-center transition border-2 cursor-pointer ${
-                                    payment.paid 
-                                      ? "bg-gradient-to-br from-green-600/50 to-emerald-600/50 border-green-400/60 shadow-lg shadow-green-500/30" 
-                                      : "bg-gradient-to-br from-slate-700/50 to-slate-800/50 border-slate-500/40 hover:border-slate-400/60 hover:shadow-lg"
-                                  }`}
+                                  className="rounded-xl p-4 flex flex-col items-center justify-center transition border-2 cursor-pointer"
+                                  style={{
+                                    background: payment.paid
+                                      ? "linear-gradient(180deg, rgba(8,62,50,0.72), rgba(7,49,41,0.72))"
+                                      : isOverdue
+                                      ? "linear-gradient(180deg, rgba(95,24,37,0.72), rgba(67,18,28,0.72))"
+                                      : isCurrent
+                                      ? "linear-gradient(180deg, rgba(31,64,104,0.72), rgba(20,44,76,0.72))"
+                                      : "linear-gradient(180deg, rgba(18,34,59,0.78), rgba(13,26,46,0.78))",
+                                    border: payment.paid
+                                      ? "1px solid rgba(52,211,153,0.6)"
+                                      : isOverdue
+                                      ? "1px solid rgba(251,113,133,0.55)"
+                                      : isCurrent
+                                      ? "1px solid rgba(125,211,252,0.55)"
+                                      : "1px solid rgba(148,163,184,0.35)",
+                                    boxShadow: payment.paid
+                                      ? "0 10px 24px rgba(6,78,59,0.24)"
+                                      : isOverdue
+                                      ? "0 10px 24px rgba(136,19,55,0.24)"
+                                      : "0 10px 24px rgba(2,6,23,0.28)",
+                                    color: "#eaf2ff"
+                                  }}
                                   title={`${monthName} ${payment.year} - Klicken zum ${payment.paid ? 'Entmarkieren' : 'Markieren'}`}
                                 >
                                   {/* Status Badge */}
-                                  <div className={`mb-2 text-lg font-bold ${
-                                    payment.paid ? 'opacity-100' : 'opacity-60'
-                                  }`}>
+                                  <div className="mb-2 text-lg font-bold" style={{ color: payment.paid ? "#0b5d46" : isOverdue ? "#fda4af" : "#93c5fd", opacity: payment.paid ? 1 : 0.95 }}>
                                     {payment.paid ? '✓' : '○'}
                                   </div>
                                   
                                   {/* Monat */}
-                                  <div className="text-2xl font-bold mb-1 tracking-tight">
+                                  <div className="text-2xl font-bold mb-1 tracking-tight" style={{ color: "#f8fbff" }}>
                                     {monthShort.toUpperCase()}
                                   </div>
                                   
                                   {/* Betrag */}
-                                  <div className="text-sm font-semibold opacity-80">
-                                    {payment.amount}€
+                                  <div className="text-sm font-semibold" style={{ color: "#dbeafe", opacity: 0.95 }}>
+                                    {formatMoney(parseMoney(payment.amount))}€
                                   </div>
                                   
                                   {/* Status */}
-                                  <div className="text-[10px] font-semibold uppercase tracking-wider mt-2 opacity-60">
+                                  <div className="text-[10px] font-semibold uppercase tracking-wider mt-2" style={{ color: payment.paid ? "#0b5d46" : isOverdue ? "#fda4af" : isCurrent ? "#93c5fd" : "#bfdbfe", opacity: 0.95 }}>
                                     {payment.paid 
                                       ? 'Bezahlt'
                                       : isPast 
@@ -2386,7 +2552,7 @@ export default function WohnungenPage() {
                                   
                                   {/* Marked by info */}
                                   {payment.paid && payment.markedByName && (
-                                    <div className="text-[9px] opacity-70 mt-2 text-center text-green-200">
+                                    <div className="text-[9px] mt-2 text-center" style={{ color: "#0b2239", opacity: 0.95 }}>
                                       {payment.markedByName}
                                     </div>
                                   )}
@@ -2433,27 +2599,22 @@ export default function WohnungenPage() {
                   
                   return (
                     <div>
-                      <div className="text-center text-sm opacity-60 mb-3">
+                      <div className="text-center text-sm mb-3" style={{ color: "#93c5fd" }}>
                         {monthName}
                       </div>
                       <div className="grid grid-cols-1 gap-4">
-                        <div className={`rounded-lg border p-4 text-center ${
-                          currentMonthPayment.paid 
-                            ? 'bg-green-500/10 border-green-500/20' 
-                            : 'bg-red-500/10 border-red-500/20'
-                        }`}>
-                          <div className={`text-xs font-medium mb-2 ${
-                            currentMonthPayment.paid ? 'text-green-400' : 'text-red-400'
-                          }`}>
+                        <div className="rounded-lg border p-4 text-center" style={{
+                          background: currentMonthPayment.paid ? "rgba(6,78,59,0.4)" : "rgba(127,29,29,0.4)",
+                          border: currentMonthPayment.paid ? "1px solid rgba(52,211,153,0.5)" : "1px solid rgba(252,165,165,0.45)"
+                        }}>
+                          <div className="text-xs font-medium mb-2" style={{ color: currentMonthPayment.paid ? "#6ee7b7" : "#fca5a5" }}>
                             {currentMonthPayment.paid ? 'Bezahlt' : 'Ausstehend'}
                           </div>
-                          <div className={`text-3xl font-bold ${
-                            currentMonthPayment.paid ? 'text-green-300' : 'text-red-400'
-                          }`}>
-                            {amount.toFixed(2)}€
+                          <div className="text-3xl font-bold" style={{ color: currentMonthPayment.paid ? "#6ee7b7" : "#fca5a5" }}>
+                            {formatMoney(amount)}€
                           </div>
                           {currentMonthPayment.paid && currentMonthPayment.markedByName && (
-                            <div className="text-xs opacity-60 mt-2">
+                            <div className="text-xs mt-2" style={{ color: "#93c5fd", opacity: 0.75 }}>
                               von {currentMonthPayment.markedByName}
                             </div>
                           )}
@@ -2564,7 +2725,7 @@ export default function WohnungenPage() {
                   </div>
                   <div>
                     <div className="text-xs opacity-60">Monatliche Miete</div>
-                    <div className="font-semibold text-green-400 mt-1">{selectedBed.rent}€</div>
+                    <div className="font-semibold text-green-400 mt-1" style={{ color: "#ffffff" }}>{formatMoney(parseMoney(selectedBed.rent))}€</div>
                   </div>
                 </div>
               </div>
@@ -2598,23 +2759,23 @@ export default function WohnungenPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="opacity-70">Erster Monat (anteilig):</span>
-                          <span className="font-semibold">{payments[0].amount}€</span>
+                          <span className="font-semibold">{formatMoney(parseMoney(payments[0].amount))}€</span>
                         </div>
                         {payments.length > 2 && (
                           <div className="flex justify-between">
                             <span className="opacity-70">Volle Monate:</span>
-                            <span className="font-semibold">{payments.length - 2} x {selectedBed.rent}€</span>
+                            <span className="font-semibold">{payments.length - 2} x {formatMoney(parseMoney(selectedBed.rent))}€</span>
                           </div>
                         )}
                         {payments.length > 1 && (
                           <div className="flex justify-between">
                             <span className="opacity-70">Letzter Monat (anteilig):</span>
-                            <span className="font-semibold">{payments[payments.length - 1].amount}€</span>
+                            <span className="font-semibold">{formatMoney(parseMoney(payments[payments.length - 1].amount))}€</span>
                           </div>
                         )}
                         <div className="border-t border-white/10 pt-2 mt-2 flex justify-between">
                           <span className="font-bold">Gesamtmiete:</span>
-                          <span className="font-bold text-lg text-green-400">{totalRent.toFixed(2)}€</span>
+                          <span className="font-bold text-lg text-green-400">{formatMoney(totalRent)}€</span>
                         </div>
                       </div>
                     );

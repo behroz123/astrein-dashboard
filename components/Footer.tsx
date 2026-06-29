@@ -6,9 +6,9 @@ export default function Footer() {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AE</span>
+              <span className="text-white font-bold text-sm">AH</span>
             </div>
-            <span className="text-sm font-semibold text-white">Astrein Exzellent</span>
+            <span className="text-sm font-semibold text-white">AH Exzellent Immobilien GmbH</span>
           </div>
 
           {/* Divider */}
@@ -17,10 +17,10 @@ export default function Footer() {
           {/* Copyright */}
           <div className="text-center">
             <p className="text-xs text-white/60">
-              © {new Date().getFullYear()} - Astrein Exzellent Gebäudemanagement
+              © {new Date().getFullYear()} - AH Exzellent Immobilien GmbH
             </p>
             <p className="text-xs text-white/40 mt-1">
-              Professionelle Immobilienverwaltung
+              Professionelle Immobilienverwaltung · Design & Entwicklung: Behroz Hakimi
             </p>
           </div>
         </div>

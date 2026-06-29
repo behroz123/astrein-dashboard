@@ -16,19 +16,25 @@ import { useSessionTimeout } from "../hooks/useSessionTimeout";
 function NavItem({
   href,
   active,
+  wohnungenTheme,
   children,
 }: {
   href: string;
   active: boolean;
+  wohnungenTheme?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <Link
       href={href}
       className={`block rounded-2xl px-4 py-3 text-sm transition border ${
-        active
-          ? "link-active text-white border-white/10"
-          : "text-white/75 hover:text-white hover:bg-white/5 border-transparent"
+        wohnungenTheme
+          ? active
+            ? "text-cyan-100 border-cyan-400/60 bg-cyan-500/15 shadow-[0_0_0_1px_rgba(34,211,238,0.25)]"
+            : "text-slate-200/90 hover:text-cyan-100 hover:bg-cyan-500/10 border-blue-300/20"
+          : active
+            ? "link-active text-white border-white/10"
+            : "text-white/75 hover:text-white hover:bg-white/5 border-transparent"
       }`}
     >
       {children}
@@ -108,70 +114,76 @@ function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/settings", label: t("settings") },
   ];
 
+  const isWohnungenTheme = pathname.startsWith("/wohnungen");
+
   return (
     <div className="flex min-h-screen">
-      <aside className="hidden lg:flex w-72 shrink-0 border-r border-white/10 bg-black/25 backdrop-blur-xl flex-col">
-        <div className="px-4 py-6 border-b border-white/10">
+      <aside className={`hidden lg:flex w-72 shrink-0 backdrop-blur-xl flex-col ${
+        isWohnungenTheme
+          ? "border-r border-blue-400/25 bg-gradient-to-b from-[#0a1a34] via-[#0d2242] to-[#0a1a34]"
+          : "border-r border-white/10 bg-black/25"
+      }`}>
+        <div className={`px-4 py-6 ${isWohnungenTheme ? "border-b border-blue-400/25" : "border-b border-white/10"}`}>
           <Link href="/" className="flex justify-center">
-            <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-lg">
-              <img src="/logo.png" alt="Astrein Exzellent" className="h-10 object-contain" />
+            <div className={`rounded-2xl px-4 py-3 shadow-lg ${isWohnungenTheme ? "bg-slate-100/95 border border-cyan-300/35" : "bg-white/90"}`}>
+              <img src="/logo.png" alt="AH Exzellent Immobilien GmbH" className="h-10 object-contain" />
             </div>
           </Link>
-          <div className="mt-3 text-center text-xs text-white/55">
-            Astrein Exzellent Gebäudemanagement
+          <div className={`mt-3 text-center text-xs ${isWohnungenTheme ? "text-slate-300/80" : "text-white/55"}`}>
+            AH Exzellent Immobilien GmbH
           </div>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-2">
-          <NavItem href="/" active={pathname === "/"}>
+          <NavItem href="/" active={pathname === "/"} wohnungenTheme={isWohnungenTheme}>
             {t("dashboard")}
           </NavItem>
-          <NavItem href="/items" active={pathname.startsWith("/items")}>
+          <NavItem href="/items" active={pathname.startsWith("/items")} wohnungenTheme={isWohnungenTheme}>
             {t("items")}
           </NavItem>
-          <NavItem href="/immobilien" active={pathname.startsWith("/immobilien") || pathname.startsWith("/auszuege") || pathname.startsWith("/einzuege") || pathname.startsWith("/wohnung-checken") || pathname.startsWith("/schluesseluebergabe") || pathname.startsWith("/mietvertrag") || pathname.startsWith("/strom-vertrag") || pathname.startsWith("/wasser-vertrag") || pathname.startsWith("/untermietvertrag")}>
+          <NavItem href="/immobilien" active={pathname.startsWith("/immobilien") || pathname.startsWith("/auszuege") || pathname.startsWith("/einzuege") || pathname.startsWith("/wohnung-checken") || pathname.startsWith("/schluesseluebergabe") || pathname.startsWith("/mietvertrag") || pathname.startsWith("/strom-vertrag") || pathname.startsWith("/wasser-vertrag") || pathname.startsWith("/untermietvertrag")} wohnungenTheme={isWohnungenTheme}>
             Immobilien
           </NavItem>
-          <NavItem href="/wareneingang" active={pathname.startsWith("/wareneingang")}>
+          <NavItem href="/wareneingang" active={pathname.startsWith("/wareneingang")} wohnungenTheme={isWohnungenTheme}>
             {t("wareneingang")}
           </NavItem>
-          <NavItem href="/warenausgang" active={pathname.startsWith("/warenausgang")}>
+          <NavItem href="/warenausgang" active={pathname.startsWith("/warenausgang")} wohnungenTheme={isWohnungenTheme}>
             {t("warenausgang")}
           </NavItem>
-          <NavItem href="/reports" active={pathname.startsWith("/reports")}>
+          <NavItem href="/reports" active={pathname.startsWith("/reports")} wohnungenTheme={isWohnungenTheme}>
             Reports
           </NavItem>
-          <NavItem href="/fuhrpark" active={pathname.startsWith("/fuhrpark")}>
+          <NavItem href="/fuhrpark" active={pathname.startsWith("/fuhrpark")} wohnungenTheme={isWohnungenTheme}>
             Fuhrpark
           </NavItem>
-          <NavItem href="/employees" active={pathname.startsWith("/employees")}>
+          <NavItem href="/employees" active={pathname.startsWith("/employees")} wohnungenTheme={isWohnungenTheme}>
             {t("employees")}
           </NavItem>
-          <NavItem href="/exports" active={pathname.startsWith("/exports")}>
+          <NavItem href="/exports" active={pathname.startsWith("/exports")} wohnungenTheme={isWohnungenTheme}>
             {t("exports")}
           </NavItem>
-          <NavItem href="/settings" active={pathname.startsWith("/settings")}>
+          <NavItem href="/settings" active={pathname.startsWith("/settings")} wohnungenTheme={isWohnungenTheme}>
             {t("settings")}
           </NavItem>
 
           {/* Admin Only */}
           {userRole === "admin" && (
             <>
-              <div className="my-2 border-t border-white/10" />
-              <NavItem href="/admin/workers" active={pathname.startsWith("/admin/workers")}>
+              <div className={`my-2 border-t ${isWohnungenTheme ? "border-blue-400/25" : "border-white/10"}`} />
+              <NavItem href="/admin/workers" active={pathname.startsWith("/admin/workers")} wohnungenTheme={isWohnungenTheme}>
                 🛡️ Arbeiter verwalten
               </NavItem>
             </>
           )}
         </nav>
 
-        <div className="px-3 py-4 border-t border-white/10">
+        <div className={`px-3 py-4 border-t ${isWohnungenTheme ? "border-blue-400/25" : "border-white/10"}`}>
           <button
             onClick={async () => {
               await signOut(auth);
               router.replace("/login");
             }}
-            className="w-full rounded-2xl btn-accent px-4 py-3 text-sm font-semibold"
+            className={`w-full rounded-2xl px-4 py-3 text-sm font-semibold ${isWohnungenTheme ? "border border-cyan-300/40 bg-cyan-500/15 text-cyan-100 hover:bg-cyan-500/20" : "btn-accent"}`}
           >
             {t("logout")}
           </button>

@@ -126,7 +126,7 @@ export default function AdminWorkersPage() {
   if (userRole !== "admin") {
     return (
       <div className="rounded-[28px] surface p-6 text-sm text-red-400">
-        Zugriff verweigert. Nur Administratoren können diese Seite anzeigen.
+        {t("employees.noPermission")}
       </div>
     );
   }
@@ -172,7 +172,7 @@ export default function AdminWorkersPage() {
 
         {workers.length === 0 ? (
           <div className="p-6 text-center text-white/60">
-            Keine Arbeiter gefunden.
+            {t("admin.workers.empty")}
           </div>
         ) : (
           <div className="overflow-x-auto">
