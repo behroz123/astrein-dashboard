@@ -90,6 +90,32 @@ type GeminiModelInfo = {
   supportedGenerationMethods?: string[];
 };
 
+async function verifyIdTokenWithIdentityToolkit(idToken: string): Promise<boolean> {
+  const apiKey =
+    process.env.FIREBASE_WEB_API_KEY ||
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
+    // fallback to current client key used in this project
+    "AIzaSyC0-P0V_vmZMfOkgkyE6sQ2djC3xWVpUNM";
+
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) return false;
+    const json = await res.json();
+    return Array.isArray(json?.users) && json.users.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 function normalizeModelName(name: string): string {
   return name.replace(/^models\//, "").trim();
 }
@@ -235,20 +261,39 @@ Antworte NUR als valides JSON:
 
 export async function POST(req: NextRequest) {
   try {
+    const formData = await req.formData();
+
     const authHeader = req.headers.get("authorization");
-    const token = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : "";
+    const tokenFromHeader = authHeader?.startsWith("Bearer ")
+      ? authHeader.substring(7)
+      : "";
+    const tokenFromBody = typeof formData.get("idToken") === "string"
+      ? String(formData.get("idToken"))
+      : "";
+    const token = (tokenFromHeader || tokenFromBody || "").trim();
 
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Nicht autorisiert. Bitte erneut anmelden." },
+        { status: 401 }
+      );
     }
 
     try {
       await getAdminAuth().verifyIdToken(token);
-    } catch {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    } catch (authError: any) {
+      const validByFallback = await verifyIdTokenWithIdentityToolkit(token);
+      if (!validByFallback) {
+        return NextResponse.json(
+          {
+            error: "Ungültiges oder abgelaufenes Login. Bitte erneut anmelden.",
+            details: authError?.message || "Tokenprüfung fehlgeschlagen",
+          },
+          { status: 401 }
+        );
+      }
     }
 
-    const formData = await req.formData();
     const vehicleDoc = formData.get("vehicleDoc");
     const licenseDoc = formData.get("licenseDoc");
 
