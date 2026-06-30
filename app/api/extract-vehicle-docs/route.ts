@@ -312,11 +312,18 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey =
-      process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY;
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ||
+      process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Gemini API key fehlt." },
+        {
+          error:
+            "Gemini API key fehlt. Bitte in der Deployment-Umgebung eine Variable setzen: GEMINI_API_KEY oder GOOGLE_API_KEY (alternativ NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY).",
+        },
         { status: 500 }
       );
     }
