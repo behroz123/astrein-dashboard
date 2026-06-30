@@ -166,6 +166,7 @@ export default function FuhrparkPage() {
   const [aiVehicleDocFile, setAiVehicleDocFile] = useState<File | null>(null);
   const [aiLicenseDocFile, setAiLicenseDocFile] = useState<File | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiProgress, setAiProgress] = useState(0);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
 
   function getUserDisplayName(fullEmail: string): string {
@@ -241,6 +242,7 @@ export default function FuhrparkPage() {
     setFuehrerscheinFile(null);
     setAiVehicleDocFile(null);
     setAiLicenseDocFile(null);
+    setAiProgress(0);
     setAiMessage(null);
     setSelectedVehicle(null);
     setIsEditing(false);
@@ -319,12 +321,24 @@ export default function FuhrparkPage() {
       return;
     }
 
+    let progressTimer: ReturnType<typeof setInterval> | null = null;
+
     try {
       setAiLoading(true);
+      setAiProgress(8);
       setAiMessage("Dokumente werden analysiert...");
 
-      const token = await user.getIdToken();
+      progressTimer = setInterval(() => {
+        setAiProgress((prev) => {
+          if (prev >= 92) return prev;
+          const next = prev + Math.floor(Math.random() * 7) + 2;
+          return next > 92 ? 92 : next;
+        });
+      }, 450);
+
+      const token = await user.getIdToken(true);
       const formData = new FormData();
+      formData.append("idToken", token);
       if (aiVehicleDocFile) formData.append("vehicleDoc", aiVehicleDocFile);
       if (aiLicenseDocFile) formData.append("licenseDoc", aiLicenseDocFile);
 
@@ -338,14 +352,21 @@ export default function FuhrparkPage() {
 
       const json = await res.json();
       if (!res.ok) {
+        setAiProgress(0);
         throw new Error(json?.details ? `${json?.error}: ${json?.details}` : (json?.error || "Fehler bei der KI-Analyse"));
       }
 
       applyExtractedData((json?.extracted || {}) as ExtractedVehicleData);
+      setAiProgress(100);
       setAiMessage("✅ Daten erkannt und in das Formular übernommen.");
+      setTimeout(() => setAiProgress(0), 800);
     } catch (e: any) {
+      setAiProgress(0);
       setAiMessage(`❌ ${e?.message || "Analyse fehlgeschlagen"}`);
     } finally {
+      if (progressTimer) {
+        clearInterval(progressTimer);
+      }
       setAiLoading(false);
     }
   }
@@ -1189,6 +1210,17 @@ export default function FuhrparkPage() {
                   </button>
                   {aiMessage && <span className="text-xs muted">{aiMessage}</span>}
                 </div>
+                {(aiLoading || aiProgress > 0) && (
+                  <div className="mt-3 w-full">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-500/20 border border-slate-400/20">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 transition-all duration-500"
+                        style={{ width: `${aiProgress}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 text-[11px] muted">{aiProgress}%</div>
+                  </div>
+                )}
               </div>
 
               {/* Fahrzeugdaten */}
